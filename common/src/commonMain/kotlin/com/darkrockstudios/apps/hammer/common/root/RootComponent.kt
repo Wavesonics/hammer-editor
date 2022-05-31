@@ -8,6 +8,7 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
 import com.darkrockstudios.apps.hammer.common.counter.Counter
+import com.darkrockstudios.apps.hammer.common.projects.Projects
 
 class RootComponent(
     componentContext: ComponentContext
@@ -15,7 +16,7 @@ class RootComponent(
 
     private val router: Router<Config, Root.Screen> =
         router(
-            initialConfiguration = Config.Counter(),
+            initialConfiguration = Config.Projects(),
             childFactory = ::createChild
         )
 
@@ -24,10 +25,14 @@ class RootComponent(
     private fun createChild(config: Config, componentContext: ComponentContext): Root.Screen =
         when (config) {
             is Config.Counter -> Root.Screen.CounterScreen(Counter(componentContext, config.start))
+            is Config.Projects -> Root.Screen.ProjectsScreen(Projects(componentContext, config.projectsDir))
         }
 
     private sealed class Config : Parcelable {
         @Parcelize
-        class Counter(val start: Int = 0) : Config()
+        data class Counter(val start: Int = 0) : Config()
+
+        @Parcelize
+        class Projects(val projectsDir: String = "") : Config()
     }
 }

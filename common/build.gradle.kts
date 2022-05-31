@@ -24,6 +24,7 @@ kotlin {
                 api(compose.material)
                 api("com.arkivanov.decompose:decompose:0.6.0")
                 implementation("com.arkivanov.decompose:extensions-compose-jetbrains:0.6.0")
+                api("io.github.aakira:napier:2.6.1")
             }
         }
         val commonTest by getting {

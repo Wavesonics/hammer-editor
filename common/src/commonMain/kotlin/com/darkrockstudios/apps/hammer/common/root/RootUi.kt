@@ -9,6 +9,7 @@ import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.jetbrains.Children
 import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
 import com.darkrockstudios.apps.hammer.common.counter.CounterUi
+import com.darkrockstudios.apps.hammer.common.projects.ProjectsUi
 
 @OptIn(ExperimentalDecomposeApi::class)
 @Composable
@@ -22,7 +23,14 @@ fun RootUi(root: Root, modifier: Modifier = Modifier) {
             modifier = Modifier.weight(weight = 1F),
         ) {
             when (val child = it.instance) {
-                is Root.Screen.CounterScreen -> CounterUi(component = child.component, modifier = Modifier.fillMaxSize())
+                is Root.Screen.CounterScreen -> CounterUi(
+                    component = child.component,
+                    modifier = Modifier.fillMaxSize()
+                )
+                is Root.Screen.ProjectsScreen -> ProjectsUi(
+                    component = child.component,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.darkrockstudios.apps.hammer.common.projects
+package com.darkrockstudios.apps.hammer.common.projectselection
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
@@ -8,12 +8,12 @@ import com.darkrockstudios.apps.hammer.common.data.Project
 import com.darkrockstudios.apps.hammer.common.getProjectsForDirectory
 import io.github.aakira.napier.Napier
 
-class Projects(
+class ProjectSelectionComponent(
     componentContext: ComponentContext,
-    projectsDir: String,
     private val onProjectSelected: (project: Project) -> Unit
-) {
-    private val _value = MutableValue(State(projectsDir = projectsDir))
+): ComponentContext by componentContext {
+
+    private val _value = MutableValue(State(projectsDir = ""))
     val state: Value<State> = _value
 
     fun loadProjectList() {

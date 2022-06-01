@@ -7,40 +7,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.*
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.darkrockstudios.apps.hammer.common.projects.ProjectSelection
+import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionComponent
 import com.darkrockstudios.apps.hammer.common.data.Project
-import com.darkrockstudios.apps.hammer.common.project.ProjectEditor
-import com.darkrockstudios.apps.hammer.common.root.RootComponent
+import com.darkrockstudios.apps.hammer.common.projecteditor.ProjectEditorComponent
+import com.darkrockstudios.apps.hammer.common.projecteditor.ProjectEditorUi
+import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionUi
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 
 fun main() {
     Napier.base(DebugAntilog())
 
-    val lifecycle = LifecycleRegistry()
     application {
         val applicationState = remember { ApplicationState() }
+        val compContext = DefaultComponentContext(LifecycleRegistry())
 
-        val root = RootComponent(
-            componentContext = DefaultComponentContext(lifecycle),
-            onProjectSelected = { project ->
-                applicationState.openProject(project)
-            }
-        )
-
-        when (applicationState.windows.value) {
+        when (val windowState = applicationState.windows.value) {
             is WindowState.ProjectSectionWindow -> {
-                ProjectSelectionWindow(root)
+                ProjectSelectionWindow(compContext) { project ->
+                    applicationState.openProject(project)
+                }
             }
             is WindowState.ProjectWindow -> {
-                ProjectWindow(root, applicationState)
+                ProjectEditorWindow(compContext, applicationState, windowState.project)
             }
         }
     }
 }
 
 @Composable
-private fun ApplicationScope.ProjectSelectionWindow(root: RootComponent) {
+private fun ApplicationScope.ProjectSelectionWindow(
+    compContext: DefaultComponentContext,
+    onProjectSelected: (project: Project) -> Unit
+) {
     val windowState = rememberWindowState()
     Window(
         title = "Project Selection",
@@ -49,14 +48,18 @@ private fun ApplicationScope.ProjectSelectionWindow(root: RootComponent) {
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             MaterialTheme {
-                ProjectSelection(root)
+                ProjectSelectionUi(ProjectSelectionComponent(compContext, onProjectSelected))
             }
         }
     }
 }
 
 @Composable
-private fun ApplicationScope.ProjectWindow(root: RootComponent, app: ApplicationState) {
+private fun ApplicationScope.ProjectEditorWindow(
+    compContext: DefaultComponentContext,
+    app: ApplicationState,
+    project: Project
+) {
     val windowState = rememberWindowState()
     Window(
         title = "Hammer",
@@ -65,7 +68,7 @@ private fun ApplicationScope.ProjectWindow(root: RootComponent, app: Application
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             MaterialTheme {
-                ProjectEditor()
+                ProjectEditorUi(ProjectEditorComponent(compContext, project))
             }
         }
     }

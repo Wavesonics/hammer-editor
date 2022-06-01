@@ -1,13 +1,13 @@
 package com.darkrockstudios.apps.hammer.android
 
-import com.darkrockstudios.apps.hammer.common.projects.ProjectSelection
+import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionComponent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
 import com.arkivanov.decompose.defaultComponentContext
 import com.darkrockstudios.apps.hammer.common.data.Project
-import com.darkrockstudios.apps.hammer.common.root.RootComponent
+import com.darkrockstudios.apps.hammer.common.projecteditor.root.RootComponent
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 
@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             MaterialTheme {
-                ProjectSelection(root)
+                ProjectSelectionComponent(compContext, onProjectSelected)
             }
         }
     }

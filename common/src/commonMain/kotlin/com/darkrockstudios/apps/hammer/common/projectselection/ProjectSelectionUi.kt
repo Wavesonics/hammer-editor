@@ -1,4 +1,4 @@
-package com.darkrockstudios.apps.hammer.common.projects
+package com.darkrockstudios.apps.hammer.common.projectselection
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,7 +13,7 @@ import com.darkrockstudios.apps.hammer.common.Ui
 import com.darkrockstudios.apps.hammer.common.data.Project
 
 @Composable
-fun ProjectsUi(component: Projects, modifier: Modifier = Modifier, onProjectClick: (project: Project) -> Unit) {
+fun ProjectSelectionUi(component: ProjectSelectionComponent, modifier: Modifier = Modifier) {
     val state by component.state.subscribeAsState()
     var projectDirText by remember { mutableStateOf(state.projectsDir) }
 
@@ -55,7 +55,7 @@ fun ProjectsUi(component: Projects, modifier: Modifier = Modifier, onProjectClic
                 }
             }
             items(state.projects.size) { index ->
-                ProjectCard(state.projects[index], onProjectClick)
+                ProjectCard(state.projects[index], component::selectProject)
             }
         }
     }

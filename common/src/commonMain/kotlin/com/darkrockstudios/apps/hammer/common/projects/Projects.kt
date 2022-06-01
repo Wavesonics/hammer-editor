@@ -4,12 +4,14 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.reduce
+import com.darkrockstudios.apps.hammer.common.data.Project
 import com.darkrockstudios.apps.hammer.common.getProjectsForDirectory
 import io.github.aakira.napier.Napier
 
 class Projects(
     componentContext: ComponentContext,
-    projectsDir: String
+    projectsDir: String,
+    private val onProjectSelected: (project: Project) -> Unit
 ) {
     private val _value = MutableValue(State(projectsDir = projectsDir))
     val state: Value<State> = _value
@@ -29,8 +31,10 @@ class Projects(
         }
     }
 
+    fun selectProject(project: Project) = onProjectSelected(project)
+
     data class State(
         val projectsDir: String = "",
-        val projects: List<String> = mutableListOf()
+        val projects: List<Project> = mutableListOf()
     )
 }

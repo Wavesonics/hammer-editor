@@ -3,10 +3,11 @@ package com.darkrockstudios.apps.hammer.common
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
+import com.darkrockstudios.apps.hammer.common.projects.ProjectSelection
 import com.darkrockstudios.apps.hammer.common.root.Root
 
 @Preview
 @Composable
 fun AppPreview(root: Root) {
-    App(root)
+    ProjectSelection(root)
 }

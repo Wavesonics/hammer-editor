@@ -1,19 +1,19 @@
 package com.darkrockstudios.apps.hammer.common.projects
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
+import com.darkrockstudios.apps.hammer.common.Ui
+import com.darkrockstudios.apps.hammer.common.data.Project
 
 @Composable
-fun ProjectsUi(component: Projects, modifier: Modifier = Modifier) {
+fun ProjectsUi(component: Projects, modifier: Modifier = Modifier, onProjectClick: (project: Project) -> Unit) {
     val state by component.state.subscribeAsState()
     var projectDirText by remember { mutableStateOf(state.projectsDir) }
 
@@ -38,7 +38,7 @@ fun ProjectsUi(component: Projects, modifier: Modifier = Modifier) {
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(Ui.PADDING)
         ) {
             item {
                 Row(
@@ -55,16 +55,26 @@ fun ProjectsUi(component: Projects, modifier: Modifier = Modifier) {
                 }
             }
             items(state.projects.size) { index ->
-                ProjectCard(state.projects[index])
+                ProjectCard(state.projects[index], onProjectClick)
             }
         }
     }
 }
 
 @Composable
-fun ProjectCard(project: String) {
-    Text(
-        "Project: $project",
-        style = MaterialTheme.typography.body1
-    )
+fun ProjectCard(project: Project, onProjectClick: (project: Project) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(Ui.PADDING)
+            .clickable { onProjectClick(project) },
+        elevation = Ui.ELEVATION
+    ) {
+        Column(modifier = Modifier.padding(Ui.PADDING)) {
+            Text(
+                "Project: $project",
+                style = MaterialTheme.typography.body1
+            )
+        }
+    }
 }

@@ -1,10 +1,10 @@
-package com.darkrockstudios.apps.hammer.common
+package com.darkrockstudios.apps.hammer.common.projects
 
 import androidx.compose.runtime.Composable
 import com.darkrockstudios.apps.hammer.common.root.Root
 import com.darkrockstudios.apps.hammer.common.root.RootUi
 
 @Composable
-fun App(root: Root) {
+fun ProjectSelection(root: Root) {
     RootUi(root)
 }

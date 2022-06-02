@@ -10,7 +10,7 @@ import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
 @Composable
 fun SceneEditorUi(
     component: SceneEditor,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val state by component.state.subscribeAsState()
 

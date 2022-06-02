@@ -4,8 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.defaultComponentContext
 import com.darkrockstudios.apps.hammer.common.Ui
 import com.darkrockstudios.apps.hammer.common.data.Project
@@ -29,12 +30,12 @@ class ProjectSelectActivity : AppCompatActivity() {
                     topBar = {
                         TopAppBar(
                             title = { Text("Hammer") },
-                            backgroundColor = Color.Red,
+                            backgroundColor = Ui.Colors.ACCENT,
                             elevation = Ui.ELEVATION,
                         )
                     },
-                    content = {
-                        ProjectSelectionUi(component)
+                    content = { padding ->
+                        ProjectSelectionUi(component, Modifier.padding(padding))
                     }
                 )
             }

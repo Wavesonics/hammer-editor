@@ -8,12 +8,16 @@ import com.arkivanov.decompose.router.router
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
+import com.darkrockstudios.apps.hammer.common.data.MenuDescriptor
 import com.darkrockstudios.apps.hammer.common.data.Scene
 import com.darkrockstudios.apps.hammer.common.projecteditor.sceneeditor.SceneEditor
 import com.darkrockstudios.apps.hammer.common.projecteditor.sceneeditor.SceneEditorComponent
 
 internal class DetailsRouter(
     componentContext: ComponentContext,
+    private val addMenu: (menu: MenuDescriptor) -> Unit,
+    private val removeMenu: (id: String) -> Unit,
+    private val closeDetails: () -> Unit,
     private val onFinished: () -> Unit
 ) {
 
@@ -26,7 +30,10 @@ internal class DetailsRouter(
 
     val state: Value<RouterState<Config, ProjectEditorRoot.Child.Detail>> = router.state
 
-    private fun createChild(config: Config, componentContext: ComponentContext): ProjectEditorRoot.Child.Detail =
+    private fun createChild(
+        config: Config,
+        componentContext: ComponentContext
+    ): ProjectEditorRoot.Child.Detail =
         when (config) {
             is Config.None -> ProjectEditorRoot.Child.Detail.None
             is Config.SceneEditor -> ProjectEditorRoot.Child.Detail.Editor(
@@ -37,7 +44,10 @@ internal class DetailsRouter(
     private fun sceneEditor(componentContext: ComponentContext, scene: Scene): SceneEditor =
         SceneEditorComponent(
             componentContext = componentContext,
-            scene = scene
+            scene = scene,
+            addMenu = addMenu,
+            removeMenu = removeMenu,
+            closeSceneEditor = closeDetails
         )
 
     fun showScene(scene: Scene) {

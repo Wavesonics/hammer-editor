@@ -25,29 +25,31 @@ fun SceneListUi(
 ) {
     val state by component.state.subscribeAsState()
 
-    Text("Scene list", style = MaterialTheme.typography.h4)
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(Ui.PADDING)
-    ) {
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "\uD83D\uDCDD Scenes:",
-                    style = MaterialTheme.typography.h5
-                )
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text("Scene list", style = MaterialTheme.typography.h4)
+        LazyColumn(
+            modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+            contentPadding = PaddingValues(Ui.PADDING)
+        ) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "\uD83D\uDCDD Scenes:",
+                        style = MaterialTheme.typography.h5
+                    )
+                }
             }
-        }
-        items(state.scenes.size) { index ->
-            val scene = state.scenes[index]
-            val isSelected = scene == state.selectedScene
-            SceneItem(scene, isSelected, component::onSceneSelected)
+            items(state.scenes.size) { index ->
+                val scene = state.scenes[index]
+                val isSelected = scene == state.selectedScene
+                SceneItem(scene, isSelected, component::onSceneSelected)
+            }
         }
     }
 }

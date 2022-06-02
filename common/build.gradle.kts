@@ -48,6 +48,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
+                api("com.arkivanov.decompose:extensions-compose-jetbrains:0.6.0")
             }
         }
         val desktopTest by getting

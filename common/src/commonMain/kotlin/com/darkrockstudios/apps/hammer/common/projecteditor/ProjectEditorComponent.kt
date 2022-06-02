@@ -6,15 +6,17 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.observe
 import com.arkivanov.decompose.value.reduce
+import com.darkrockstudios.apps.hammer.common.data.MenuDescriptor
 import com.darkrockstudios.apps.hammer.common.data.Project
 import com.darkrockstudios.apps.hammer.common.data.Scene
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 class ProjectEditorComponent(
     componentContext: ComponentContext,
     project: Project,
+    addMenu: (menu: MenuDescriptor) -> Unit,
+    removeMenu: (id: String) -> Unit,
 ) : ProjectEditorRoot, ComponentContext by componentContext {
 
     //private val isDetailsToolbarVisible = BehaviorSubject(!_models.value.isMultiPane)
@@ -31,27 +33,27 @@ class ProjectEditorComponent(
             onSceneSelected = ::onSceneSelected
         )
 
-    override val listRouterState: Value<RouterState<*, ProjectEditorRoot.Child.List>> = listRouter.state
+    override val listRouterState: Value<RouterState<*, ProjectEditorRoot.Child.List>> =
+        listRouter.state
 
     private val detailsRouter =
         DetailsRouter(
             componentContext = this,
-            onFinished = {}
+            onFinished = {},
+            addMenu = addMenu,
+            closeDetails = ::closeDetails,
+            removeMenu = removeMenu
         )
 
-    override val detailsRouterState: Value<RouterState<*, ProjectEditorRoot.Child.Detail>> = detailsRouter.state
+    override val detailsRouterState: Value<RouterState<*, ProjectEditorRoot.Child.Detail>> =
+        detailsRouter.state
 
     private val _state = MutableValue(ProjectEditorRoot.State(project))
     override val state: Value<ProjectEditorRoot.State> = _state
 
     init {
         backPressedHandler.register {
-            if (isMultiPaneMode() || !detailsRouter.isShown()) {
-                false
-            } else {
-                closeDetailsAndShowList()
-                true
-            }
+            closeDetails()
         }
 
         detailsRouter.state.observe(lifecycle) {
@@ -61,7 +63,23 @@ class ProjectEditorComponent(
         }
     }
 
-    private fun closeDetailsAndShowList() {
+    private fun closeDetails(): Boolean {
+        return if (isMultiPaneMode() && detailsRouter.isShown()) {
+            closeDetailsInMultipane()
+            true
+        } else if (detailsRouter.isShown()) {
+            closeDetailsAndShowListInSinglepane()
+            true
+        } else {
+            false
+        }
+    }
+
+    private fun closeDetailsInMultipane() {
+        detailsRouter.closeScene()
+    }
+
+    private fun closeDetailsAndShowListInSinglepane() {
         listRouter.show()
         detailsRouter.closeScene()
     }

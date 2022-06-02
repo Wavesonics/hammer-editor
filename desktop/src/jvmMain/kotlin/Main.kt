@@ -1,14 +1,14 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.*
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.darkrockstudios.apps.hammer.common.data.MenuDescriptor
 import com.darkrockstudios.apps.hammer.common.data.Project
 import com.darkrockstudios.apps.hammer.common.projecteditor.ProjectEditorComponent
 import com.darkrockstudios.apps.hammer.common.projecteditor.ProjectEditorUi
@@ -68,15 +68,40 @@ private fun ApplicationScope.ProjectEditorWindow(
         state = windowState,
         onCloseRequest = ::exitApplication,
     ) {
-        MenuBar {
-            Menu("File") {
-                Item("Close Project", onClick = app::closeProject)
-                Item("Exit", onClick = ::exitApplication)
+        Column {
+            val menu by remember { app.menu }
+            MenuBar {
+                Menu("File") {
+                    Item("Close Project", onClick = app::closeProject)
+                    Item("Exit", onClick = ::exitApplication)
+                }
+
+                menu.forEach { menuDescriptor ->
+                    Menu(menuDescriptor.label) {
+                        menuDescriptor.items.forEach { itemDescriptor ->
+                            Item(
+                                itemDescriptor.label,
+                                onClick = { itemDescriptor.action(itemDescriptor.id) }
+                            )
+                        }
+                    }
+                }
             }
-        }
-        Surface(modifier = Modifier.fillMaxSize()) {
-            MaterialTheme {
-                ProjectEditorUi(ProjectEditorComponent(compContext, project))
+            Surface(modifier = Modifier.fillMaxSize()) {
+                MaterialTheme {
+                    ProjectEditorUi(ProjectEditorComponent(
+                        componentContext = compContext,
+                        project = project,
+                        addMenu = { menu ->
+                            Napier.d { "Adding menu" }
+                            app.addMenu(menu)
+                        },
+                        removeMenu = { menuId ->
+                            Napier.d { "Removing menu" }
+                            app.removeMenu(menuId)
+                        }
+                    ))
+                }
             }
         }
     }
@@ -85,6 +110,17 @@ private fun ApplicationScope.ProjectEditorWindow(
 
 private class ApplicationState {
     val windows = mutableStateOf<WindowState>(WindowState.ProjectSectionWindow())
+
+    private val _menu = mutableStateOf<Set<MenuDescriptor>>(emptySet())
+    val menu: State<Set<MenuDescriptor>> = _menu
+
+    fun addMenu(menuDescriptor: MenuDescriptor) {
+        _menu.value = mutableSetOf(menuDescriptor).apply { add(menuDescriptor) }
+    }
+
+    fun removeMenu(menuId: String) {
+        _menu.value = _menu.value.filter { it.id != menuId }.toSet()
+    }
 
     fun openProject(project: Project) {
         windows.value = WindowState.ProjectWindow(project)

@@ -3,6 +3,7 @@ package com.darkrockstudios.apps.hammer.common.projecteditor
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -14,8 +15,10 @@ import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
 import com.arkivanov.decompose.router.RouterState
 import com.arkivanov.decompose.value.Value
 import com.darkrockstudios.apps.hammer.common.Ui
+import com.darkrockstudios.apps.hammer.common.projecteditor.sceneeditor.SceneEditor
 import com.darkrockstudios.apps.hammer.common.projecteditor.sceneeditor.SceneEditorUi
 import com.darkrockstudios.apps.hammer.common.projecteditor.scenelist.SceneListUi
+import io.github.aakira.napier.Napier
 
 private val MULTI_PANE_WIDTH_THRESHOLD = 800.dp
 private const val LIST_PANE_WEIGHT = 0.4F
@@ -24,7 +27,7 @@ private const val DETAILS_PANE_WEIGHT = 0.6F
 @Composable
 fun ProjectEditorUi(
     component: ProjectEditorComponent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(modifier = modifier.padding(Ui.PADDING)) {
         val state by component.state.subscribeAsState()
@@ -57,6 +60,36 @@ fun ProjectEditorUi(
             component.setMultiPane(isMultiPaneRequired)
             onDispose {}
         }
+
+        LaunchedEffect(component.detailsRouterState) {
+            Napier.d { "State change effect: ${component.detailsRouterState.value.activeChild.instance}" }
+            val detailScreen =
+                component.detailsRouterState.value.activeChild.instance as? SceneEditor
+            if (detailScreen is SceneEditor) {
+                Napier.d { "scene editor is active" }
+                detailScreen.addEditorMenu()
+            } else {
+                //detailScreen.addEditorMenu()
+            }
+        }
+        /*
+        DisposableEffect(component.detailsRouterState) {
+            Napier.d { "State change effect: ${component.detailsRouterState.value.activeChild.instance}" }
+            val detailScreen = component.detailsRouterState.value.activeChild.instance as? SceneEditor
+            if(detailScreen is SceneEditor) {
+                Napier.d { "scene editor is active" }
+                detailScreen.addEditorMenu()
+            }
+
+            onDispose {
+
+                if(component.detailsRouterState.value.activeChild.configuration is DetailsRouter.Config.None) {
+                    Napier.d { "scene editor is removed" }
+                    //detailScreen.removeEditorMenu()
+                }
+            }
+        }
+        */
     }
 }
 
@@ -81,7 +114,10 @@ private fun ListPane(routerState: Value<RouterState<*, ProjectEditorRoot.Child.L
 
 @OptIn(ExperimentalDecomposeApi::class)
 @Composable
-private fun DetailsPane(routerState: Value<RouterState<*, ProjectEditorRoot.Child.Detail>>, modifier: Modifier) {
+private fun DetailsPane(
+    routerState: Value<RouterState<*, ProjectEditorRoot.Child.Detail>>,
+    modifier: Modifier
+) {
     Children(
         routerState = routerState,
         modifier = modifier,
@@ -89,11 +125,17 @@ private fun DetailsPane(routerState: Value<RouterState<*, ProjectEditorRoot.Chil
     ) {
         when (val child = it.instance) {
             is ProjectEditorRoot.Child.Detail.None -> Box {}
-            is ProjectEditorRoot.Child.Detail.Editor ->
+            is ProjectEditorRoot.Child.Detail.Editor -> {
                 SceneEditorUi(
                     component = child.component,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
+
+                DisposableEffect(it.instance) {
+                    child.component.addEditorMenu()
+                    onDispose { child.component.removeEditorMenu() }
+                }
+            }
         }
     }
 }

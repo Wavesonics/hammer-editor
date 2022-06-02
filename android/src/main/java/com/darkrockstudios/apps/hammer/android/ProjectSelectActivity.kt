@@ -30,7 +30,6 @@ class ProjectSelectActivity : AppCompatActivity() {
                     topBar = {
                         TopAppBar(
                             title = { Text("Hammer") },
-                            backgroundColor = Ui.Colors.ACCENT,
                             elevation = Ui.ELEVATION,
                         )
                     },

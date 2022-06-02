@@ -6,7 +6,6 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.reduce
 import com.darkrockstudios.apps.hammer.common.data.Project
 import com.darkrockstudios.apps.hammer.common.getProjectsForDirectory
-import io.github.aakira.napier.Napier
 
 class ProjectSelectionComponent(
     componentContext: ComponentContext,
@@ -18,9 +17,7 @@ class ProjectSelectionComponent(
 
     fun loadProjectList() {
         _value.reduce {
-            Napier.v("Load projects in: ${state.value.projectsDir}")
             val projects = getProjectsForDirectory(state.value.projectsDir)
-            Napier.v("Projects: ${projects.joinToString()}")
             _value.value.copy(projects = projects)
         }
     }

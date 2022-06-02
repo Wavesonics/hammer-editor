@@ -18,5 +18,4 @@ fun SceneEditorUi(
         Text("SceneEditorUi")
         Text("Scene: ${state.scene.scene}")
     }
-
 }

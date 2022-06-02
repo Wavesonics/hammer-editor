@@ -10,7 +10,7 @@ allprojects {
 }
 
 plugins {
-    kotlin("multiplatform") apply false
+    kotlin("multiplatform") version "1.6.10" apply false
     kotlin("android") apply false
     id("com.android.application") apply false
     id("com.android.library") apply false

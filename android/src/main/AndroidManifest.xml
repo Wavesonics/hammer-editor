@@ -3,12 +3,17 @@
     <application
             android:allowBackup="false"
             android:supportsRtl="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".MainActivity" android:exported="true">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:name=".HammerApplication">
+
+        <activity android:name=".ProjectSelectActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+
+        <activity android:name=".ProjectEditorActivity">
         </activity>
     </application>
 </manifest>

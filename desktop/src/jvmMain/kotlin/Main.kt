@@ -2,15 +2,17 @@
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.*
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionComponent
 import com.darkrockstudios.apps.hammer.common.data.Project
 import com.darkrockstudios.apps.hammer.common.projecteditor.ProjectEditorComponent
 import com.darkrockstudios.apps.hammer.common.projecteditor.ProjectEditorUi
+import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionComponent
 import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionUi
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
@@ -64,8 +66,14 @@ private fun ApplicationScope.ProjectEditorWindow(
     Window(
         title = "Hammer",
         state = windowState,
-        onCloseRequest = { app.closeProject() },
+        onCloseRequest = ::exitApplication,
     ) {
+        MenuBar {
+            Menu("File") {
+                Item("Close Project", onClick = app::closeProject)
+                Item("Exit", onClick = ::exitApplication)
+            }
+        }
         Surface(modifier = Modifier.fillMaxSize()) {
             MaterialTheme {
                 ProjectEditorUi(ProjectEditorComponent(compContext, project))

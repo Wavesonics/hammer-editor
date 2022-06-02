@@ -13,6 +13,7 @@ import com.arkivanov.decompose.extensions.compose.jetbrains.animation.child.fade
 import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
 import com.arkivanov.decompose.router.RouterState
 import com.arkivanov.decompose.value.Value
+import com.darkrockstudios.apps.hammer.common.Ui
 import com.darkrockstudios.apps.hammer.common.projecteditor.sceneeditor.SceneEditorUi
 import com.darkrockstudios.apps.hammer.common.projecteditor.scenelist.SceneListUi
 
@@ -25,7 +26,7 @@ fun ProjectEditorUi(
     component: ProjectEditorComponent,
     modifier: Modifier = Modifier
 ) {
-    BoxWithConstraints(modifier = modifier) {
+    BoxWithConstraints(modifier = modifier.padding(Ui.PADDING)) {
         val state by component.state.subscribeAsState()
         val isMultiPane = state.isMultiPane
 
@@ -52,7 +53,6 @@ fun ProjectEditorUi(
         }
 
         val isMultiPaneRequired = this@BoxWithConstraints.maxWidth >= MULTI_PANE_WIDTH_THRESHOLD
-
         DisposableEffect(isMultiPaneRequired) {
             component.setMultiPane(isMultiPaneRequired)
             onDispose {}

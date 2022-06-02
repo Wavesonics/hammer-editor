@@ -17,7 +17,7 @@ fun ProjectSelectionUi(component: ProjectSelectionComponent, modifier: Modifier 
     val state by component.state.subscribeAsState()
     var projectDirText by remember { mutableStateOf(state.projectsDir) }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(Ui.PADDING)) {
         Text(
             text = "Projects Directory",
             style = MaterialTheme.typography.h4

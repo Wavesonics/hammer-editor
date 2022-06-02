@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.*
+import androidx.compose.ui.graphics.Color
 import com.arkivanov.decompose.defaultComponentContext
+import com.darkrockstudios.apps.hammer.common.Ui
 import com.darkrockstudios.apps.hammer.common.data.Project
 import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionComponent
 import com.darkrockstudios.apps.hammer.common.projectselection.ProjectSelectionUi
@@ -21,7 +23,20 @@ class ProjectSelectActivity : AppCompatActivity() {
 
         setContent {
             MaterialTheme {
-                ProjectSelectionUi(component)
+                val scaffoldState = rememberScaffoldState()
+                Scaffold(
+                    scaffoldState = scaffoldState,
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Hammer") },
+                            backgroundColor = Color.Red,
+                            elevation = Ui.ELEVATION,
+                        )
+                    },
+                    content = {
+                        ProjectSelectionUi(component)
+                    }
+                )
             }
         }
     }

@@ -93,11 +93,9 @@ private fun ApplicationScope.ProjectEditorWindow(
                         componentContext = compContext,
                         project = project,
                         addMenu = { menu ->
-                            Napier.d { "Adding menu" }
                             app.addMenu(menu)
                         },
                         removeMenu = { menuId ->
-                            Napier.d { "Removing menu" }
                             app.removeMenu(menuId)
                         }
                     ))

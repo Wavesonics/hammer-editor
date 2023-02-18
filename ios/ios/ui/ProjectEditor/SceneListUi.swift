@@ -6,36 +6,36 @@
 //  Copyright © 2022 orgName. All rights reserved.
 //
 
-import SwiftUI
-import Hammer
-
-struct SceneListUi: View {
-    private let component: SceneList
-    
-    @ObservedObject
-    private var observableState: ObservableValue<SceneListState>
-    
-    private var state: SceneListState { observableState.value }
-    
-    init(component: SceneList) {
-        self.component = component
-        self.observableState = ObservableValue(component.state)
-    }
-    
-    var body: some View {
-        VStack {
-            Text("Scene List")
-            ScrollView {
-                LazyVStack() {
-                    ForEach(state.scenes,
-                            id: \.self) { value in
-                        SceneItemUi(scene: value, onSceneSelected: component.onSceneSelected)
-                    }
-                }
-            }
-        }
-    }
-}
+//import SwiftUI
+//import Hammer
+//
+//struct SceneListUi: View {
+//    private let component: SceneList
+//
+//    @ObservedObject
+//    private var observableState: ObservableValue<SceneListState>
+//
+//    private var state: SceneListState { observableState.value }
+//
+//    init(component: SceneList) {
+//        self.component = component
+//        self.observableState = ObservableValue(component.state)
+//    }
+//
+//    var body: some View {
+//        VStack {
+//            Text("Scene List")
+//            ScrollView {
+//                LazyVStack() {
+//                    ForEach(state.scenes,
+//                            id: \.self) { value in
+//                        SceneItemUi(scene: value, onSceneSelected: component.onSceneSelected)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 //struct SceneListUi_Previews: PreviewProvider {
 //    static var previews: some View {
@@ -81,22 +81,22 @@ struct SceneListUi: View {
 //    }
 //}
 
-struct SceneItemUi: View {
-    
-    private var sceneSummary: SceneSummary
-    
-    private var onSceneSelected: (SceneItem) -> Void
-    
-    init(scene: SceneSummary, onSceneSelected: @escaping (SceneItem) -> Void) {
-        self.sceneSummary = scene
-        self.onSceneSelected = onSceneSelected
-    }
-    
-    var body: some View {
-//        Text("Row \(sceneSummary.sceneDef.name)")
-//            .onTapGesture {
-//                onSceneSelected(sceneSummary.sceneDef)
-//            }
-        Text("TODO")
-    }
-}
+//struct SceneItemUi: View {
+//    
+//    private var sceneSummary: SceneSummary
+//    
+//    private var onSceneSelected: (SceneItem) -> Void
+//    
+//    init(scene: SceneSummary, onSceneSelected: @escaping (SceneItem) -> Void) {
+//        self.sceneSummary = scene
+//        self.onSceneSelected = onSceneSelected
+//    }
+//    
+//    var body: some View {
+////        Text("Row \(sceneSummary.sceneDef.name)")
+////            .onTapGesture {
+////                onSceneSelected(sceneSummary.sceneDef)
+////            }
+//        Text("TODO")
+//    }
+//}

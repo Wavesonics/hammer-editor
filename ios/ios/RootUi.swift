@@ -23,12 +23,30 @@ struct RootUi: View {
     }
 
     var body: some View {
+//        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("todos.txt")
+//
+//        let todos = "sabotage Adam"
+//
+//        do {
+//        try todos.write(to: path, atomically: true, encoding: .utf8)
+//        } catch {
+//        print(error.localizedDescription)
+//        }
+        
+//        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("testFolder")
+//
+//        if !FileManager.default.fileExists(atPath: path.absoluteString) {
+//        try! FileManager.default.createDirectory(at: path, withIntermediateDirectories: true, attributes: nil)
+//        }
+//        return Text("duh")
+        // TODO, commented out while we test I/O issues
         if(state.projectSelected == nil) {
             createProjectSelect(root: root)
         }
 //        else {
 //            createProjectEditor(project: state.projectSelected!, root: root)
 //        }
+        
     }
 }
 //

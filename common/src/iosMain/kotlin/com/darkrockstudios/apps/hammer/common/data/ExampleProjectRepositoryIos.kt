@@ -14,10 +14,10 @@ private class ExampleProjectRepositoryiOs(
 ) : ExampleProjectRepository(globalSettingsRepository) {
 
 	override fun removeExampleProject() {
-		TODO("Not yet implemented")
+		// TODO("Not yet implemented")
 	}
 
 	override fun platformInstall() {
-		TODO("Not yet implemented")
+		// TODO("Not yet implemented")
 	}
 }

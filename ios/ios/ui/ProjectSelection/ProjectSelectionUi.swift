@@ -30,25 +30,22 @@ struct ProjectSelectionUi: View {
     
     var body: some View {
         VStack() {
-            TextField(
-                "Projects Directory",
-                text: $directory
-            )
-            .onChange(of: directory) { newValue in //holder.component.setProjectsDir(path:newValue)
+            Button("Create Test Project") {
+                holder.component.createProject(projectName: "test project")
             }
-            .textInputAutocapitalization(.never)
-            .disableAutocorrection(true)
-            .border(.secondary)
             
-            Button("Load") {
-                holder.component.loadProjectList()
+            Button("Delete Test Project") {
+                let def = state.projects[0].definition
+                holder.component.deleteProject(projectDef: def)
             }
+            
+            Text(MR.strings().settings_projects_directory.desc().localized())
+            
             
             ScrollView {
                 LazyVStack() {
                     // This isn't working yet, need to subscribe to it some how
-                    ForEach(state.projects,
-                            id: \.self) { value in
+                    ForEach(state.projects, id: \.self) { value in
                         ProjectItemUi(project: value, onProjectSelected: holder.component.selectProject)
                     }
                 }
@@ -85,10 +82,11 @@ struct ProjectItemUi: View {
     }
     
     var body: some View {
-        Text("project selection")
-//        Text("Row \(project)")
-//            .onTapGesture {
-//                onProjectSelected(project.definition)
-//            }
+        Text(project.definition.name)
+            .onTapGesture {
+                onProjectSelected(project.definition)
+            }
+        
+        Text("Created " + project.metadata.info.created.formatLocal(format: "dd MMM `yy"))
     }
 }

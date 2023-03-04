@@ -23,33 +23,15 @@ struct RootUi: View {
     }
 
     var body: some View {
-//        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("todos.txt")
-//
-//        let todos = "sabotage Adam"
-//
-//        do {
-//        try todos.write(to: path, atomically: true, encoding: .utf8)
-//        } catch {
-//        print(error.localizedDescription)
-//        }
-        
-//        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("testFolder")
-//
-//        if !FileManager.default.fileExists(atPath: path.absoluteString) {
-//        try! FileManager.default.createDirectory(at: path, withIntermediateDirectories: true, attributes: nil)
-//        }
-//        return Text("duh")
-        // TODO, commented out while we test I/O issues
         if(state.projectSelected == nil) {
             createProjectSelect(root: root)
         }
-//        else {
-//            createProjectEditor(project: state.projectSelected!, root: root)
-//        }
-        
+        else {
+            createProjectRoot(project: state.projectSelected!, root: root)
+        }
     }
 }
-//
+
 private func createProjectSelect(root: RootHolder) -> ProjectSelectionUi {
     let projectSelectionHolder = ComponentHolder<ProjectSelectionComponent> { context in
         ProjectSelectionComponent(
@@ -62,24 +44,24 @@ private func createProjectSelect(root: RootHolder) -> ProjectSelectionUi {
     // Create the SwiftUI view that provides the window contents.
     return ProjectSelectionUi(componentHolder: projectSelectionHolder)
 }
-//
-//private func createProjectEditor(project: ProjectDefinition, root: RootHolder) -> ProjectEditorUi {
-//    let component = ComponentHolder<ProjectEditorComponent> { context in
-//        ProjectEditorComponent(
-//            componentContext: context,
-//            projectDef: project,
-//            addMenu: { menu in
-//                NSLog("Add menu item")
-//            },
-//            removeMenu: { menuItemId in
-//                NSLog("Remove menu item")
-//            }
-//        )
-//    }
-//
-//    let projectEditorView = ProjectEditorUi(componentHolder: component) {
-//        root.closeProject()
-//    }
-//
-//    return projectEditorView
-//}
+
+private func createProjectRoot(project: ProjectDefinition, root: RootHolder) -> ProjectRootUi {
+    let componentHolder = ComponentHolder<ProjectRootComponent> { context in
+        ProjectRootComponent(
+            componentContext: context,
+            projectDef: project,
+            addMenu: { menu in
+                NSLog("Add menu item")
+            },
+            removeMenu: { menuItemId in
+                NSLog("Remove menu item")
+            }
+        )
+    }
+
+    let projectEditorView = ProjectRootUi(component: componentHolder.component) {
+        root.closeProject()
+    }
+
+    return projectEditorView
+}

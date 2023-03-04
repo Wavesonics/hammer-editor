@@ -11,6 +11,8 @@
 		664E22EC284C281600CB8DBD /* ComponentHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664E22EB284C281600CB8DBD /* ComponentHolder.swift */; };
 		664E22EE284D682800CB8DBD /* ObservableValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664E22ED284D682800CB8DBD /* ObservableValue.swift */; };
 		664E22F1284DABA300CB8DBD /* ProjectEditorUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664E22F0284DABA300CB8DBD /* ProjectEditorUi.swift */; };
+		665252BB29B1ADC20066BFCE /* ProjectRootUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665252BA29B1ADC20066BFCE /* ProjectRootUi.swift */; };
+		665252BD29B1E66B0066BFCE /* StackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665252BC29B1E66B0066BFCE /* StackView.swift */; };
 		6689C2FD2853F29200760649 /* SceneEditorUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6689C2FC2853F29200760649 /* SceneEditorUi.swift */; };
 		6689C2FF2853F37200760649 /* SceneListUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6689C2FE2853F37200760649 /* SceneListUi.swift */; };
 		6689C3012854059500760649 /* MutableValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6689C3002854059500760649 /* MutableValue.swift */; };
@@ -59,6 +61,8 @@
 		664E22EB284C281600CB8DBD /* ComponentHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentHolder.swift; sourceTree = "<group>"; };
 		664E22ED284D682800CB8DBD /* ObservableValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableValue.swift; sourceTree = "<group>"; };
 		664E22F0284DABA300CB8DBD /* ProjectEditorUi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditorUi.swift; sourceTree = "<group>"; };
+		665252BA29B1ADC20066BFCE /* ProjectRootUi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectRootUi.swift; sourceTree = "<group>"; };
+		665252BC29B1E66B0066BFCE /* StackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackView.swift; sourceTree = "<group>"; };
 		6689C2FC2853F29200760649 /* SceneEditorUi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneEditorUi.swift; sourceTree = "<group>"; };
 		6689C2FE2853F37200760649 /* SceneListUi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneListUi.swift; sourceTree = "<group>"; };
 		6689C3002854059500760649 /* MutableValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutableValue.swift; sourceTree = "<group>"; };
@@ -106,6 +110,7 @@
 		664E22E7284B617D00CB8DBD /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				665252B929B1AD8C0066BFCE /* ProjectRoot */,
 				664E22EF284DAB9000CB8DBD /* ProjectEditor */,
 				664E22E8284B618E00CB8DBD /* ProjectSelection */,
 			);
@@ -128,6 +133,14 @@
 				6689C2FE2853F37200760649 /* SceneListUi.swift */,
 			);
 			path = ProjectEditor;
+			sourceTree = "<group>";
+		};
+		665252B929B1AD8C0066BFCE /* ProjectRoot */ = {
+			isa = PBXGroup;
+			children = (
+				665252BA29B1ADC20066BFCE /* ProjectRootUi.swift */,
+			);
+			path = ProjectRoot;
 			sourceTree = "<group>";
 		};
 		7555FF72242A565900829871 = {
@@ -165,6 +178,7 @@
 				6689C302285415AD00760649 /* Theme.swift */,
 				6689C30428544E5900760649 /* app_iosApp.swift */,
 				6689C3062854505A00760649 /* RootUi.swift */,
+				665252BC29B1E66B0066BFCE /* StackView.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -380,11 +394,13 @@
 				6689C3012854059500760649 /* MutableValue.swift in Sources */,
 				6689C30528544E5900760649 /* app_iosApp.swift in Sources */,
 				6689C3072854505A00760649 /* RootUi.swift in Sources */,
+				665252BB29B1ADC20066BFCE /* ProjectRootUi.swift in Sources */,
 				6689C303285415AD00760649 /* Theme.swift in Sources */,
 				664E22EE284D682800CB8DBD /* ObservableValue.swift in Sources */,
 				664E22F1284DABA300CB8DBD /* ProjectEditorUi.swift in Sources */,
 				664E22EA284B61B700CB8DBD /* ProjectSelectionUi.swift in Sources */,
 				6689C2FF2853F37200760649 /* SceneListUi.swift in Sources */,
+				665252BD29B1E66B0066BFCE /* StackView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

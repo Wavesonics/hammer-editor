@@ -41,7 +41,9 @@ class ProjectRootComponent(
 		dispatcherMain
 	)
 
-	override val routerState: Value<ChildStack<*, ProjectRoot.Destination<*>>> = router.state
+	override val routerState: Value<ChildStack<*, ProjectRoot.Destination<*>>>
+		get() = router.state
+
 	override fun showEditor() {
 		router.showEditor()
 	}

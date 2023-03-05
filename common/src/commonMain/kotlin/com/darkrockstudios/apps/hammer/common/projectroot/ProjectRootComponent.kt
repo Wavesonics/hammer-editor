@@ -49,6 +49,7 @@ class ProjectRootComponent(
 	}
 
 	override fun showNotes() {
+		Napier.d("showNotes component")
 		router.showNotes()
 	}
 

@@ -9,6 +9,10 @@
 import SwiftUI
 import Hammer
 
+class TestObj: ObservableObject {
+    @Published var value = 0
+}
+
 struct ProjectRootUi: View {
     
     private let component: ProjectRoot
@@ -18,6 +22,9 @@ struct ProjectRootUi: View {
     private var stack: ChildStack<AnyObject, ProjectRootDestination<AnyObject>> { routerState.value }
     
     private var activeDestination: ProjectRootDestination<AnyObject> { routerState.value.active.instance }
+    
+    @ObservedObject
+    private var test: TestObj = TestObj.init()
     
     init(component: ProjectRoot, closeProject: @escaping () -> Void) {
         self.component = component
@@ -46,6 +53,8 @@ struct ProjectRootUi: View {
         
         Text("project root")
         
+        Text(String(test.value) + " test")
+
         VStack {
             ScrollView {
                 HStack {
@@ -56,7 +65,8 @@ struct ProjectRootUi: View {
                         component.showEditor()
                     }
                     Button("Notes") {
-                        NSLog("Switch to notes")
+                        Napier().d(message: "Switch to notes", throwable: nil, tag: "Hammer")
+                        test.value = 42
                         component.showNotes()
                     }
                     Button("Time Line") {
@@ -69,7 +79,7 @@ struct ProjectRootUi: View {
             }
             
             
-            let curDest = destinationTitle(dest: routerState.value.active.instance)
+            let curDest = destinationTitle(dest: activeDestination)
             Text(curDest)
 
             StackView(

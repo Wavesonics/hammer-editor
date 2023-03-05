@@ -18,9 +18,11 @@ struct app_iosApp: App {
     init() {
         Theme.navigationBarColors(background: .purple, titleColor: .white)
 
+        NapierProxyKt.debugBuild()
+        
         PlatformKt.initializeKoin()
     }
-        
+    
     var body: some SwiftUI.Scene {
             WindowGroup {
                 Text(PlatformKt.getPlatformName())

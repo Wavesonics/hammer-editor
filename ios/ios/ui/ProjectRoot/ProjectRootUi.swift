@@ -29,6 +29,12 @@ struct ProjectRootUi: View {
     init(component: ProjectRoot, closeProject: @escaping () -> Void) {
         self.component = component
         self.routerState = ObservableValue(component.routerState)
+        
+        NSLog("pre subscribe")
+        component.routerState.subscribe { stack in
+            NSLog("swift router state update")
+        }
+        NSLog("post subscribe")
     }
     
     func destinationTitle(dest: ProjectRootDestination<some AnyObject>) -> String {

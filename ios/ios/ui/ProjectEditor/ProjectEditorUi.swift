@@ -129,8 +129,8 @@ struct DetailsPane: View {
                         Spacer().frame(width: metrics.size.width * listPaneWeight)
                     }
 
-                    //SceneEditorUi(component: details.component)
-                    //    .frame(width: isMultiPane ? metrics.size.width * detailsPaneWeight : metrics.size.width)
+                    SceneEditorUi(component: details.component)
+                        .frame(width: isMultiPane ? metrics.size.width * detailsPaneWeight : metrics.size.width)
                 }
             }
 

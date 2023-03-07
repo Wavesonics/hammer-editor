@@ -28,10 +28,16 @@ struct SceneListUi: View {
             Text("Scene List")
             ScrollView {
                 LazyVStack() {
-                    if let scenes = state.sceneSummary?.sceneTree {
-                        ForEach(scenes.list(), id: \.self) { treeNode in
-                            if let sceneItem = treeNode.value {
-                                SceneItemUi(scene: sceneItem, onSceneSelected: component.onSceneSelected)
+                    if let sceneTree = state.sceneSummary?.sceneTree {
+                        if(sceneTree.totalChildren == 0) {
+                            Text("No Scenes")
+                        } else {
+                            ForEach(sceneTree.list(), id: \.self) { treeNode in
+                                if let sceneItem = treeNode.value {
+                                    if sceneItem.isRootScene == false {
+                                        SceneItemUi(scene: sceneItem, onSceneSelected: component.onSceneSelected)
+                                    }
+                                }
                             }
                         }
                     }

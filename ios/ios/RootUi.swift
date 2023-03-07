@@ -14,7 +14,6 @@ struct RootUi: View {
 
     @ObservedObject
     private var observableState: ObservableValue<RootState>
-
     private var state: RootState { observableState.value }
 
     init(_ root: RootHolder) {
@@ -23,45 +22,14 @@ struct RootUi: View {
     }
 
     var body: some View {
-        if(state.projectSelected == nil) {
-            createProjectSelect(root: root)
-        }
-        else {
-            createProjectRoot(project: state.projectSelected!, root: root)
-        }
-    }
-}
-
-private func createProjectSelect(root: RootHolder) -> ProjectSelectionUi {
-    let projectSelectionHolder = ComponentHolder<ProjectSelectionComponent> { context in
-        ProjectSelectionComponent(
-            componentContext: context, showProjectDirectory: false) { project in
-                print("Project selected: " + project.name)
-                root.selectProject(project: project)
+        VStack {
+            if let holder = state.projectSelectComponent {
+                ProjectSelectionUi(projectSelectionComponent: holder.component)
+            } else if let holder = state.projectRootComponent {
+                ProjectRootUi(component: holder.component) {
+                    root.closeProject()
+                }
             }
+        }
     }
-
-    // Create the SwiftUI view that provides the window contents.
-    return ProjectSelectionUi(componentHolder: projectSelectionHolder)
-}
-
-private func createProjectRoot(project: ProjectDefinition, root: RootHolder) -> ProjectRootUi {
-    let componentHolder = ComponentHolder<ProjectRootComponent> { context in
-        ProjectRootComponent(
-            componentContext: context,
-            projectDef: project,
-            addMenu: { menu in
-                NSLog("Add menu item")
-            },
-            removeMenu: { menuItemId in
-                NSLog("Remove menu item")
-            }
-        )
-    }
-
-    let projectEditorView = ProjectRootUi(component: componentHolder.component) {
-        root.closeProject()
-    }
-
-    return projectEditorView
 }

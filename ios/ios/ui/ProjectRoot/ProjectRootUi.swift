@@ -23,18 +23,9 @@ struct ProjectRootUi: View {
     
     private var activeDestination: ProjectRootDestination<AnyObject> { routerState.value.active.instance }
     
-    @ObservedObject
-    private var test: TestObj = TestObj.init()
-    
     init(component: ProjectRoot, closeProject: @escaping () -> Void) {
         self.component = component
         self.routerState = ObservableValue(component.routerState)
-        
-        NSLog("pre subscribe")
-        component.routerState.subscribe { stack in
-            NSLog("swift router state update")
-        }
-        NSLog("post subscribe")
     }
     
     func destinationTitle(dest: ProjectRootDestination<some AnyObject>) -> String {
@@ -56,11 +47,6 @@ struct ProjectRootUi: View {
     }
     
     var body: some View {
-        
-        Text("project root")
-        
-        Text(String(test.value) + " test")
-
         VStack {
             ScrollView {
                 HStack {
@@ -71,8 +57,7 @@ struct ProjectRootUi: View {
                         component.showEditor()
                     }
                     Button("Notes") {
-                        Napier().d(message: "Switch to notes", throwable: nil, tag: "Hammer")
-                        test.value = 42
+                        //Napier().d(message: "Switch to notes", throwable: nil, tag: "Hammer")
                         component.showNotes()
                     }
                     Button("Time Line") {
@@ -82,11 +67,7 @@ struct ProjectRootUi: View {
                         component.showEncyclopedia()
                     }
                 }
-            }
-            
-            
-            let curDest = destinationTitle(dest: activeDestination)
-            Text(curDest)
+            }.frame(height: 40)
 
             StackView(
                 stackValue: routerState,
@@ -99,18 +80,18 @@ struct ProjectRootUi: View {
 
                     switch dest.component {
                     case is ProjectEditor:
-                        EmptView.init(dest: dest, title: "Editor")
+                        Text("Editor")
                     case is Notes:
-                        EmptView.init(dest: dest, title: "Notes")
+                        Text("Notes")
                     case is Encyclopedia:
-                        EmptView.init(dest: dest, title: "Encyclopedia")
+                        Text("Encyclopedia")
                     case is TimeLine:
-                        EmptView.init(dest: dest, title: "Time Line")
+                        Text("Time Line")
                     case is ProjectHome:
-                        EmptView.init(dest: dest, title: "Home")
+                        Text("Home")
                     default:
                         //throw KotlinIllegalStateException("Unhandled destination")
-                        EmptView.init(dest: dest, title: "unhandled destination")
+                        Text("unhandled destination")
                     }
                 }
             )
@@ -123,18 +104,3 @@ struct ProjectRootUi: View {
 //        ProjectRootUi()
 //    }
 //}
-
-struct EmptView: View {
-
-    private var myDest: ProjectRootDestination<any AnyObject>
-    private let title: String
-    
-    init(dest: ProjectRootDestination<any AnyObject>, title: String) {
-        myDest = dest
-        self.title = title
-    }
-    
-    var body: some View {
-        Text(title)
-    }
-}

@@ -11,14 +11,14 @@ import Hammer
 
 struct ProjectSelectionUi: View {
     
-    public init(componentHolder: ComponentHolder<ProjectSelectionComponent>) {
-        holder = componentHolder
-        observableState = ObservableValue(componentHolder.component.state)
+    public init(projectSelectionComponent: ProjectSelection) {
+        self.component = projectSelectionComponent
+        observableState = ObservableValue(projectSelectionComponent.state)
         
     }
     
     @State
-    private var holder: ComponentHolder<ProjectSelectionComponent>
+    private var component: ProjectSelection
     
     @ObservedObject
     private var observableState: ObservableValue<ProjectSelectionState>
@@ -31,12 +31,14 @@ struct ProjectSelectionUi: View {
     var body: some View {
         VStack() {
             Button("Create Test Project") {
-                holder.component.createProject(projectName: "test project")
+                component.createProject(projectName: "test project")
             }
             
             Button("Delete Test Project") {
-                let def = state.projects[0].definition
-                holder.component.deleteProject(projectDef: def)
+                if(!state.projects.isEmpty) {
+                    let def = state.projects[0].definition
+                    component.deleteProject(projectDef: def)
+                }
             }
             
             Text(MR.strings().settings_projects_directory.desc().localized())
@@ -46,7 +48,7 @@ struct ProjectSelectionUi: View {
                 LazyVStack() {
                     // This isn't working yet, need to subscribe to it some how
                     ForEach(state.projects, id: \.self) { value in
-                        ProjectItemUi(project: value, onProjectSelected: holder.component.selectProject)
+                        ProjectItemUi(project: value, onProjectSelected: component.selectProject)
                     }
                 }
                 

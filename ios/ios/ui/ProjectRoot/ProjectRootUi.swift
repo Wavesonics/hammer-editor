@@ -28,8 +28,8 @@ struct ProjectRootUi: View {
         self.routerState = ObservableValue(component.routerState)
     }
     
-    func destinationTitle(dest: ProjectRootDestination<some AnyObject>) -> String {
-        switch dest {
+    func destinationTitle(destination: ProjectRootDestination<some AnyObject>) -> String {
+        switch destination {
         case is ProjectRootDestinationEditorDestination:
             return "Editor"
         case is ProjectRootDestinationNotesDestination:
@@ -71,16 +71,15 @@ struct ProjectRootUi: View {
 
             StackView(
                 stackValue: routerState,
-                getTitle: { (dest) -> String in
-                    destinationTitle(dest: dest)
+                getTitle: { (destination) -> String in
+                    destinationTitle(destination: destination)
                 },
                 onBack: {}, //stack.active.instance.onBack,
-                childContent: {
-                    let dest = $0
+                childContent: { destination in
 
-                    switch dest.component {
+                    switch destination.component {
                     case is ProjectEditor:
-                        Text("Editor")
+                        ProjectEditorUi(component: destination.component as! ProjectEditor, onBackPressed: {})
                     case is Notes:
                         Text("Notes")
                     case is Encyclopedia:

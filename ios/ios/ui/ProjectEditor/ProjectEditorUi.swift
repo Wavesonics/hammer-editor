@@ -97,22 +97,21 @@ struct ListPane: View {
     let isMultiPane: Bool
     
     var body: some View {
-        EmptyView()
-//        switch listChild {
-//        case let list as ProjectEditorChild.ListScenes:
-//            GeometryReader { metrics in
-//                HStack {
-//                    SceneListUi(component: list.component)
-//                        .frame(width: isMultiPane ? metrics.size.width * listPaneWeight : metrics.size.width)
-//
-//                    if isMultiPane {
-//                        Spacer().frame(width: metrics.size.width * detailsPaneWeight)
-//                    }
-//                }
-//            }
-//
-//        default: EmptyView()
-//        }
+        switch listChild {
+        case let list as ProjectEditorChildDestination.ListScenes:
+            GeometryReader { metrics in
+                HStack {
+                    SceneListUi(component: list.component)
+                        .frame(width: isMultiPane ? metrics.size.width * listPaneWeight : metrics.size.width)
+
+                    if isMultiPane {
+                        Spacer().frame(width: metrics.size.width * detailsPaneWeight)
+                    }
+                }
+            }
+
+        default: EmptyView()
+        }
     }
 }
 
@@ -121,22 +120,22 @@ struct DetailsPane: View {
     let isMultiPane: Bool
     
     var body: some View {
-        EmptyView()
-//        switch detailsChild {
-//        case let details as ProjectEditorChild.DetailEditor:
-//            GeometryReader { metrics in
-//                HStack {
-//                    if isMultiPane {
-//                        Spacer().frame(width: metrics.size.width * listPaneWeight)
-//                    }
-//
-//                    SceneEditorUi(component: details.component)
-//                        .frame(width: isMultiPane ? metrics.size.width * detailsPaneWeight : metrics.size.width)
-//                }
-//            }
-//
-//        default: EmptyView()
-//        }
+
+        switch detailsChild {
+        case let details as ProjectEditorChildDestination.DetailEditorDestination:
+            GeometryReader { metrics in
+                HStack {
+                    if isMultiPane {
+                        Spacer().frame(width: metrics.size.width * listPaneWeight)
+                    }
+
+                    //SceneEditorUi(component: details.component)
+                    //    .frame(width: isMultiPane ? metrics.size.width * detailsPaneWeight : metrics.size.width)
+                }
+            }
+
+        default: EmptyView()
+        }
     }
 }
 

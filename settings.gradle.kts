@@ -21,3 +21,4 @@ pluginManagement {
 rootProject.name = "hammer"
 
 include(":android", ":desktop", ":composeUi", ":common")
+include("server")

@@ -11,6 +11,7 @@ val okio_version: String by extra
 val essenty_version: String by extra
 val mockk_version: String by extra
 val moko_resources_version: String by extra
+val datetime_version: String by extra
 val napier_version: String by extra
 
 plugins {
@@ -58,14 +59,13 @@ kotlin {
 				api("io.insert-koin:koin-core:$koin_version")
 				api("com.squareup.okio:okio:$okio_version")
 
-				api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization_version")
-				// This is being held back to 0.3.2 due to ios support not working in later versions
-				api("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
-				implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-				implementation("com.akuleshov7:ktoml-core:0.4.1")
-				api("com.arkivanov.essenty:lifecycle:$essenty_version")
-				implementation("io.github.reactivecircus.cache4k:cache4k:0.9.0")
-				api("dev.icerock.moko:resources:$moko_resources_version")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization_version")
+                api("org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+                implementation("com.akuleshov7:ktoml-core:0.4.1")
+                api("com.arkivanov.essenty:lifecycle:$essenty_version")
+                implementation("io.github.reactivecircus.cache4k:cache4k:0.9.0")
+                api("dev.icerock.moko:resources:$moko_resources_version")
 			}
 		}
 		val commonTest by getting {

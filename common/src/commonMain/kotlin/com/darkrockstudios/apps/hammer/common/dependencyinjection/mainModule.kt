@@ -22,6 +22,9 @@ import com.darkrockstudios.apps.hammer.common.globalsettings.GlobalSettingsRepos
 import com.darkrockstudios.apps.hammer.common.platformDefaultDispatcher
 import com.darkrockstudios.apps.hammer.common.platformIoDispatcher
 import com.darkrockstudios.apps.hammer.common.platformMainDispatcher
+import com.darkrockstudios.apps.hammer.common.server.ServerAccountApi
+import de.jensklingenberg.ktorfit.Ktorfit
+import io.ktor.client.*
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import org.koin.core.module.dsl.scopedOf
@@ -42,6 +45,8 @@ val mainModule = module {
 	single(named(DISPATCHER_MAIN)) { platformMainDispatcher }
 	single(named(DISPATCHER_DEFAULT)) { platformDefaultDispatcher }
 	single(named(DISPATCHER_IO)) { platformIoDispatcher }
+
+	single { createHttpClient() } bind HttpClient::class
 
 	singleOf(::GlobalSettingsRepository) bind GlobalSettingsRepository::class
 

@@ -64,17 +64,21 @@ private fun fakeProjectSelectionComponent(): ProjectSelection {
 			)
 
 		override fun loadProjectList() {}
-		override fun setProjectsDir(path: String) {}
-		override fun selectProject(projectDef: ProjectDef) {}
-		override fun createProject(projectName: String) {}
-		override fun deleteProject(projectDef: ProjectDef) {}
-		override fun showLocation(location: ProjectSelection.Locations) {}
-		override fun setUiTheme(theme: UiTheme) {}
-		override suspend fun reinstallExampleProject() {}
-		override suspend fun loadProjectMetadata(projectDef: ProjectDef): ProjectMetadata? {
-			return null
-		}
-	}
+        override fun setProjectsDir(path: String) {}
+        override fun selectProject(projectDef: ProjectDef) {}
+        override fun createProject(projectName: String) {}
+        override fun deleteProject(projectDef: ProjectDef) {}
+        override fun showLocation(location: ProjectSelection.Locations) {}
+        override fun setUiTheme(theme: UiTheme) {}
+        override suspend fun reinstallExampleProject() {}
+        override suspend fun loadProjectMetadata(projectDef: ProjectDef): ProjectMetadata? {
+            return null
+        }
+
+        override fun beginSetupServer() {}
+        override fun cancelServerSetup() {}
+        override suspend fun setupServer(url: String, email: String, password: String, create: Boolean): Boolean = true
+    }
 }
 
 fun fakeProjectData() = ProjectData(

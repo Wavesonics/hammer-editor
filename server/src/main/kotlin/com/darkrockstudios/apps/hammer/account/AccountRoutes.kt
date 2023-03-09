@@ -11,10 +11,12 @@ import org.koin.ktor.ext.get
 
 fun Application.accountRoutes() {
     routing {
-        createAccount()
-        login()
-        authenticate(USER_AUTH_NAME) {
-            testAuth()
+        route("/account") {
+            createAccount()
+            login()
+            authenticate(USER_AUTH_NAME) {
+                testAuth()
+            }
         }
     }
 }

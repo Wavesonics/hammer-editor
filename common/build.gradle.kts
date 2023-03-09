@@ -13,6 +13,8 @@ val mockk_version: String by extra
 val moko_resources_version: String by extra
 val datetime_version: String by extra
 val napier_version: String by extra
+val ktor_version: String by extra
+val ktorfit_version: String by extra
 
 plugins {
 	kotlin("multiplatform")
@@ -21,6 +23,8 @@ plugins {
 	id("kotlin-parcelize")
 	id("org.jetbrains.kotlinx.kover")
 	id("dev.icerock.mobile.multiplatform-resources")
+	id("com.google.devtools.ksp")
+	id("de.jensklingenberg.ktorfit")
 }
 
 group = "com.darkrockstudios.apps.hammer"
@@ -59,13 +63,21 @@ kotlin {
 				api("io.insert-koin:koin-core:$koin_version")
 				api("com.squareup.okio:okio:$okio_version")
 
-                api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization_version")
-                api("org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-                implementation("com.akuleshov7:ktoml-core:0.4.1")
-                api("com.arkivanov.essenty:lifecycle:$essenty_version")
-                implementation("io.github.reactivecircus.cache4k:cache4k:0.9.0")
-                api("dev.icerock.moko:resources:$moko_resources_version")
+				api("io.ktor:ktor-client-core:$ktor_version")
+				implementation("io.ktor:ktor-client-auth:$ktor_version")
+				implementation("io.ktor:ktor-client-logging:$ktor_version")
+				implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+				implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+
+				implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfit_version")
+
+				api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization_version")
+				api("org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version")
+				implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+				implementation("com.akuleshov7:ktoml-core:0.4.1")
+				api("com.arkivanov.essenty:lifecycle:$essenty_version")
+				implementation("io.github.reactivecircus.cache4k:cache4k:0.9.0")
+				api("dev.icerock.moko:resources:$moko_resources_version")
 			}
 		}
 		val commonTest by getting {
@@ -83,12 +95,14 @@ kotlin {
 				api("androidx.core:core-ktx:1.9.0")
 				api("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version")
 				api("io.insert-koin:koin-android:$koin_version")
+				implementation("io.ktor:ktor-client-okhttp:$ktor_version")
 			}
 		}
 		val iosMain by getting {
 			dependencies {
 				api("com.arkivanov.decompose:decompose:$decompose_version")
 				api("com.arkivanov.essenty:lifecycle:$essenty_version")
+				implementation("io.ktor:ktor-client-darwin:$ktor_version")
 			}
 		}
 		val iosTest by getting
@@ -103,6 +117,8 @@ kotlin {
 				api("org.jetbrains.kotlinx:kotlinx-coroutines-swing:$coroutines_version")
 				implementation("net.harawata:appdirs:1.2.1")
 				api("dev.icerock.moko:resources-compose:$moko_resources_version")
+				//implementation("io.ktor:ktor-client-curl:$ktor_version")
+				implementation("io.ktor:ktor-client-jetty:$ktor_version")
 			}
 		}
 		val desktopTest by getting {
@@ -113,6 +129,18 @@ kotlin {
 			}
 		}
 	}
+}
+
+dependencies {
+	add("kspCommonMainMetadata", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
+	add("kspDesktop", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
+	add("kspAndroid", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
+	add("kspIosX64", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
+	//add("kspIosSimulatorArm64", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
+}
+
+configure<de.jensklingenberg.ktorfit.gradle.KtorfitGradleConfiguration> {
+	version = ktorfit_version
 }
 
 multiplatformResources {

@@ -14,6 +14,7 @@ fun Application.accountRoutes() {
         route("/account") {
             createAccount()
             login()
+            refreshToken()
             authenticate(USER_AUTH_NAME) {
                 testAuth()
             }
@@ -24,7 +25,7 @@ fun Application.accountRoutes() {
 private fun Route.createAccount() {
     val accountsRepository: AccountsRepository = get()
 
-    post("/create_account") {
+    post("/create") {
         val formParameters = call.receiveParameters()
         val email = formParameters["email"].toString()
         val password = formParameters["password"].toString()
@@ -32,8 +33,8 @@ private fun Route.createAccount() {
 
         val result = accountsRepository.createAccount(email = email, deviceId = deviceId, password = password)
         if (result.isSuccess) {
-            val token = result.getOrThrow().value
-            call.respondText(token, status = HttpStatusCode.Created)
+            val token = result.getOrThrow()
+            call.respond(HttpStatusCode.Created, token)
         } else {
             call.respondText("Failed to create account", status = HttpStatusCode.Conflict)
         }
@@ -52,12 +53,31 @@ private fun Route.login() {
         val result = accountsRepository.login(email = email, password = password, deviceId = deviceId)
         if (result.isSuccess) {
             val authToken = result.getOrThrow()
-            call.respondText(authToken.value)
+            call.respond(authToken)
         } else {
             call.respondText("Failed to authenticate", status = HttpStatusCode.Unauthorized)
         }
     }
 }
+
+private fun Route.refreshToken() {
+    val accountsRepository: AccountsRepository = get()
+
+    post("/refresh_token") {
+        val formParameters = call.receiveParameters()
+        val deviceId = formParameters["deviceId"].toString()
+        val refreshToken = formParameters["refreshToken"].toString()
+
+        val result = accountsRepository.refreshToken(deviceId = deviceId, refreshToken = refreshToken)
+        if (result.isSuccess) {
+            val token = result.getOrThrow()
+            call.respond(token)
+        } else {
+            call.respondText("Failed to refresh auth token", status = HttpStatusCode.Unauthorized)
+        }
+    }
+}
+
 
 private fun Route.testAuth() {
     get("/test_auth") {
@@ -65,11 +85,3 @@ private fun Route.testAuth() {
         call.respondText("Authenticated as ${principal.name}")
     }
 }
-
-/*
-private fun Route.jsonTest() {
-    get("/test_json") {
-        call.respond(mapOf("hello" to "world"))
-    }
-}
-*/

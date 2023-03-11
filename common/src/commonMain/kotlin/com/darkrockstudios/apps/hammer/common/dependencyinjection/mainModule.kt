@@ -23,7 +23,6 @@ import com.darkrockstudios.apps.hammer.common.platformDefaultDispatcher
 import com.darkrockstudios.apps.hammer.common.platformIoDispatcher
 import com.darkrockstudios.apps.hammer.common.platformMainDispatcher
 import com.darkrockstudios.apps.hammer.common.server.ServerAccountApi
-import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.*
 import kotlinx.serialization.json.Json
 import okio.FileSystem
@@ -40,23 +39,24 @@ const val DISPATCHER_IO = "io-dispatcher"
 
 val mainModule = module {
 	includes(externalFileIoModule)
-	includes(exampleProjectModule)
+    includes(exampleProjectModule)
 
-	single(named(DISPATCHER_MAIN)) { platformMainDispatcher }
-	single(named(DISPATCHER_DEFAULT)) { platformDefaultDispatcher }
-	single(named(DISPATCHER_IO)) { platformIoDispatcher }
+    single(named(DISPATCHER_MAIN)) { platformMainDispatcher }
+    single(named(DISPATCHER_DEFAULT)) { platformDefaultDispatcher }
+    single(named(DISPATCHER_IO)) { platformIoDispatcher }
 
-	single { createHttpClient() } bind HttpClient::class
+    single { createHttpClient(get()) } bind HttpClient::class
+    singleOf(::ServerAccountApi)
 
-	singleOf(::GlobalSettingsRepository) bind GlobalSettingsRepository::class
+    singleOf(::GlobalSettingsRepository) bind GlobalSettingsRepository::class
 
-	singleOf(::getPlatformFilesystem) bind FileSystem::class
+    singleOf(::getPlatformFilesystem) bind FileSystem::class
 
-	singleOf(::ProjectsRepositoryOkio) bind ProjectsRepository::class
+    singleOf(::ProjectsRepositoryOkio) bind ProjectsRepository::class
 
-	singleOf(::createTomlSerializer) bind Toml::class
+    singleOf(::createTomlSerializer) bind Toml::class
 
-	singleOf(::createJsonSerializer) bind Json::class
+    singleOf(::createJsonSerializer) bind Json::class
 
 	scope<ProjectDefScope> {
 		scopedOf(::ProjectEditorRepositoryOkio) bind ProjectEditorRepository::class

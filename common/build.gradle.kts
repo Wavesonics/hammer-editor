@@ -14,7 +14,6 @@ val moko_resources_version: String by extra
 val datetime_version: String by extra
 val napier_version: String by extra
 val ktor_version: String by extra
-val ktorfit_version: String by extra
 
 plugins {
 	kotlin("multiplatform")
@@ -23,8 +22,6 @@ plugins {
 	id("kotlin-parcelize")
 	id("org.jetbrains.kotlinx.kover")
 	id("dev.icerock.mobile.multiplatform-resources")
-	id("com.google.devtools.ksp")
-	id("de.jensklingenberg.ktorfit")
 }
 
 group = "com.darkrockstudios.apps.hammer"
@@ -57,6 +54,8 @@ kotlin {
 			resources.srcDirs("resources")
 
 			dependencies {
+				implementation(project(":base"))
+
 				api("com.arkivanov.decompose:decompose:$decompose_version")
 				api("io.github.aakira:napier:$napier_version")
 				api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
@@ -68,8 +67,6 @@ kotlin {
 				implementation("io.ktor:ktor-client-logging:$ktor_version")
 				implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
 				implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-
-				implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfit_version")
 
 				api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinx_serialization_version")
 				api("org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version")
@@ -118,7 +115,7 @@ kotlin {
 				implementation("net.harawata:appdirs:1.2.1")
 				api("dev.icerock.moko:resources-compose:$moko_resources_version")
 				//implementation("io.ktor:ktor-client-curl:$ktor_version")
-				implementation("io.ktor:ktor-client-jetty:$ktor_version")
+				implementation("io.ktor:ktor-client-java:$ktor_version")
 			}
 		}
 		val desktopTest by getting {
@@ -129,18 +126,6 @@ kotlin {
 			}
 		}
 	}
-}
-
-dependencies {
-	add("kspCommonMainMetadata", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
-	add("kspDesktop", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
-	add("kspAndroid", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
-	add("kspIosX64", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
-	//add("kspIosSimulatorArm64", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfit_version")
-}
-
-configure<de.jensklingenberg.ktorfit.gradle.KtorfitGradleConfiguration> {
-	version = ktorfit_version
 }
 
 multiplatformResources {
@@ -170,6 +155,11 @@ android {
 		sourceCompatibility = JavaVersion.VERSION_1_8
 		targetCompatibility = JavaVersion.VERSION_1_8
 	}
+}
+dependencies {
+	implementation(project(mapOf("path" to ":base")))
+	implementation(project(mapOf("path" to ":base")))
+	implementation(project(mapOf("path" to ":base")))
 }
 
 kover {

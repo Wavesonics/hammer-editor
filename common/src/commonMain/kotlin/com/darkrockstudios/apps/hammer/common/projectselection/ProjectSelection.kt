@@ -23,6 +23,7 @@ interface ProjectSelection : HammerComponent {
 	fun beginSetupServer()
 	fun cancelServerSetup()
 	suspend fun setupServer(url: String, email: String, password: String, create: Boolean): Boolean
+    suspend fun authTest()
 
 	data class State(
 		val projectsDir: HPath,

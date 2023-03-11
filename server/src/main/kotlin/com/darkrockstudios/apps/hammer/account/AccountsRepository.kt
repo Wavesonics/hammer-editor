@@ -2,6 +2,7 @@ package com.darkrockstudios.apps.hammer.account
 
 import com.darkrockstudios.apps.hammer.Account
 import com.darkrockstudios.apps.hammer.AuthToken
+import com.darkrockstudios.apps.hammer.base.http.Token
 import com.darkrockstudios.apps.hammer.database.AccountDao
 import com.darkrockstudios.apps.hammer.database.AuthTokenDao
 import com.darkrockstudios.apps.hammer.utilities.RandomString
@@ -21,12 +22,12 @@ class AccountsRepository(
 
     private suspend fun createToken(email: String, deviceId: String): Token {
         val expires = Clock.System.now() + tokenLifetime
-        val token = Token(tokenGenerator.nextString())
+        val token = Token(tokenGenerator.nextString(), tokenGenerator.nextString())
 
         authTokenDao.setToken(
             email = email,
             deviceId = deviceId,
-            newToken = token,
+            token = token,
             expires = expires
         )
 
@@ -40,7 +41,7 @@ class AccountsRepository(
                 // TODO eventually implement token refresh
                 createToken(email = email, deviceId = deviceId)
             } else {
-                Token(existingToken.token)
+                Token(existingToken.token, existingToken.refresh)
             }
         } else {
             createToken(email = email, deviceId = deviceId)
@@ -85,17 +86,22 @@ class AccountsRepository(
         }
     }
 
-    suspend fun checkToken(tokenStr: String): Result<String> {
-        val token = Token(tokenStr)
-        return if (token.isValid()) {
-            val authToken = authTokenDao.getTokenByToken(token)
-            if (authToken != null && !authToken.isExpired()) {
-                Result.success(authToken.email)
-            } else {
-                Result.failure(LoginFailed("No valid token not found"))
-            }
+    suspend fun checkToken(token: String): Result<String> {
+        val authToken = authTokenDao.getTokenByAuthToken(token)
+        return if (authToken != null && !authToken.isExpired()) {
+            Result.success(authToken.email)
         } else {
-            Result.failure(LoginFailed("Invalid token provided"))
+            Result.failure(LoginFailed("No valid token not found"))
+        }
+    }
+
+    suspend fun refreshToken(deviceId: String, refreshToken: String): Result<Token> {
+        val authToken = authTokenDao.getTokenByDeviceId(deviceId)
+        return if (authToken != null && authToken.refresh == refreshToken) {
+            val newToken = createToken(authToken.email, deviceId)
+            Result.success(Token(auth = newToken.auth, refresh = newToken.refresh))
+        } else {
+            Result.failure(LoginFailed("No valid token not found"))
         }
     }
 

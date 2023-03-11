@@ -11,7 +11,6 @@ import kotlinx.datetime.Clock
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 
@@ -26,6 +25,7 @@ class AccountsRepositoryTest : BaseTest() {
     private val password = "power123"
     private val salt = "12345"
     private val bearerToken = "izWqAxTWhMU19TEJowrgXqPwzNmYDUEvJ4TB18wfUdj2LJcTtD30ZmNJj7TnET1A"
+    private val refreshToken = "12345xTWhMU19TEJowrgXqPwzNmYDUEvJ4TB18wfUdj2LJcTtD30ZmNJj7TnET1A"
     private val hashedPassword = AccountsRepository.hashPassword(password = password, salt = salt)
 
     private lateinit var account: Account
@@ -34,6 +34,7 @@ class AccountsRepositoryTest : BaseTest() {
         email = email,
         deviceId = deviceId,
         token = bearerToken,
+        refresh = refreshToken,
         created = (Clock.System.now() - 365.days).toISO8601(),
         expires = (Clock.System.now() + 30.days).toISO8601()
     )
@@ -112,7 +113,7 @@ class AccountsRepositoryTest : BaseTest() {
     @Test
     fun `Check Token - Success`() = runTest {
         val token = createAuthToken()
-        coEvery { authTokenDao.getTokenByToken(any()) } returns token
+        coEvery { authTokenDao.getTokenByAuthToken(any()) } returns token
         val accountsRepository = AccountsRepository(accountDao, authTokenDao)
 
         val result = accountsRepository.checkToken(bearerToken)
@@ -122,7 +123,7 @@ class AccountsRepositoryTest : BaseTest() {
 
     @Test
     fun `Check Token - Failure`() = runTest {
-        coEvery { authTokenDao.getTokenByToken(any()) } returns null
+        coEvery { authTokenDao.getTokenByAuthToken(any()) } returns null
         val accountsRepository = AccountsRepository(accountDao, authTokenDao)
 
         val result = accountsRepository.checkToken(bearerToken)

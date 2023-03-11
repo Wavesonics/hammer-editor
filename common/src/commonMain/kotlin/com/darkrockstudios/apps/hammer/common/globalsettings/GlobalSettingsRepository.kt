@@ -20,7 +20,6 @@ import org.koin.core.component.KoinComponent
 class GlobalSettingsRepository(
 	private val fileSystem: FileSystem,
 	private val toml: Toml,
-	private val json: Json,
 ) : KoinComponent {
 
 	var globalSettings: GlobalSettings
@@ -39,8 +38,6 @@ class GlobalSettingsRepository(
 		onBufferOverflow = BufferOverflow.DROP_OLDEST
 	)
 	val serverSettingsUpdates: SharedFlow<ServerSettings?> = _serverSettingsUpdates
-
-	val httpManager = HttpManager(serverSettingsUpdates)
 
 	var serverSettings: ServerSettings?
 		private set
@@ -101,19 +98,24 @@ class GlobalSettingsRepository(
 				settingsText = readUtf8()
 			}
 
-			serverSettings = json.decodeFromString(settingsText)
+			serverSettings = toml.decodeFromString(settingsText)
 		}
 		return serverSettings
 	}
 
 	private fun writeServerSettings(settings: ServerSettings) {
-		val settingsText = json.encodeToString(settings)
+		val settingsText = toml.encodeToString(settings)
 
 		val path = getServerSettingsPath().toOkioPath()
 		fileSystem.createDirectories(path.parent!!)
 		fileSystem.write(path, false) {
 			writeUtf8(settingsText)
 		}
+	}
+
+	fun deleteServerSettings() {
+		val path = getServerSettingsPath().toOkioPath()
+		fileSystem.delete(path)
 	}
 
 	companion object {

@@ -54,16 +54,16 @@ private fun fakeProjectSelectionComponent(): ProjectSelection {
 				ProjectSelection.State(
 					projectsDir = HPath("/asd/asd", "asd", true),
 					projects = listOf(
-						fakeProjectData(),
-						fakeProjectData(),
-						fakeProjectData(),
-						fakeProjectData(),
-					),
-					uiTheme = UiTheme.Dark
-				)
-			)
+                        fakeProjectData(),
+                        fakeProjectData(),
+                        fakeProjectData(),
+                        fakeProjectData(),
+                    ),
+                    uiTheme = UiTheme.Dark
+                )
+            )
 
-		override fun loadProjectList() {}
+        override fun loadProjectList() {}
         override fun setProjectsDir(path: String) {}
         override fun selectProject(projectDef: ProjectDef) {}
         override fun createProject(projectName: String) {}

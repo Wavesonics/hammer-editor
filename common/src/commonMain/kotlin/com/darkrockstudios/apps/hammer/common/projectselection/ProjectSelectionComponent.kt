@@ -4,6 +4,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.reduce
+import com.benasher44.uuid.uuid4
 import com.darkrockstudios.apps.hammer.common.ComponentBase
 import com.darkrockstudios.apps.hammer.common.data.ExampleProjectRepository
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
@@ -12,7 +13,6 @@ import com.darkrockstudios.apps.hammer.common.fileio.HPath
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toHPath
 import com.darkrockstudios.apps.hammer.common.globalsettings.GlobalSettingsRepository
 import com.darkrockstudios.apps.hammer.common.globalsettings.ServerSettings
-import com.darkrockstudios.apps.hammer.common.globalsettings.State
 import com.darkrockstudios.apps.hammer.common.globalsettings.UiTheme
 import com.darkrockstudios.apps.hammer.common.projecteditor.metadata.ProjectMetadata
 import com.darkrockstudios.apps.hammer.common.server.ServerAccountApi
@@ -30,13 +30,11 @@ class ProjectSelectionComponent(
     private val onProjectSelected: (projectDef: ProjectDef) -> Unit
 ) : ProjectSelection, ComponentBase(componentContext) {
 
-    private val globalSettingsRepository by inject<GlobalSettingsRepository>()
-    private val projectsRepository by inject<ProjectsRepository>()
-    private val exampleProjectRepository by inject<ExampleProjectRepository>()
+    private val globalSettingsRepository: GlobalSettingsRepository by inject()
+    private val projectsRepository: ProjectsRepository by inject()
+    private val exampleProjectRepository: ExampleProjectRepository by inject()
+    private val accountApi: ServerAccountApi by inject()
     private var loadProjectsJob: Job? = null
-
-    //private val accountApi: ServerAccountApi?
-    //    get() = globalSettingsRepository.httpManager.accountApi
 
     private val _state = MutableValue(
         ProjectSelection.State(
@@ -184,20 +182,22 @@ class ProjectSelectionComponent(
         }
     }
 
+    override suspend fun authTest() {
+        accountApi.testAuth()
+    }
+
     override suspend fun setupServer(url: String, email: String, password: String, create: Boolean): Boolean {
         val newSettings = ServerSettings(
             email = email,
             url = url,
+            deviceId = uuid4().toString(),
             bearerToken = null,
             refreshToken = null,
         )
 
         globalSettingsRepository.updateServerSettings(newSettings)
-        globalSettingsRepository.httpManager.onSettingsUpdate(newSettings)
-        val accountApi =
-            globalSettingsRepository.httpManager.accountApi ?: throw IllegalStateException("API Should not be null now")
 
-        val token = if (create) {
+        val result = if (create) {
             accountApi.createAccount(
                 email = email,
                 password = password,
@@ -211,19 +211,32 @@ class ProjectSelectionComponent(
             )
         }
 
-        val authedSettings = newSettings.copy(
-            bearerToken = token
-        )
-        globalSettingsRepository.updateServerSettings(authedSettings)
-        globalSettingsRepository.httpManager.onSettingsUpdate(authedSettings)
+        return if (result.isSuccess) {
+            val token = result.getOrThrow()
 
-        _state.reduce {
-            it.copy(
-                serverUrl = url,
-                serverSetup = false
+            val authedSettings = newSettings.copy(
+                bearerToken = token.auth,
+                refreshToken = token.refresh
             )
-        }
+            globalSettingsRepository.updateServerSettings(authedSettings)
 
-        return true
+            _state.reduce {
+                it.copy(
+                    serverUrl = url,
+                    serverSetup = false
+                )
+            }
+            true
+        } else {
+            globalSettingsRepository.deleteServerSettings()
+
+            _state.reduce {
+                it.copy(
+                    serverUrl = null,
+                    serverSetup = false
+                )
+            }
+            false
+        }
     }
 }

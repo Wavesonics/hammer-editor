@@ -47,6 +47,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":base"))
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version")
 

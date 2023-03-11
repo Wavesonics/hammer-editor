@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class ServerSettings(
     val email: String,
     val url: String,
+    val deviceId: String,
     val bearerToken: String?,
     val refreshToken: String?,
 )

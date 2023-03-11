@@ -7,6 +7,7 @@ import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -36,17 +37,7 @@ fun createHttpClient(
             bearer {
                 realm = AUTH_REALM
                 loadTokens {
-                    val accessToken = globalSettingsRepository.serverSettings?.bearerToken
-                    val refreshToken = globalSettingsRepository.serverSettings?.refreshToken
-                    Napier.d { "loadTokens" }
-                    if (accessToken != null && refreshToken != null) {
-                        BearerTokens(
-                            accessToken = accessToken,
-                            refreshToken = refreshToken
-                        )
-                    } else {
-                        null
-                    }
+                    loadTokens(globalSettingsRepository)
                 }
                 refreshTokens {
                     refreshToken(globalSettingsRepository, tokenRefreshClient)
@@ -56,6 +47,20 @@ fun createHttpClient(
     }
 
     return client
+}
+
+private fun loadTokens(globalSettingsRepository: GlobalSettingsRepository): BearerTokens? {
+    val accessToken = globalSettingsRepository.serverSettings?.bearerToken
+    val refreshToken = globalSettingsRepository.serverSettings?.refreshToken
+    Napier.d { "loadTokens" }
+    return if (accessToken != null && refreshToken != null) {
+        BearerTokens(
+            accessToken = accessToken,
+            refreshToken = refreshToken
+        )
+    } else {
+        null
+    }
 }
 
 private fun createRefreshClient(): HttpClient {
@@ -151,3 +156,13 @@ private class NapierHttpLogger : Logger {
 }
 
 expect fun getHttpPlatformEngine(): HttpClientEngineFactory<*>
+
+fun HttpClient.updateCredentials(credentials: BearerTokens) {
+    val authPlugin = plugin(Auth)
+    authPlugin.providers.removeAll { true }
+    authPlugin.bearer {
+        loadTokens {
+            credentials
+        }
+    }
+}

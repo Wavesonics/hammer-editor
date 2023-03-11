@@ -4,20 +4,17 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.reduce
-import com.benasher44.uuid.uuid4
 import com.darkrockstudios.apps.hammer.common.ComponentBase
 import com.darkrockstudios.apps.hammer.common.data.ExampleProjectRepository
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
+import com.darkrockstudios.apps.hammer.common.data.accountrepository.AccountRepository
 import com.darkrockstudios.apps.hammer.common.data.projectsrepository.ProjectsRepository
 import com.darkrockstudios.apps.hammer.common.fileio.HPath
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toHPath
 import com.darkrockstudios.apps.hammer.common.globalsettings.GlobalSettingsRepository
-import com.darkrockstudios.apps.hammer.common.globalsettings.ServerSettings
 import com.darkrockstudios.apps.hammer.common.globalsettings.UiTheme
 import com.darkrockstudios.apps.hammer.common.projecteditor.metadata.ProjectMetadata
-import com.darkrockstudios.apps.hammer.common.server.ServerAccountApi
 import io.github.aakira.napier.Napier
-import io.ktor.client.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,10 +27,10 @@ class ProjectSelectionComponent(
     private val onProjectSelected: (projectDef: ProjectDef) -> Unit
 ) : ProjectSelection, ComponentBase(componentContext) {
 
+    private val accountRepository: AccountRepository by inject()
     private val globalSettingsRepository: GlobalSettingsRepository by inject()
     private val projectsRepository: ProjectsRepository by inject()
     private val exampleProjectRepository: ExampleProjectRepository by inject()
-    private val accountApi: ServerAccountApi by inject()
     private var loadProjectsJob: Job? = null
 
     private val _state = MutableValue(
@@ -183,60 +180,27 @@ class ProjectSelectionComponent(
     }
 
     override suspend fun authTest() {
-        accountApi.testAuth()
+        accountRepository.testAuth()
     }
 
     override suspend fun setupServer(url: String, email: String, password: String, create: Boolean): Boolean {
-        val newSettings = ServerSettings(
-            email = email,
-            url = url,
-            deviceId = uuid4().toString(),
-            bearerToken = null,
-            refreshToken = null,
-        )
-
-        globalSettingsRepository.updateServerSettings(newSettings)
-
-        val result = if (create) {
-            accountApi.createAccount(
-                email = email,
-                password = password,
-                deviceId = "asd"
-            )
-        } else {
-            accountApi.login(
-                email = email,
-                password = password,
-                deviceId = "asd"
-            )
-        }
-
-        return if (result.isSuccess) {
-            val token = result.getOrThrow()
-
-            val authedSettings = newSettings.copy(
-                bearerToken = token.auth,
-                refreshToken = token.refresh
-            )
-            globalSettingsRepository.updateServerSettings(authedSettings)
-
+        val success = accountRepository.setupServer(url, email, password, create)
+        if (success) {
             _state.reduce {
                 it.copy(
                     serverUrl = url,
                     serverSetup = false
                 )
             }
-            true
         } else {
-            globalSettingsRepository.deleteServerSettings()
-
             _state.reduce {
                 it.copy(
                     serverUrl = null,
                     serverSetup = false
                 )
             }
-            false
         }
+
+        return success
     }
 }

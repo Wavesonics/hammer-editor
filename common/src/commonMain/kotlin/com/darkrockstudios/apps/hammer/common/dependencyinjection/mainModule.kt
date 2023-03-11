@@ -1,6 +1,7 @@
 package com.darkrockstudios.apps.hammer.common.dependencyinjection
 
 import com.akuleshov7.ktoml.Toml
+import com.darkrockstudios.apps.hammer.common.data.accountrepository.AccountRepository
 import com.darkrockstudios.apps.hammer.common.data.drafts.SceneDraftRepository
 import com.darkrockstudios.apps.hammer.common.data.drafts.SceneDraftRepositoryOkio
 import com.darkrockstudios.apps.hammer.common.data.encyclopediarepository.EncyclopediaRepository
@@ -50,6 +51,8 @@ val mainModule = module {
 
     singleOf(::GlobalSettingsRepository) bind GlobalSettingsRepository::class
 
+    singleOf(::AccountRepository)
+
     singleOf(::getPlatformFilesystem) bind FileSystem::class
 
     singleOf(::ProjectsRepositoryOkio) bind ProjectsRepository::class
@@ -58,7 +61,7 @@ val mainModule = module {
 
     singleOf(::createJsonSerializer) bind Json::class
 
-	scope<ProjectDefScope> {
+    scope<ProjectDefScope> {
 		scopedOf(::ProjectEditorRepositoryOkio) bind ProjectEditorRepository::class
 
 		scopedOf(::SceneDraftRepositoryOkio) bind SceneDraftRepository::class

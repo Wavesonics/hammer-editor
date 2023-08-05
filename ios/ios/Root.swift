@@ -42,8 +42,13 @@ class RootHolder : ObservableObject {
     }
 
     func selectProject(project: ProjectDefinition) {
-        state.getAndUpdate { reducer in
-            RootState(self.createProjectRoot(project: project))
+        DispatchQueue.main.async {
+            Task {
+                let component = await self.createProjectRoot(project: project)
+                self.state.getAndUpdate { reducer in
+                    RootState(component)
+                }
+            }
         }
     }
 
@@ -69,7 +74,13 @@ class RootHolder : ObservableObject {
         return componentHolder
     }
 
-    private func createProjectRoot(project: ProjectDefinition) -> ComponentHolder<ProjectRoot> {
+    private func createProjectRoot(project: ProjectDefinition) async -> ComponentHolder<ProjectRoot> {
+        do {
+            try await ProjectEditorScopeUtilsKt.openProjectScope(projectDef: project)
+        } catch {
+            // Yell about it here
+        }
+        
         let componentHolder = ComponentHolder<ProjectRoot> { context in
             ProjectRootComponent(
                 componentContext: context,

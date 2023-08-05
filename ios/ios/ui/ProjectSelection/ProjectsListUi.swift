@@ -24,7 +24,7 @@ struct ProjectsListUi: View {
     
     var body: some View {
         Text("Projects List")
-        /*
+        
          VStack() {
              Button("Create Test Project") {
                  component.createProject(projectName: "test project")
@@ -52,13 +52,13 @@ struct ProjectsListUi: View {
                      .padding()
                      .fontWeight(.semibold)
                  }
-                 
+
              }
              .background(.thinMaterial)
          }
          .frame(maxWidth: 300, alignment: Alignment.center)
          .padding()
-         */
+
     }
 }
 

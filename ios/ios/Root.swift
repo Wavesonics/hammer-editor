@@ -75,10 +75,12 @@ class RootHolder : ObservableObject {
     }
 
     private func createProjectRoot(project: ProjectDefinition) async -> ComponentHolder<ProjectRoot> {
+        // TODO call this from somewhere more lifecycle aware
         do {
             try await ProjectEditorScopeUtilsKt.openProjectScope(projectDef: project)
         } catch {
             // Yell about it here
+            print("ERROR: FAILED TO INIT PROJECT EDITOR SCOPE")
         }
         
         let componentHolder = ComponentHolder<ProjectRoot> { context in

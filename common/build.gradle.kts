@@ -6,7 +6,6 @@ plugins {
 	//alias(libs.plugins.parcelize.darwin)
 	alias(libs.plugins.jetbrains.kover)
 	alias(libs.plugins.moko.resources)
-	alias(libs.plugins.aboutlibraries.plugin)
 }
 
 group = "com.darkrockstudios.apps.hammer"
@@ -61,7 +60,6 @@ kotlin {
 				api(libs.moko.graphics)
 				implementation(libs.kotlinx.atomicfu)
 				implementation(libs.fluidsonic.locale)
-				api(libs.aboutlibraries.core)
 			}
 		}
 		val commonTest by getting {

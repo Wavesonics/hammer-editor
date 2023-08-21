@@ -4,9 +4,9 @@ val RELEASE_KEY_ALIAS = System.getenv("RELEASE_KEY_ALIAS") ?: ""
 val RELEASE_KEY_PASSWORD = System.getenv("RELEASE_KEY_PASSWORD") ?: ""
 
 plugins {
+	alias(libs.plugins.android.application)
 	alias(libs.plugins.kotlin.android)
 	alias(libs.plugins.kotlin.serialization)
-	alias(libs.plugins.android.application)
 	alias(libs.plugins.jetbrains.compose)
 	alias(libs.plugins.jetbrains.kover)
 	alias(libs.plugins.aboutlibraries.plugin)
@@ -37,6 +37,8 @@ dependencies {
 	androidTestImplementation(libs.core.ktx)
 	androidTestImplementation(libs.androidx.runner)
 	androidTestUtil(libs.orchestrator)
+
+	implementation(libs.aboutlibraries.core)
 }
 
 android {
@@ -88,4 +90,8 @@ android {
 			)
 		}
 	}
+}
+
+aboutLibraries {
+
 }

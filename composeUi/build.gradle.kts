@@ -39,6 +39,7 @@ kotlin {
 				api(libs.image.loader)
 				implementation(libs.koalaplot.core)
 				api(libs.moko.resources.compose)
+				implementation(libs.aboutlibraries.compose)
 			}
 		}
 		val commonTest by getting {

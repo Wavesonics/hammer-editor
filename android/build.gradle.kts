@@ -91,7 +91,3 @@ android {
 		}
 	}
 }
-
-aboutLibraries {
-
-}

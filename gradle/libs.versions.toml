@@ -2,8 +2,8 @@
 
 [versions]
 # App Versions
-app = "1.5.0"
-android_version_code = "22"
+app = "1.5.2"
+android_version_code = "24"
 data_version = "1.0"
 
 # Kotlin
@@ -11,7 +11,7 @@ jvm = "17"
 kotlin = "1.9.10"
 
 # Android
-android_gradle_plugin = "8.0.1"
+android_gradle_plugin = "8.1.1"
 android_sdk_compile = "34"
 android_sdk_target = "34"
 android_sdk_min = "26"
@@ -46,16 +46,16 @@ jetbrains_kover = "0.7.3"
 moko_resources = "0.23.0"
 moko_graphics = "0.9.0"
 
-decompose = "2.1.0-beta-01"
-essenty = "1.2.0-beta-01" # This should match what ever decompose is referncing internally
-parcelize_darwin = "0.2.1"
+decompose = "2.1.0"
+essenty = "1.2.0" # This should match what ever decompose is referncing internally
+parcelize_darwin = "0.2.2"
 
 mpfilepicker = "2.1.0"
 richtexteditor = "1.4.1"
 koalaplot-core = "0.3.0"
 image-loader = "1.6.7"
 
-koin_bom = "3.5.0"
+koin_bom = "3.5.1"
 
 cokoin = "1.0.0"
 
@@ -68,7 +68,7 @@ uuid = "0.8.1"
 work-runtime-ktx = "2.8.1"
 
 multiplatform_window_size = "0.3.1"
-mockk = "1.13.7"
+mockk = "1.13.8"
 
 kotlinx_atomicfu = "0.22.0"
 
@@ -81,7 +81,7 @@ sqldelight = "2.0.0"
 buildconfig = "4.1.2"
 fluidsonic_locale = "0.13.0"
 resources = "1.1.0"
-aboutlibraries = "10.8.3"
+aboutlibraries = "10.9.0"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }

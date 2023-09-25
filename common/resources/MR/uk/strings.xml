@@ -11,12 +11,4 @@
     <string name="unsaved_dialog_positive_button">Відхилити та закрити</string>
     <string name="close_dialog_button">Затворити</string>
     <string name="more_menu_button">Більше</string>
-    <string name="unsaved_entity_dialog_neutral_button"></string>
-    <string name="network_request_failure_parse_body"></string>
-    <string name="image_failed_to_load"></string>
-    <string name="unsaved_entity_dialog_negative_button"></string>
-    <string name="unsaved_entity_dialog_positive_button"></string>
-    <string name="confirm_dialog_negative"></string>
-    <string name="confirm_dialog_positive"></string>
-    <string name="network_request_failure_connection"></string>
 </resources>

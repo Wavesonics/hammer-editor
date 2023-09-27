@@ -23,5 +23,5 @@
     <string name="action_add_note_disabled">Añadir las notas está desactivado en este momento</string>
     <string name="note_widget_config_project_checkbox_explained">Si no se selecciona ningún proyecto, se te pedirá que elijas un proyecto de cada vez.</string>
     <string name="action_add_note_long_label">Añadir una nota a la historia</string>
-    <string name="note_widget_config_title">Configure el ancho de la nota:</string>
+    <string name="note_widget_config_title">Configurar el widget de notas:</string>
 </resources>

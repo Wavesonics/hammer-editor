@@ -23,5 +23,5 @@
     <string name="action_add_note_disabled">Das Hinzufügen von Notizen ist deaktiviert</string>
     <string name="note_widget_config_project_checkbox_explained">Wenn kein Projekt gewählt ist, wird jedes Mal gefragt für welches Projekt die Notiz ist.</string>
     <string name="action_add_note_long_label">Neue Notiz hinzufügen</string>
-    <string name="note_widget_config_title">Notiz Widget bearbeiten:</string>
+    <string name="note_widget_config_title">Notiz-Widget bearbeiten:</string>
 </resources>

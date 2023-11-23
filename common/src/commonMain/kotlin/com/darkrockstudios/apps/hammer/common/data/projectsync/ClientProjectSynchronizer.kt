@@ -103,7 +103,7 @@ class ClientProjectSynchronizer(
 	}
 
 	fun isServerSynchronized(): Boolean {
-		return globalSettingsRepository.serverSettings != null
+		return globalSettingsRepository.serverIsSetup()
 	}
 
 	suspend fun needsSync(): Boolean {
@@ -546,10 +546,6 @@ class ClientProjectSynchronizer(
 	): Boolean {
 		var allSuccess = true
 
-		// Add dirty IDs that are not already in the update sequence
-		val dirtyEntityIds = dirtyEntities
-			.map { it.id }
-			.filter { id -> !serverSyncData.idSequence.contains(id) }
 		// Add local IDs on top of the server sequence
 		val combinedSequence = if (maxId > serverSyncData.lastId) {
 			val localIds = (serverSyncData.lastId + 1..maxId).toList()

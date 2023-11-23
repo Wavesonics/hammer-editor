@@ -807,7 +807,7 @@ class SceneEditorRepositoryOkio(
 				writeUtf8(markdown)
 			}
 
-			Napier.e("Stored temp scene: (${sceneItem.name})")
+			Napier.d("Stored temp scene: (${sceneItem.name})")
 
 			true
 		} catch (e: IOException) {

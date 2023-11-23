@@ -18,6 +18,7 @@ const val OUT_OF_ORDER_PROJECT_NAME = "Out Of Order"
 const val ENCYCLOPEDIA_ONLY_PROJECT_NAME = "Encyclopedia Only"
 const val MIGRATION_0_1 = "Migration 0 to 1"
 const val MIGRATION_0_1_ALREADY = "Migration 0 to 1 Already"
+const val SERVER_SYNC_PROJECT_1 = "Server Sync Project 1"
 val projectNames = listOf(
 	PROJECT_EMPTY_NAME,
 	OUT_OF_ORDER_PROJECT_NAME,
@@ -62,6 +63,14 @@ fun createProjectDirectories(ffs: FakeFileSystem) {
 	ffs.createDirectories(projDir)
 	projectNames.forEach { projectName ->
 		ffs.createDirectory(projDir.div(projectName), true)
+	}
+}
+
+fun writeServerFile(ffs: FakeFileSystem, serverContents: String) {
+	val projDir = getProjectsDirectory()
+	val serverFilePath = projDir / GlobalSettingsRepository.SERVER_FILE_NAME
+	ffs.write(serverFilePath) {
+		writeUtf8(serverContents)
 	}
 }
 

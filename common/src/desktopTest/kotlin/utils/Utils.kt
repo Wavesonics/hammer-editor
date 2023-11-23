@@ -1,5 +1,11 @@
 package utils
 
+import com.darkrockstudios.apps.hammer.common.data.ProjectDef
+import com.darkrockstudios.apps.hammer.common.dependencyinjection.ProjectDefScope
+import com.darkrockstudios.apps.hammer.common.util.StrRes
+import dev.icerock.moko.resources.StringResource
+import org.koin.core.component.getScopeId
+import org.koin.core.context.GlobalContext
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.functions
@@ -31,4 +37,20 @@ fun <T : Any, R> T.getPrivateProperty(variableName: String): R {
 		field.isAccessible = false
 		return@let value
 	} ?: throw IllegalArgumentException("Field not found: $variableName")
+}
+
+class TestStrRes : StrRes {
+	override fun get(str: StringResource) = "test"
+	override fun get(str: StringResource, vararg args: Any) = "test"
+}
+
+suspend fun testProjectScope(projectDef: ProjectDef, block: suspend () -> Unit) {
+	val defScope = ProjectDefScope(projectDef)
+	val k = GlobalContext.get()
+
+	val projScope = k.createScope<ProjectDefScope>(defScope.getScopeId(), source = defScope)
+
+	block()
+
+	k.deleteScope(projectDef.getScopeId())
 }

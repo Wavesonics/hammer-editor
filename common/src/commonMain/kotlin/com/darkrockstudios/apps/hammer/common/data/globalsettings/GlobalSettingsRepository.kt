@@ -9,6 +9,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.first
@@ -44,7 +45,7 @@ class GlobalSettingsRepository(
 		replay = 1,
 		onBufferOverflow = BufferOverflow.DROP_OLDEST
 	)
-	val serverSettingsUpdates: SharedFlow<ServerSettings?> = _serverSettingsUpdates
+	val serverSettingsUpdates: Flow<ServerSettings?> = _serverSettingsUpdates
 
 	var serverSettings: ServerSettings?
 		private set
@@ -178,6 +179,6 @@ class GlobalSettingsRepository(
 			)
 		}
 
-		private const val SERVER_FILE_NAME = "server.json"
+		const val SERVER_FILE_NAME = "server.json"
 	}
 }

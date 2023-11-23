@@ -16,7 +16,6 @@ import com.darkrockstudios.apps.hammer.common.data.tree.TreeNode
 import com.darkrockstudios.apps.hammer.common.fileio.HPath
 import com.darkrockstudios.apps.hammer.common.server.ServerProjectApi
 import com.darkrockstudios.apps.hammer.common.util.StrRes
-import dev.icerock.moko.resources.StringResource
 import getProject1Def
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -26,6 +25,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import utils.BaseTest
+import utils.TestStrRes
 import utils.fromApiEntity
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,10 +44,7 @@ class SceneSynchronizerTest : BaseTest() {
 	@MockK
 	private lateinit var serverProjectApi: ServerProjectApi
 
-	private val strRes: StrRes = object : StrRes {
-		override fun get(str: StringResource) = "test"
-		override fun get(str: StringResource, vararg args: Any) = "test"
-	}
+	private val strRes: StrRes = TestStrRes()
 
 	private lateinit var rootNode: TreeNode<SceneItem>
 	private lateinit var tree: Tree<SceneItem>

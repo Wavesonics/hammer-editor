@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="encyclopedia_search_hint">Zoek op naam</string>
+    <string name="encyclopedia_search_hint">Zoek op naam of hashtag</string>
     <string name="encyclopedia_search_clear_button">Wissen</string>
     <string name="encyclopedia_category_all">Alles</string>
+    <string name="encyclopedia_category_person">Persoon</string>
+    <string name="encyclopedia_category_place">Plaats</string>
 </resources>

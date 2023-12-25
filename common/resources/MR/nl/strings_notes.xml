@@ -3,4 +3,7 @@
     <string name="notes_header">Notities</string>
     <string name="notes_list_empty">Geen notities gevonden</string>
     <string name="notes_create_note_button">Notitie creëren</string>
+    <string name="notes_note_item_action_delete">Verwijder</string>
+    <string name="notes_note_item_action_rename">Hernoem</string>
+    <string name="notes_note_item_action_cancel">Ongedaan maken</string>
 </resources>

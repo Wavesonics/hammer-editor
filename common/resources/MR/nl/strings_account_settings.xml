@@ -2,4 +2,8 @@
 <resources>
     <string name="settings_heading">⚙ Instellingen</string>
     <string name="settings_theme_label">UI Thema</string>
+    <string name="settings_projects_directory">Projecten Overzicht</string>
+    <string name="settings_projects_directory_hint">Pad naar de projecten overzicht</string>
+    <string name="settings_projects_directory_button">Kies directory</string>
+    <string name="settings_example_project_header">Voorbeeld project</string>
 </resources>

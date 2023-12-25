@@ -3,4 +3,7 @@
     <string name="app_name">Hamer</string>
     <string name="title_activity_add_note">Notitie toevoegen</string>
     <string name="loading">Laden…</string>
+    <string name="overflow_menu_button">Meer</string>
+    <string name="navdrawer_button">Navigatiepaneel</string>
+    <string name="title_activity_configure_note_widget">Configureer widget</string>
 </resources>

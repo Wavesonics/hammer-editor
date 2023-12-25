@@ -2,4 +2,8 @@
 <resources>
     <string name="app_name">Hamer</string>
     <string name="unsaved_scenes_dialog_title">Onopgeslagen scènes</string>
+    <string name="unsaved_encyclopedia_dialog_title">Niet bewaard Encyclopedie item</string>
+    <string name="unsaved_notes_dialog_title">Niet opgeslagen notitie</string>
+    <string name="unsaved_encyclopedia_dialog_message">Niet opslaan?</string>
+    <string name="unsaved_scenes_dialog_message">Bewaar niet opgeslagen scenes?</string>
 </resources>

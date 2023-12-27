@@ -364,8 +364,26 @@ struct NotesView : View {
     }
 }
 struct DictionaryView : View {
+    @State private var searchTerm = ""
+
+    let events: [Event] = [
+        Event(title: "that one thing", date: "2023-01-01"),
+        Event(title: "another thing which happened", date: "2023-02-01"),
+        Event(title: "otters and other animals", date: "2023-03-01"),
+    ]
+    
+    var filteredEvents: [Event] {
+        guard !searchTerm.isEmpty else { return events }
+        return events.filter { $0.title.localizedCaseInsensitiveContains(searchTerm) }
+    }
+    
     var body: some View {
-        Text("dictionary thing!")
+        NavigationView {
+            List(filteredEvents, id:\.title) { event in
+                Text(event.title)
+            }
+            .searchable(text: $searchTerm, placement: .automatic, prompt: "search by name or hashtag")
+        }
     }
 }
 
@@ -395,7 +413,6 @@ struct TimelineView: View {
         Event(title: "Event 1", date: "2023-01-01"),
         Event(title: "Event 2", date: "2023-02-01"),
         Event(title: "Event 3", date: "2023-03-01"),
-        // Add more events as needed
     ]
     
     var body: some View {

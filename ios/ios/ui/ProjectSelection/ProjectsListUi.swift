@@ -138,6 +138,9 @@ struct CreateDialog : View {
 struct ProjectView : View {
     @Binding var selectedProject: TestProject
     
+    @State private var selectedScope = "All"
+    let searchScopes = ["All", "Person", "Place", "Thing", "Event", "Idea"]
+    
     @State private var selectedTab = ""
     var body: some View {
         VStack {
@@ -161,6 +164,18 @@ struct ProjectView : View {
                     } label: {
                         Label("create", systemImage: "square.and.arrow.up")
                     }
+                }
+            }
+            
+            // TODO: sharing state between this and the view is ... not ideal
+            if selectedTab == "Dictionary" {
+                ToolbarItemGroup() {
+                    Picker("Filter", selection: $selectedScope) {
+                        ForEach(searchScopes, id: \.self) { scope in
+                            Text(scope)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
                 }
             }
         }
@@ -365,7 +380,9 @@ struct NotesView : View {
 }
 struct DictionaryView : View {
     @State private var searchTerm = ""
-
+    @State private var selectedScope = "All"
+    let searchScopes = ["All", "Person", "Place", "Thing", "Event", "Idea"]
+    
     let events: [Event] = [
         Event(title: "that one thing", date: "2023-01-01"),
         Event(title: "another thing which happened", date: "2023-02-01"),
@@ -379,10 +396,15 @@ struct DictionaryView : View {
     
     var body: some View {
         NavigationView {
-            List(filteredEvents, id:\.title) { event in
-                Text(event.title)
+            VStack(spacing: 0) {
+                
+                List(filteredEvents, id:\.title) { event in
+                    Text(event.title)
+                }
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: $searchTerm, placement: .automatic, prompt: "search by name or hashtag")
             }
-            .searchable(text: $searchTerm, placement: .automatic, prompt: "search by name or hashtag")
+            .border(.black)
         }
     }
 }

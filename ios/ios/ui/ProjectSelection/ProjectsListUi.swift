@@ -156,6 +156,15 @@ struct ProjectView : View {
                     }
                 }
             }
+            if selectedTab == "Stats" {
+                ToolbarItemGroup {
+                    Button {
+                        print("create note button tapped")
+                    } label: {
+                        Label("create", systemImage: "square.and.arrow.up")
+                    }
+                }
+            }
         }
         TabView {
             StatsView() //temporary while debugging

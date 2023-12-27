@@ -16,7 +16,7 @@ struct app_iosApp: App {
     var rootHolder = RootHolder()
     
     init() {
-        Theme.navigationBarColors(background: .purple, titleColor: .white)
+        Theme.navigationBarColors(background: .white, titleColor: .black)
 
         NapierProxyKt.debugBuild()
         

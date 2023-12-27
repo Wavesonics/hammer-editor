@@ -31,7 +31,8 @@ struct ProjectSelectionUi: View {
         if let settings = slot.child?.instance as? ProjectSelectionDestination.AccountSettingsDestination {
             AccountSettingsUi(component: settings.component)
         } else if let projList = slot.child?.instance as? ProjectSelectionDestination.ProjectsListDestination {
-            ProjectsListUi(component: projList.component)
+//            ProjectsListUi(component: projList.component)
+            ProjectsListUi()
         } else {
             Text("error")
         }
@@ -42,10 +43,9 @@ struct ProjectSelectionUi: View {
 View displaying the project names themselves
 */
 struct ProjectItemUi: View {
-    
     private var project: ProjectData
-    
     private var onProjectSelected: (ProjectDefinition) -> Void
+    
     
     init(project: ProjectData, onProjectSelected: @escaping (ProjectDefinition) -> Void) {
         self.project = project
@@ -53,6 +53,8 @@ struct ProjectItemUi: View {
     }
     
     var body: some View {
+        // individual panels containing a project
+        
         Button(project.definition.name) {
             onProjectSelected(project.definition)
         }        

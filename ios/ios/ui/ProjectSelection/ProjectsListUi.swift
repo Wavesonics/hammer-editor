@@ -141,8 +141,6 @@ struct ProjectView : View {
     @State private var selectedTab = ""
     var body: some View {
         VStack {
-            //            Text("\(selectedProject.Name)")
-            //                .navigationTitle("\(selectedProject.Name)")
         }
         .navigationTitle(selectedTab == "Stats" ? selectedProject.Name: selectedTab )  // TODO: speed this up
         .toolbar {
@@ -198,7 +196,7 @@ struct ProjectView : View {
                     selectedTab = "Dictionary"
                 }
                 .tabItem {
-                    Image(systemName: "window.horizontal.closed")
+                    Image(systemName: "book")
                     Text("dictionary")
                 }
             TimelineView()
@@ -254,11 +252,11 @@ struct StatsView : View {
                     RoundedRectangle(cornerRadius: 15)
                         .foregroundColor(.gray.opacity(0.2))
                     Text("bar graph")
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
                 }
                 .padding()
-
+                
             }
         }
     }
@@ -289,7 +287,7 @@ struct NoteEditView : View {
                 .confirmationDialog("Delete Note?", isPresented: $isShowingDeleteConfirmation, titleVisibility: .visible) {
                     Button("Delete", role: .destructive) {
                         print("nuking note...")
-//                        onDelete()
+                        //                        onDelete()
                     }
                 }
             }
@@ -310,7 +308,7 @@ struct NotesView : View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .foregroundColor(.gray.opacity(0.2))
-               
+                    
                     NavigationLink(destination: NoteEditView()) {
                         VStack(alignment: .leading) {
                             Text("note title")
@@ -328,14 +326,14 @@ struct NotesView : View {
                         .border(.green)
                         .padding()
                     }
-
+                    
                 } //zstack1
                 .padding()
                 
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .foregroundColor(.gray.opacity(0.2))
-               
+                    
                     NavigationLink(destination: NoteEditView()) {
                         VStack(alignment: .leading) {
                             Text("another note title")
@@ -353,16 +351,16 @@ struct NotesView : View {
                         .border(.green)
                         .padding()
                     }
-
+                    
                 } //zstack1
                 .padding()
             }//vstack
             
         } //scrollview
         
-//        NavigationLink(destination: NoteEditView()) {
-//            Text("create new note")
-//        }
+        //        NavigationLink(destination: NoteEditView()) {
+        //            Text("create new note")
+        //        }
     }
 }
 struct DictionaryView : View {
@@ -370,11 +368,123 @@ struct DictionaryView : View {
         Text("dictionary thing!")
     }
 }
-struct TimelineView : View {
-    var body: some View {
-        Text("timeline!")
+
+struct Event: Identifiable {
+    var id = UUID()
+    var title: String
+    var date: String
+}
+
+// vertical and horizontal bars for the vertical timeline
+struct TimeLink: Shape {
+    var horizontal = true
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+        if horizontal {
+            path.move(to: CGPoint(x: rect.midX, y: rect.midY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        }
+        return path
     }
 }
+
+struct TimelineView: View {
+    let events: [Event] = [
+        Event(title: "Event 1", date: "2023-01-01"),
+        Event(title: "Event 2", date: "2023-02-01"),
+        Event(title: "Event 3", date: "2023-03-01"),
+        // Add more events as needed
+    ]
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                ForEach(events) { event in
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            // the date hstack for this cell
+                            TimeLink(horizontal: false)
+                                .stroke(Color.black)
+                                .frame(width: 40)
+                            // bumping the padding of this bumps the left side line/shape too
+                            Text(event.date)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .fontWeight(.medium)
+                                .padding(.vertical)
+                        }
+                        HStack {
+                            // the content hstack for this cell
+                            TimeLink()
+                                .stroke(Color.black)
+                                .frame(width: 40)
+                            //                            .border(.red)
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .foregroundColor(.gray.opacity(0.2))
+                                
+                                VStack(alignment: .leading) {
+                                    
+                                    Text("event text")
+                                        .multilineTextAlignment(.leading)
+                                        .foregroundColor(.black)
+                                    
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                                
+                            } //zstack1
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct TimelineEventView: View {
+    var event: Event
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 20) {
+            // Timeline Dot
+            Circle()
+                .frame(width: 20, height: 20)
+                .foregroundColor(Color.blue)
+            
+            // Vertical Line
+            GeometryReader { geometry in
+                Path { path in
+                    let center = CGPoint(x: geometry.frame(in: .local).midX, y: geometry.frame(in: .local).maxY)
+                    path.move(to: center)
+                    path.addLine(to: CGPoint(x: center.x, y: center.y + 30))
+                }
+                .stroke(Color.gray, lineWidth: 1)
+            }
+            .frame(width: 20, height: 40)
+            
+            // Event Details
+            VStack(alignment: .leading, spacing: 4) {
+                Text(event.title)
+                    .font(.headline)
+                Text(event.date)
+                    .font(.subheadline)
+                    .foregroundColor(Color.gray)
+            }
+            
+            // Horizontal Line
+            Spacer()
+            Path { path in
+                path.move(to: CGPoint(x: 0, y: 10))
+                path.addLine(to: CGPoint(x: 10, y: 10))
+            }
+            .stroke(Color.gray, lineWidth: 1)
+        }
+    }
+}
+
 
 // end of test code
 
@@ -388,7 +498,7 @@ struct ProjectsListUi: View {
         .init(name: "Project 3", date: "1/5/24")
     ]
     @State private var isShowingCreateDialog = false
-//    @State private var selectedProject = 1
+    //    @State private var selectedProject = 1
     //    private let component: ProjectsList
     
     //    @ObservedObject
@@ -440,12 +550,6 @@ struct ProjectsListUi: View {
         } //nav
     } //view
 }
-
-//struct Dialog_Previews: PreviewProvider {
-//    static var previews: some View {
-//        CreateDialog(visible: .constant(true), projects: $projects)
-//    }
-//}
 
 struct ProjectListUi_Previews: PreviewProvider {
     static var previews: some View {

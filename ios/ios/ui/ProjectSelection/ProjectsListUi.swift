@@ -146,6 +146,7 @@ struct ProjectView : View {
         }
         .navigationTitle(selectedTab == "Stats" ? selectedProject.Name: selectedTab )  // TODO: speed this up
         .toolbar {
+            // TODO: not sure if we wanna do this if we have a create button in the scrollview?
             if selectedTab == "Notes" {
                 ToolbarItemGroup {
                     Button {
@@ -206,7 +207,51 @@ struct ProjectView : View {
 
 struct StatsView : View {
     var body: some View {
-        Text("stats!")
+        ScrollView {
+            VStack {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .foregroundColor(.gray.opacity(0.2))
+                    VStack(alignment: .center) {
+                        Text("99")
+                            .font(.largeTitle)
+                            .foregroundColor(.black)
+                            .frame(width: .infinity, alignment: .center)
+                        Text("Scenes")
+                            .foregroundColor(.black)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding()
+                }
+                .padding()
+                
+                ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .foregroundColor(.gray.opacity(0.2))
+                    VStack(alignment: .center) {
+                        Text("33,191")
+                            .font(.largeTitle)
+                            .foregroundColor(.black)
+                            .frame(width: .infinity, alignment: .center)
+                        Text("Words")
+                            .foregroundColor(.black)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding()
+                }
+                .padding()
+                
+                ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .foregroundColor(.gray.opacity(0.2))
+                    Text("bar graph")
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding()
+                }
+                .padding()
+
+            }
+        }
     }
 }
 struct ScenesProjectView : View {

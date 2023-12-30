@@ -3,4 +3,6 @@
     <string name="settings_heading">설정</string>
     <string name="settings_projects_directory">프로젝트 폴더</string>
     <string name="settings_theme_label">UI 테마</string>
+    <string name="settings_projects_directory_hint">프로젝트 폴더 경로</string>
+    <string name="settings_projects_directory_button">폴더 선택</string>
 </resources>

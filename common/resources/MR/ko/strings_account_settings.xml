@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="settings_heading">설정</string>
+    <string name="settings_projects_directory">프로젝트 폴더</string>
+    <string name="settings_theme_label">UI 테마</string>
 </resources>

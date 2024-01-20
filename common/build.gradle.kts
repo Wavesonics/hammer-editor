@@ -98,6 +98,7 @@ kotlin {
 				api(libs.essenty)
 				api(libs.moko.resources)
 				api(libs.ktor.client.darwin)
+				implementation(libs.korge.core)
 			}
 		}
 		val iosTest by getting

@@ -29,6 +29,9 @@ private class ExampleProjectRepositoryiOs(
 	}
 
 	override fun platformInstall() {
+		// TODO eventually replace with a more targeted solution. Currently this uses Korge Core
+		// which is a huge library. Hopefully Okio will implement multiplatform zip handling and
+		// we can just use that
 		runBlocking {
 			val projDir = PathInfo(globalSettingsRepository.globalSettings.projectsDirectory).combine(
 				PathInfo(PROJECT_NAME)

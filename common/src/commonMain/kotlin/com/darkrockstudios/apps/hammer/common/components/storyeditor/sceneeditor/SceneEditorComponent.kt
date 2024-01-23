@@ -26,7 +26,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import org.koin.core.component.inject
 
-
 class SceneEditorComponent(
 	componentContext: ComponentContext,
 	originalSceneItem: SceneItem,
@@ -34,6 +33,7 @@ class SceneEditorComponent(
 	private val removeMenu: (id: String) -> Unit,
 	private val closeSceneEditor: () -> Unit,
 	private val showDraftsList: (SceneItem) -> Unit,
+	private val showFocusMode: (SceneItem) -> Unit,
 ) : ProjectComponentBase(originalSceneItem.projectDef, componentContext),
 	ComponentToaster by ComponentToasterImpl(),
 	SceneEditor {
@@ -205,6 +205,24 @@ class SceneEditorComponent(
 			beginSaveDraft()
 		}
 
+		val metadataItem = MenuItemDescriptor(
+			"scene-editor-toggle-metadata",
+			MR.strings.scene_editor_metadata_button,
+			""
+		) {
+			Napier.i("Toggle Metadata")
+			toggleMetadataVisibility()
+		}
+
+		val focusModeItem = MenuItemDescriptor(
+			"scene-editor-focus-mode",
+			MR.strings.scene_editor_focus_mode_button,
+			""
+		) {
+			Napier.i("Enter Focus Mode")
+			enterFocusMode()
+		}
+
 		val menuItems = setOf(
 			renameItem,
 			saveItem,
@@ -212,7 +230,9 @@ class SceneEditorComponent(
 			deleteItem,
 			draftsItem,
 			saveDraftItem,
-			closeItem
+			metadataItem,
+			focusModeItem,
+			closeItem,
 		)
 		val menu = MenuDescriptor(
 			getMenuId(),
@@ -337,6 +357,10 @@ class SceneEditorComponent(
 				)
 			}
 		}
+	}
+
+	override fun enterFocusMode() {
+		showFocusMode(sceneDef)
 	}
 
 	override fun decreaseTextSize() {

@@ -2,7 +2,6 @@ package com.darkrockstudios.apps.hammer.common.storyeditor
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +20,7 @@ import com.darkrockstudios.apps.hammer.common.compose.RootSnackbarHostState
 import com.darkrockstudios.apps.hammer.common.compose.rightBorder
 import com.darkrockstudios.apps.hammer.common.storyeditor.drafts.DraftCompareUi
 import com.darkrockstudios.apps.hammer.common.storyeditor.drafts.DraftsListUi
+import com.darkrockstudios.apps.hammer.common.storyeditor.focusmode.FocusModeUi
 import com.darkrockstudios.apps.hammer.common.storyeditor.sceneeditor.SceneEditorUi
 import com.darkrockstudios.apps.hammer.common.storyeditor.scenelist.SceneListUi
 
@@ -33,7 +33,6 @@ fun StoryEditorUi(
 	navWidth: Dp = Dp.Unspecified,
 	modifier: Modifier = Modifier,
 ) {
-	val dialogState by component.dialogState.subscribeAsState()
 	BoxWithConstraints(modifier = modifier) {
 		val state by component.state.subscribeAsState()
 		val detailsState by component.detailsRouterState.subscribeAsState()
@@ -76,19 +75,40 @@ fun StoryEditorUi(
 		)
 	}
 
-	when (val dest = dialogState.child?.instance) {
-		is StoryEditor.ChildDestination.DialogDestination.Outline -> {
-			OutlineOverviewUi(dest.component)
-		}
+	DialogUi(component)
 
-		is StoryEditor.ChildDestination.DialogDestination.None -> {}
-		null -> {}
-	}
+	FullscreenUi(component)
 
 	SetMultiPane(component)
 }
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+private fun DialogUi(component: StoryEditor) {
+	val dialogState by component.dialogState.subscribeAsState()
+
+	when (val dest = dialogState.child?.instance) {
+		is StoryEditor.ChildDestination.DialogDestination.OutlineDestination -> {
+			OutlineOverviewUi(dest.component)
+		}
+		is StoryEditor.ChildDestination.DialogDestination.None -> {}
+		null -> {}
+	}
+}
+
+@Composable
+private fun FullscreenUi(component: StoryEditor) {
+	val state by component.fullscreenState.subscribeAsState()
+
+	when (val dest = state.child?.instance) {
+		is StoryEditor.ChildDestination.FullScreen.FocusModeDestination -> {
+			FocusModeUi(dest.component)
+		}
+
+		is StoryEditor.ChildDestination.FullScreen.None -> {}
+		null -> {}
+	}
+}
+
 @Composable
 private fun SetMultiPane(component: StoryEditor) {
 	/*

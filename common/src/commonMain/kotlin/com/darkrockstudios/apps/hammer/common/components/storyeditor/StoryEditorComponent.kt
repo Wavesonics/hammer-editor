@@ -174,10 +174,16 @@ class StoryEditorComponent(
 	override fun setMultiPane(isMultiPane: Boolean) {
 		_state.getAndUpdate { it.copy(isMultiPane = isMultiPane) }
 
-		if (isMultiPane) {
-			switchToMultiPane()
-		} else {
-			switchToSinglePane()
+		val fullScreenConfig = fullscreenState.value.child?.configuration
+		val inFullScreen = (fullScreenConfig != null) && (fullScreenConfig is StoryEditor.FullScreenConfig.FocusMode)
+
+		// Do nothing if we are showing a fullscreen component
+		if (inFullScreen.not()) {
+			if (isMultiPane) {
+				switchToMultiPane()
+			} else {
+				switchToSinglePane()
+			}
 		}
 	}
 

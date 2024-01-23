@@ -37,6 +37,7 @@ fun StoryEditorUi(
 		val state by component.state.subscribeAsState()
 		val detailsState by component.detailsRouterState.subscribeAsState()
 		val isMultiPane = state.isMultiPane
+		val fullScreen by component.fullscreenState.subscribeAsState()
 
 		val editorDivider = rememberEditorDivider()
 		val dividerX =
@@ -46,7 +47,7 @@ fun StoryEditorUi(
 				LIST_PANE_WIDTH
 			}
 
-		val listModifier = if (isMultiPane) {
+		val listModifier = if (isMultiPane && fullScreen.child?.configuration is StoryEditor.FullScreenConfig.None) {
 			Modifier.requiredWidthIn(0.dp, dividerX).fillMaxHeight()
 				.rightBorder(1.dp, MaterialTheme.colorScheme.outline)
 		} else {

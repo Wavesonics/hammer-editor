@@ -98,16 +98,16 @@ class StoryEditorComponent(
 	}
 
 	private fun createFullScreenChild(
-		dialogConfig: StoryEditor.FullScreenConfig,
+		config: StoryEditor.FullScreenConfig,
 		componentContext: ComponentContext
 	): StoryEditor.ChildDestination.FullScreen {
-		return when (dialogConfig) {
+		return when (config) {
 			StoryEditor.FullScreenConfig.None ->
 				StoryEditor.ChildDestination.FullScreen.None
 
 			is StoryEditor.FullScreenConfig.FocusMode ->
 				StoryEditor.ChildDestination.FullScreen.FocusModeDestination(
-					FocusModeComponent(componentContext, projectDef, ::exitFocusMode)
+					FocusModeComponent(componentContext, projectDef, config.sceneItem, ::exitFocusMode)
 				)
 		}
 	}

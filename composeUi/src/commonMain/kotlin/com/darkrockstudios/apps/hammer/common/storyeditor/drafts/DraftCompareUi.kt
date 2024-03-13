@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.darkrockstudios.apps.hammer.common.storyeditor.drafts
 
 import androidx.compose.foundation.BorderStroke
@@ -14,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
@@ -24,11 +27,9 @@ import com.darkrockstudios.apps.hammer.common.compose.LocalScreenCharacteristic
 import com.darkrockstudios.apps.hammer.common.compose.Ui
 import com.darkrockstudios.apps.hammer.common.compose.moko.get
 import com.darkrockstudios.apps.hammer.common.compose.rememberStrRes
-import com.darkrockstudios.apps.hammer.common.data.text.markdownToSnapshot
 import com.darkrockstudios.apps.hammer.common.storyeditor.sceneeditor.getInitialEditorContent
-import com.darkrockstudios.richtexteditor.model.RichTextValue
-import com.darkrockstudios.richtexteditor.ui.RichTextEditor
-import com.darkrockstudios.richtexteditor.ui.defaultRichTextFieldStyle
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 
 @Composable
 fun DraftCompareUi(component: DraftCompare) {
@@ -114,27 +115,27 @@ private fun CurrentContent(
 	val state by component.state.subscribeAsState()
 
 	// I feel like there must be a better way...
-	var sceneText by remember(state.sceneContent) {
+	val textState by remember(state.sceneContent) {
 		val existing = state.mergedContent as? ComposeRichText
 
 		if (existing == null && state.sceneContent != null) {
-			val sceneSnapshot = (state.sceneContent?.markdown?.markdownToSnapshot())
-			if (sceneSnapshot != null) {
-				component.onMergedContentChanged(ComposeRichText(sceneSnapshot))
+			val sceneState = (state.sceneContent?.platformRepresentation as? ComposeRichText)?.state
+			if (sceneState != null) {
+				component.onMergedContentChanged(ComposeRichText(sceneState))
 			}
 
 			mutableStateOf(
-				RichTextValue.fromSnapshot(
-					sceneSnapshot ?: "".markdownToSnapshot()
-				)
+				sceneState ?: RichTextState()
 			)
 		} else {
 			mutableStateOf(
-				RichTextValue.fromSnapshot(
-					existing?.snapshot ?: "".markdownToSnapshot()
-				)
+				existing?.state ?: RichTextState()
 			)
 		}
+	}
+
+	LaunchedEffect(textState.annotatedString) {
+		component.onMergedContentChanged(ComposeRichText(textState))
 	}
 
 	Card(
@@ -159,18 +160,23 @@ private fun CurrentContent(
 				Text(MR.strings.draft_compare_current_accept_button.get())
 			}
 
-			RichTextEditor(
+			com.mohamedrejeb.richeditor.ui.material3.RichTextEditor(
 				modifier = Modifier.fillMaxSize(),
-				value = sceneText,
-				onValueChange = { rtv ->
-					component.onMergedContentChanged(ComposeRichText(rtv.getLastSnapshot()))
-					sceneText = rtv
+				state = textState,
+				placeholder = {
+					androidx.compose.material.Text(
+						MR.strings.draft_compare_current_body_placeholder.get(),
+						color = MaterialTheme.colorScheme.onBackground,
+					)
 				},
-				textFieldStyle = defaultRichTextFieldStyle().copy(
-					placeholder = MR.strings.draft_compare_current_body_placeholder.get(),
-					textColor = MaterialTheme.colorScheme.onBackground,
-					placeholderColor = MaterialTheme.colorScheme.onBackground,
-				)
+				shape = RectangleShape,
+				colors = RichTextEditorDefaults.richTextEditorColors(
+					containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+				),
+				textStyle = MaterialTheme.typography.bodyLarge.copy(
+					//fontSize = state.textSize.sp,
+					color = MaterialTheme.colorScheme.onBackground,
+				),
 			)
 		}
 	}
@@ -208,18 +214,24 @@ private fun DraftContent(
 				Text(MR.strings.draft_compare_draft_accept_button.get())
 			}
 
-			RichTextEditor(
+			com.mohamedrejeb.richeditor.ui.material3.RichTextEditor(
 				modifier = Modifier.fillMaxSize(),
-				value = draftText,
-				onValueChange = { rtv ->
-					draftText = rtv
+				state = draftText,
+				placeholder = {
+					androidx.compose.material.Text(
+						MR.strings.draft_compare_draft_body_placeholder.get(),
+						color = MaterialTheme.colorScheme.onBackground,
+					)
 				},
-				textFieldStyle = defaultRichTextFieldStyle().copy(
-					placeholder = MR.strings.draft_compare_draft_body_placeholder.get(),
-					textColor = MaterialTheme.colorScheme.onBackground,
-					placeholderColor = MaterialTheme.colorScheme.onBackground,
+				shape = RectangleShape,
+				colors = RichTextEditorDefaults.richTextEditorColors(
+					containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 				),
-				readOnly = true
+				textStyle = MaterialTheme.typography.bodyLarge.copy(
+					//fontSize = state.textSize.sp,
+					color = MaterialTheme.colorScheme.onBackground,
+				),
+				readOnly = false,
 			)
 		}
 	}

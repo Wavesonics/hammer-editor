@@ -1,15 +1,14 @@
 package com.darkrockstudios.apps.hammer.common.compose
 
 import com.darkrockstudios.apps.hammer.common.data.PlatformRichText
-import com.darkrockstudios.apps.hammer.common.data.text.toMarkdown
-import com.darkrockstudios.richtexteditor.utils.RichTextValueSnapshot
+import com.mohamedrejeb.richeditor.model.RichTextState
 
-data class ComposeRichText(val snapshot: RichTextValueSnapshot) : PlatformRichText {
-	override fun convertToMarkdown() = snapshot.toMarkdown()
+data class ComposeRichText(val state: RichTextState) : PlatformRichText {
+	override fun convertToMarkdown() = state.toMarkdown()
 
 	override fun compare(text: PlatformRichText): Boolean {
 		return if (text is ComposeRichText) {
-			text.snapshot == snapshot
+			text.state.annotatedString == state.annotatedString
 		} else {
 			false
 		}
@@ -21,5 +20,9 @@ data class ComposeRichText(val snapshot: RichTextValueSnapshot) : PlatformRichTe
 		} else {
 			false
 		}
+	}
+
+	override fun hashCode(): Int {
+		return state.annotatedString.hashCode()
 	}
 }

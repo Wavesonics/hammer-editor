@@ -6,43 +6,54 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.darkrockstudios.apps.hammer.MR
-import com.darkrockstudios.richtexteditor.model.RichTextValue
-import com.darkrockstudios.richtexteditor.model.Style
+import com.mohamedrejeb.richeditor.model.RichTextState
 
 @Composable
 fun EditorToolBar(
-	sceneText: RichTextValue,
-	setSceneText: (RichTextValue) -> Unit,
+	state: RichTextState,
 	decreaseTextSize: () -> Unit,
 	increaseTextSize: () -> Unit,
 	resetTextSize: () -> Unit,
 ) {
+	val currentSpanStyle = state.currentSpanStyle
+
 	Row(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant)) {
 		EditorAction(
 			iconRes = MR.images.icon_bold,
-			active = sceneText.currentStyles.contains(Style.Bold),
+			active = currentSpanStyle.fontWeight == FontWeight.Bold,
 		) {
-			setSceneText(sceneText.insertStyle(Style.Bold))
+			state.toggleSpanStyle(
+				SpanStyle(
+					fontWeight = FontWeight.Bold
+				)
+			)
 		}
 		EditorAction(
 			iconRes = MR.images.icon_italic,
-			active = sceneText.currentStyles.contains(Style.Italic),
+			active = currentSpanStyle.fontStyle == FontStyle.Italic,
 		) {
-			setSceneText(sceneText.insertStyle(Style.Italic))
+			state.toggleSpanStyle(
+				SpanStyle(
+					fontStyle = FontStyle.Italic
+				)
+			)
 		}
-		EditorAction(
-			iconRes = MR.images.icon_undo,
-			active = sceneText.isUndoAvailable
-		) {
-			setSceneText(sceneText.undo())
-		}
-		EditorAction(
-			iconRes = MR.images.icon_redo,
-			active = sceneText.isRedoAvailable
-		) {
-			setSceneText(sceneText.redo())
-		}
+//		EditorAction(
+//			iconRes = MR.images.icon_undo,
+//			active = sceneTextState.isUndoAvailable
+//		) {
+//			setSceneText(sceneTextState.undo())
+//		}
+//		EditorAction(
+//			iconRes = MR.images.icon_redo,
+//			active = sceneTextState.isRedoAvailable
+//		) {
+//			setSceneText(sceneTextState.redo())
+//		}
 
 		EditorAction(
 			iconRes = MR.images.icon_text_decrease,
@@ -63,5 +74,4 @@ fun EditorToolBar(
 			resetTextSize()
 		}
 	}
-
 }

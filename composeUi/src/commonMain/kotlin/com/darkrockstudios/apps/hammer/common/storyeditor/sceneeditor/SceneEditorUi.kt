@@ -4,11 +4,14 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,10 +26,9 @@ import com.darkrockstudios.apps.hammer.common.compose.Toaster
 import com.darkrockstudios.apps.hammer.common.compose.Ui
 import com.darkrockstudios.apps.hammer.common.compose.moko.get
 import com.darkrockstudios.apps.hammer.common.storyeditor.scenelist.SceneDeleteDialog
-import com.darkrockstudios.richtexteditor.ui.RichTextEditor
-import com.darkrockstudios.richtexteditor.ui.defaultRichTextFieldStyle
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SceneEditorUi(
 	component: SceneEditor,
@@ -36,14 +38,18 @@ fun SceneEditorUi(
 	val state by component.state.subscribeAsState()
 	val lastForceUpdate by component.lastForceUpdate.subscribeAsState()
 
-	var sceneText by remember {
+	var textState by remember {
 		mutableStateOf(
 			getInitialEditorContent(state.sceneBuffer?.content)
 		)
 	}
 
 	LaunchedEffect(lastForceUpdate) {
-		sceneText = getInitialEditorContent(state.sceneBuffer?.content)
+		textState = getInitialEditorContent(state.sceneBuffer?.content)
+	}
+
+	LaunchedEffect(textState.annotatedString) {
+		component.onContentChanged(ComposeRichText(textState))
 	}
 
 	Toaster(component, rootSnackbar)
@@ -55,8 +61,7 @@ fun SceneEditorUi(
 			EditorTopBar(component, rootSnackbar)
 
 			EditorToolBar(
-				sceneText = sceneText,
-				setSceneText = { sceneText = it },
+				state = textState,
 				decreaseTextSize = component::decreaseTextSize,
 				increaseTextSize = component::increaseTextSize,
 				resetTextSize = component::resetTextSize,
@@ -67,24 +72,30 @@ fun SceneEditorUi(
 				modifier = Modifier.fillMaxSize(),
 				horizontalArrangement = Arrangement.Center
 			) {
-				RichTextEditor(
+				com.mohamedrejeb.richeditor.ui.material3.RichTextEditor(
 					modifier = Modifier
 						.background(MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp))
 						.fillMaxHeight()
-						.widthIn(128.dp, TextEditorDefaults.MAX_WIDTH)
+						.widthIn(TextEditorDefaults.MAX_WIDTH, TextEditorDefaults.MAX_WIDTH)
+						.defaultMinSize(minWidth = TextEditorDefaults.MAX_WIDTH)
 						.padding(horizontal = Ui.Padding.XL),
-					value = sceneText,
-					onValueChange = { rtv ->
-						sceneText = rtv
-						component.onContentChanged(ComposeRichText(rtv.getLastSnapshot()))
+					shape = RectangleShape,
+					colors = RichTextEditorDefaults.richTextEditorColors(
+						containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+					),
+					state = textState,
+					placeholder = {
+						Text(
+							MR.strings.scene_editor_body_placeholder.get(),
+							color = MaterialTheme.colorScheme.onSurface,
+							style = MaterialTheme.typography.bodyLarge.copy(
+								fontSize = state.textSize.sp,
+							)
+						)
 					},
-					textFieldStyle = defaultRichTextFieldStyle().copy(
-						placeholder = MR.strings.scene_editor_body_placeholder.get(),
-						textColor = MaterialTheme.colorScheme.onSurface,
-						placeholderColor = MaterialTheme.colorScheme.onSurface,
-						textStyle = MaterialTheme.typography.bodyLarge.copy(
-							fontSize = state.textSize.sp
-						),
+					textStyle = MaterialTheme.typography.bodyLarge.copy(
+						fontSize = state.textSize.sp,
+						color = MaterialTheme.colorScheme.onSurface,
 					),
 				)
 

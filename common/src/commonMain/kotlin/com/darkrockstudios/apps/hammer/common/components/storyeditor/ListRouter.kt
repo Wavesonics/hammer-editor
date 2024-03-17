@@ -3,12 +3,15 @@ package com.darkrockstudios.apps.hammer.common.components.storyeditor
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.parcelable.Parcelable
-import com.arkivanov.essenty.parcelable.Parcelize
+import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.scenelist.SceneListComponent
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
 import com.darkrockstudios.apps.hammer.common.data.SceneItem
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 
 internal class ListRouter(
 	componentContext: ComponentContext,
@@ -23,7 +26,8 @@ internal class ListRouter(
 		source = navigation,
 		initialConfiguration = Config.List,
 		key = "MainRouter",
-		childFactory = ::createChild
+		childFactory = ::createChild,
+		serializer = ConfigSerializer,
 	)
 
 	val state: Value<ChildStack<Config, StoryEditor.ChildDestination.List>> = stack
@@ -55,11 +59,21 @@ internal class ListRouter(
 		}
 	}
 
-	sealed class Config : Parcelable {
-		@Parcelize
-		object List : Config()
+	@Serializable
+	sealed class Config {
+		@Serializable
+		data object List : Config()
 
-		@Parcelize
-		object None : Config()
+		@Serializable
+		data object None : Config()
 	}
+
+	object ConfigSerializer : KSerializer<Config> by polymorphicSerializer(
+		SerializersModule {
+			polymorphic(Config::class) {
+				subclass(Config.List::class, Config.List.serializer())
+				subclass(Config.None::class, Config.None.serializer())
+			}
+		}
+	)
 }

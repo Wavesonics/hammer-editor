@@ -6,10 +6,13 @@ import com.arkivanov.decompose.router.slot.SlotNavigation
 import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.parcelable.Parcelable
-import com.arkivanov.essenty.parcelable.Parcelize
+import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.components.projectsync.ProjectSyncComponent
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 
 class ProjectRootModalRouter(
 	componentContext: ComponentContext,
@@ -22,7 +25,8 @@ class ProjectRootModalRouter(
 			source = navigation,
 			initialConfiguration = { Config.None },
 			key = "ProjectRootModalRouter",
-			childFactory = ::createChild
+			childFactory = ::createChild,
+			serializer = ConfigSerializer,
 		)
 
 	override fun isAtRoot(): Boolean {
@@ -50,11 +54,21 @@ class ProjectRootModalRouter(
 		navigation.activate(Config.None)
 	}
 
-	sealed class Config : Parcelable {
-		@Parcelize
-		object None : Config()
+	@Serializable
+	sealed class Config {
+		@Serializable
+		data object None : Config()
 
-		@Parcelize
-		object ProjectSync : Config()
+		@Serializable
+		data object ProjectSync : Config()
 	}
+
+	private object ConfigSerializer : KSerializer<Config> by polymorphicSerializer(
+		SerializersModule {
+			polymorphic(Config::class) {
+				subclass(Config.None::class, Config.None.serializer())
+				subclass(Config.ProjectSync::class, Config.ProjectSync.serializer())
+			}
+		}
+	)
 }

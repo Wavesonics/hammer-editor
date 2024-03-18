@@ -3,8 +3,7 @@ package com.darkrockstudios.apps.hammer.common.components.storyeditor
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.parcelable.Parcelable
-import com.arkivanov.essenty.parcelable.Parcelize
+import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.AppCloseManager
 import com.darkrockstudios.apps.hammer.common.components.projectroot.Router
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.drafts.DraftCompare
@@ -17,6 +16,10 @@ import com.darkrockstudios.apps.hammer.common.data.ProjectDef
 import com.darkrockstudios.apps.hammer.common.data.SceneItem
 import com.darkrockstudios.apps.hammer.common.dependencyinjection.HammerComponent
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 
 interface StoryEditor : AppCloseManager, Router, HammerComponent {
 	val listRouterState: Value<ChildStack<*, ChildDestination.List>>
@@ -64,21 +67,41 @@ interface StoryEditor : AppCloseManager, Router, HammerComponent {
 		}
 	}
 
-	sealed class DialogConfig : Parcelable {
-		@Parcelize
+	@Serializable
+	sealed class DialogConfig {
+		@Serializable
 		data object None : DialogConfig()
 
-		@Parcelize
+		@Serializable
 		data object OutlineOverview : DialogConfig()
 	}
 
-	sealed class FullScreenConfig : Parcelable {
-		@Parcelize
+	object DialogConfigSerializer : KSerializer<DialogConfig> by polymorphicSerializer(
+		SerializersModule {
+			polymorphic(DialogConfig::class) {
+				subclass(DialogConfig.None::class, DialogConfig.None.serializer())
+				subclass(DialogConfig.OutlineOverview::class, DialogConfig.OutlineOverview.serializer())
+			}
+		}
+	)
+
+	@Serializable
+	sealed class FullScreenConfig {
+		@Serializable
 		data object None : FullScreenConfig()
 
-		@Parcelize
+		@Serializable
 		data class FocusMode(val sceneItem: SceneItem) : FullScreenConfig()
 	}
+
+	object FullScreenConfigSerializer : KSerializer<FullScreenConfig> by polymorphicSerializer(
+		SerializersModule {
+			polymorphic(FullScreenConfig::class) {
+				subclass(FullScreenConfig.None::class, FullScreenConfig.None.serializer())
+				subclass(FullScreenConfig.FocusMode::class, FullScreenConfig.FocusMode.serializer())
+			}
+		}
+	)
 
 	fun showOutlineOverview()
 	fun dismissDialog()

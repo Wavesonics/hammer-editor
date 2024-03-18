@@ -27,6 +27,7 @@ class ProjectSelectionComponent(
 		source = navigation,
 		initialConfiguration = { ProjectSelection.Config.ProjectsList },
 		handleBackButton = false,
+		serializer = ProjectSelection.ConfigSerializer
 	) { config, componentContext ->
 		createChild(config, componentContext)
 	}

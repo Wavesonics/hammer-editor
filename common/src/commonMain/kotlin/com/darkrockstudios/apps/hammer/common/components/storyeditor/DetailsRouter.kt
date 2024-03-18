@@ -3,8 +3,7 @@ package com.darkrockstudios.apps.hammer.common.components.storyeditor
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.parcelable.Parcelable
-import com.arkivanov.essenty.parcelable.Parcelize
+import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.drafts.DraftCompare
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.drafts.DraftCompareComponent
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.drafts.DraftsList
@@ -15,6 +14,10 @@ import com.darkrockstudios.apps.hammer.common.data.MenuDescriptor
 import com.darkrockstudios.apps.hammer.common.data.SceneItem
 import com.darkrockstudios.apps.hammer.common.data.drafts.DraftDef
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 
 internal class DetailsRouter(
 	componentContext: ComponentContext,
@@ -31,7 +34,8 @@ internal class DetailsRouter(
 		source = navigation,
 		initialConfiguration = Config.None,
 		key = "DetailsRouter",
-		childFactory = ::createChild
+		childFactory = ::createChild,
+		serializer = ConfigSerializer,
 	)
 
 	val state: Value<ChildStack<Config, StoryEditor.ChildDestination.Detail>>
@@ -155,21 +159,29 @@ internal class DetailsRouter(
 			else -> true
 		}
 
-	sealed class Config : Parcelable {
-		@Parcelize
-		object None :
-			Config()
+	@Serializable
+	sealed class Config {
+		@Serializable
+		data object None : Config()
 
-		@Parcelize
-		data class SceneEditor(val sceneDef: SceneItem) :
-			Config()
+		@Serializable
+		data class SceneEditor(val sceneDef: SceneItem) : Config()
 
-		@Parcelize
-		data class DraftsList(val sceneDef: SceneItem) :
-			Config()
+		@Serializable
+		data class DraftsList(val sceneDef: SceneItem) : Config()
 
-		@Parcelize
-		data class DraftCompare(val sceneDef: SceneItem, val draftDef: DraftDef) :
-			Config()
+		@Serializable
+		data class DraftCompare(val sceneDef: SceneItem, val draftDef: DraftDef) : Config()
 	}
+
+	object ConfigSerializer : KSerializer<Config> by polymorphicSerializer(
+		SerializersModule {
+			polymorphic(Config::class) {
+				subclass(Config.None::class, Config.None.serializer())
+				subclass(Config.SceneEditor::class, Config.SceneEditor.serializer())
+				subclass(Config.DraftsList::class, Config.DraftsList.serializer())
+				subclass(Config.DraftCompare::class, Config.DraftCompare.serializer())
+			}
+		}
+	)
 }

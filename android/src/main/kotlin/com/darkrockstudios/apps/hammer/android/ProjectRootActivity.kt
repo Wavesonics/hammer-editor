@@ -26,7 +26,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.ExperimentalDecomposeApi
-import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.retainedComponent
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.getAndUpdate
@@ -75,7 +75,7 @@ class ProjectRootActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		WindowCompat.setDecorFitsSystemWindows(window, false)
 
-		val projectDef = intent.getParcelableExtra<ProjectDef>(EXTRA_PROJECT)
+		val projectDef = intent.getExtras()?.getSerializable<ProjectDef>(EXTRA_PROJECT, ProjectDef.serializer())
 		if (projectDef == null) {
 			finish()
 		} else {

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.arkivanov.decompose.ExperimentalDecomposeApi
-import com.arkivanov.decompose.extensions.compose.jetbrains.subscribeAsState
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.retainedComponent
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.MutableValue
@@ -131,7 +131,7 @@ class ProjectSelectActivity : AppCompatActivity() {
 
 	private fun onProjectSelected(projectDef: ProjectDef) {
 		val intent = Intent(this, ProjectRootActivity::class.java).apply {
-			putExtra(ProjectRootActivity.EXTRA_PROJECT, projectDef)
+			extras?.putSerializable(ProjectRootActivity.EXTRA_PROJECT, projectDef, ProjectDef.serializer())
 		}
 		startActivity(intent)
 	}

@@ -4,13 +4,15 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.darkrockstudios.apps.hammer.common.components.SavableComponent
+import kotlinx.serialization.Serializable
 
 class IosSettingsComponent(componentContext: ComponentContext) : PlatformSettings,
 	SavableComponent<IosSettingsComponent.PlatformState>(componentContext) {
 
 	private val _state = MutableValue(PlatformState())
 	override val state: Value<PlatformState> = _state
+	override fun getStateSerializer() = PlatformState.serializer()
 
 	@Serializable
-	class PlatformState
+	class PlatformState()
 }

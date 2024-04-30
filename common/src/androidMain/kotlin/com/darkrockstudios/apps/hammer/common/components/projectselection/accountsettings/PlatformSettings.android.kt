@@ -9,6 +9,7 @@ import com.darkrockstudios.apps.hammer.common.util.AndroidSettingsKeys
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.boolean
 import org.koin.core.component.inject
+import kotlinx.serialization.Serializable
 
 class AndroidPlatformSettings(componentContext: ComponentContext) :
 	PlatformSettings,
@@ -16,6 +17,7 @@ class AndroidPlatformSettings(componentContext: ComponentContext) :
 
 	private val _state = MutableValue(PlatformState())
 	override val state: Value<PlatformState> = _state
+	override fun getStateSerializer() = PlatformState.serializer()
 
 	private val settings: Settings by inject()
 

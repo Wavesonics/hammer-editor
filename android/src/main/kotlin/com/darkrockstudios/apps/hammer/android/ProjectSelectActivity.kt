@@ -26,6 +26,7 @@ import com.arkivanov.decompose.retainedComponent
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.getAndUpdate
+import com.arkivanov.essenty.statekeeper.putSerializable
 import com.darkrockstudios.apps.hammer.android.widgets.AddNoteActivity
 import com.darkrockstudios.apps.hammer.common.components.projectselection.ProjectSelection
 import com.darkrockstudios.apps.hammer.common.components.projectselection.ProjectSelectionComponent

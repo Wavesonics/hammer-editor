@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.arkivanov.decompose.retainedComponent
 import com.arkivanov.decompose.router.slot.ChildSlot
@@ -57,7 +56,6 @@ class ProjectSelectActivity : AppCompatActivity() {
 	private val globalSettings = MutableValue(globalSettingsRepository.globalSettings)
 	private var settingsUpdateJob: Job? = null
 
-	@OptIn(ExperimentalDecomposeApi::class)
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -131,9 +129,10 @@ class ProjectSelectActivity : AppCompatActivity() {
 	}
 
 	private fun onProjectSelected(projectDef: ProjectDef) {
-		val intent = Intent(this, ProjectRootActivity::class.java).apply {
-			extras?.putSerializable(ProjectRootActivity.EXTRA_PROJECT, projectDef, ProjectDef.serializer())
-		}
+		val intent = Intent(this, ProjectRootActivity::class.java)
+		val extras = Bundle()
+		extras.putSerializable(ProjectRootActivity.EXTRA_PROJECT, projectDef, ProjectDef.serializer())
+		intent.putExtras(extras)
 		startActivity(intent)
 	}
 }

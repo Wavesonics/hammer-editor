@@ -4,8 +4,6 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.getAndUpdate
-import com.arkivanov.essenty.parcelable.Parcelable
-import com.arkivanov.essenty.parcelable.Parcelize
 import com.darkrockstudios.apps.hammer.common.components.SavableComponent
 import com.darkrockstudios.apps.hammer.common.util.AndroidSettingsKeys
 import com.russhwolf.settings.Settings
@@ -40,8 +38,8 @@ class AndroidPlatformSettings(componentContext: ComponentContext) :
 		}
 	}
 
-	@Parcelize
+	@Serializable
 	data class PlatformState(
 		val keepScreenOn: Boolean = false
-	) : Parcelable
+	)
 }

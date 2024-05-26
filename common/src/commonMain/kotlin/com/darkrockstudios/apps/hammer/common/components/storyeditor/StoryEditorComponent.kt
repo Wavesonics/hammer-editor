@@ -66,7 +66,7 @@ class StoryEditorComponent(
 		key = "dialogRouter",
 		initialConfiguration = { StoryEditor.DialogConfig.None },
 		handleBackButton = false,
-		serializer = StoryEditor.DialogConfigSerializer,
+		serializer = StoryEditor.DialogConfig.serializer(),
 	) { config, componentContext ->
 		createDialogChild(config, componentContext)
 	}
@@ -92,7 +92,7 @@ class StoryEditorComponent(
 		key = "fullscreenRouter",
 		initialConfiguration = { StoryEditor.FullScreenConfig.None },
 		handleBackButton = false,
-		serializer = StoryEditor.FullScreenConfigSerializer,
+		serializer = StoryEditor.FullScreenConfig.serializer(),
 	) { config, componentContext ->
 		createFullScreenChild(config, componentContext)
 	}

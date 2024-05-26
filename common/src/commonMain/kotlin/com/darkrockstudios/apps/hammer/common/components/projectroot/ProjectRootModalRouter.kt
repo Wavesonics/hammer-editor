@@ -6,13 +6,9 @@ import com.arkivanov.decompose.router.slot.SlotNavigation
 import com.arkivanov.decompose.router.slot.activate
 import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.components.projectsync.ProjectSyncComponent
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 
 class ProjectRootModalRouter(
 	componentContext: ComponentContext,
@@ -26,7 +22,7 @@ class ProjectRootModalRouter(
 			initialConfiguration = { Config.None },
 			key = "ProjectRootModalRouter",
 			childFactory = ::createChild,
-			serializer = ConfigSerializer,
+			serializer = Config.serializer(),
 		)
 
 	override fun isAtRoot(): Boolean {
@@ -62,13 +58,4 @@ class ProjectRootModalRouter(
 		@Serializable
 		data object ProjectSync : Config()
 	}
-
-	private object ConfigSerializer : KSerializer<Config> by polymorphicSerializer(
-		SerializersModule {
-			polymorphic(Config::class) {
-				subclass(Config.None::class, Config.None.serializer())
-				subclass(Config.ProjectSync::class, Config.ProjectSync.serializer())
-			}
-		}
-	)
 }

@@ -3,7 +3,6 @@ package com.darkrockstudios.apps.hammer.common.components.storyeditor
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.*
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.drafts.DraftCompare
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.drafts.DraftCompareComponent
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.drafts.DraftsList
@@ -14,10 +13,7 @@ import com.darkrockstudios.apps.hammer.common.data.MenuDescriptor
 import com.darkrockstudios.apps.hammer.common.data.SceneItem
 import com.darkrockstudios.apps.hammer.common.data.drafts.DraftDef
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 
 internal class DetailsRouter(
 	componentContext: ComponentContext,
@@ -35,7 +31,7 @@ internal class DetailsRouter(
 		initialConfiguration = Config.None,
 		key = "DetailsRouter",
 		childFactory = ::createChild,
-		serializer = ConfigSerializer,
+		serializer = Config.serializer(),
 	)
 
 	val state: Value<ChildStack<Config, StoryEditor.ChildDestination.Detail>>
@@ -173,15 +169,4 @@ internal class DetailsRouter(
 		@Serializable
 		data class DraftCompare(val sceneDef: SceneItem, val draftDef: DraftDef) : Config()
 	}
-
-	object ConfigSerializer : KSerializer<Config> by polymorphicSerializer(
-		SerializersModule {
-			polymorphic(Config::class) {
-				subclass(Config.None::class, Config.None.serializer())
-				subclass(Config.SceneEditor::class, Config.SceneEditor.serializer())
-				subclass(Config.DraftsList::class, Config.DraftsList.serializer())
-				subclass(Config.DraftCompare::class, Config.DraftCompare.serializer())
-			}
-		}
-	)
 }

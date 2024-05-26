@@ -2,13 +2,9 @@ package com.darkrockstudios.apps.hammer.common.components.timeline
 
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.components.projectroot.Router
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 
 interface TimeLine : Router {
 
@@ -33,16 +29,6 @@ interface TimeLine : Router {
 		@Serializable
 		data class CreateEventConfig(val projectDef: ProjectDef) : Config()
 	}
-
-	object ConfigSerializer : KSerializer<Config> by polymorphicSerializer(
-		SerializersModule {
-			polymorphic(Config::class) {
-				subclass(Config.TimeLineOverviewConfig::class, Config.TimeLineOverviewConfig.serializer())
-				subclass(Config.ViewEventConfig::class, Config.ViewEventConfig.serializer())
-				subclass(Config.CreateEventConfig::class, Config.CreateEventConfig.serializer())
-			}
-		}
-	)
 
 	fun showOverview()
 	fun showViewEvent(eventId: Int)

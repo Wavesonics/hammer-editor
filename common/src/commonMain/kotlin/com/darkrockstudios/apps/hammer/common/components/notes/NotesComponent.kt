@@ -121,7 +121,7 @@ class NotesComponent(
 			initialConfiguration = Notes.Config.BrowseNotesConfig(projectDef = projectDef),
 			key = "NotesRouter",
 			childFactory = ::createChild,
-			serializer = Notes.ConfigSerializer
+			serializer = Notes.Config.serializer()
 		)
 		stack.subscribe(lifecycle) {
 			backButtonHandler.isEnabled = !isAtRoot()

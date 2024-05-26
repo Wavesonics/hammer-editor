@@ -123,7 +123,7 @@ class EncyclopediaComponent(
 			initialConfiguration = Encyclopedia.Config.BrowseEntriesConfig(projectDef = projectDef),
 			key = "EncyclopediaRouter",
 			childFactory = ::createChild,
-			serializer = Encyclopedia.ConfigSerializer,
+			serializer = Encyclopedia.Config.serializer(),
 		)
 		stack.subscribe(lifecycle) {
 			backButtonHandler.isEnabled = !isAtRoot()

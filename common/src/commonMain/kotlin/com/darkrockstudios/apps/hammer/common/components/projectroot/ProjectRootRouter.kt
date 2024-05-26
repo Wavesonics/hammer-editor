@@ -6,7 +6,6 @@ import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.statekeeper.polymorphicSerializer
 import com.darkrockstudios.apps.hammer.common.components.encyclopedia.Encyclopedia
 import com.darkrockstudios.apps.hammer.common.components.encyclopedia.EncyclopediaComponent
 import com.darkrockstudios.apps.hammer.common.components.notes.Notes
@@ -23,10 +22,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 import kotlin.coroutines.CoroutineContext
 
 internal class ProjectRootRouter(
@@ -48,7 +44,7 @@ internal class ProjectRootRouter(
 			initialConfiguration = Config.HomeConfig(projectDef),
 			key = "ProjectRootRouter",
 			childFactory = ::createChild,
-			serializer = ConfigSerializer
+			serializer = Config.serializer()
 		)
 
 	private fun createChild(
@@ -189,16 +185,4 @@ internal class ProjectRootRouter(
 		@Serializable
 		data class HomeConfig(val projectDef: ProjectDef) : Config()
 	}
-
-	private object ConfigSerializer : KSerializer<Config> by polymorphicSerializer(
-		SerializersModule {
-			polymorphic(Config::class) {
-				subclass(Config.EditorConfig::class, Config.EditorConfig.serializer())
-				subclass(Config.NotesConfig::class, Config.NotesConfig.serializer())
-				subclass(Config.EncyclopediaConfig::class, Config.EncyclopediaConfig.serializer())
-				subclass(Config.TimeLineConfig::class, Config.TimeLineConfig.serializer())
-				subclass(Config.HomeConfig::class, Config.HomeConfig.serializer())
-			}
-		}
-	)
 }

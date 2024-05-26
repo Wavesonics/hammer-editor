@@ -25,7 +25,7 @@ class TimeLineComponent(
 		initialConfiguration = TimeLine.Config.TimeLineOverviewConfig(projectDef = projectDef),
 		key = "TimeLineRouter",
 		childFactory = ::createChild,
-		serializer = TimeLine.ConfigSerializer,
+		serializer = TimeLine.Config.serializer(),
 	)
 
 	override val stack: Value<ChildStack<TimeLine.Config, TimeLine.Destination>> = _stack

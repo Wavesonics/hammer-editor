@@ -15,13 +15,12 @@ import com.seiko.imageloader.option.Options
 import com.seiko.imageloader.util.LogPriority
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import java.io.File
 
 internal fun generateImageLoader(fileSystem: FileSystem): ImageLoader {
 	return ImageLoader {
 		components {
 			setupDefaultComponents()
-			add(WindowsFileUriMapper())
+			add(WindowsLocalFileUriMapper())
 			add(SkiaImageDecoder.Factory())
 		}
 		logger = ImageLoaderNapierLogger(LogPriority.WARN)
@@ -47,11 +46,11 @@ internal fun generateImageLoader(fileSystem: FileSystem): ImageLoader {
 	}
 }
 
-private class WindowsFileUriMapper : Mapper<File> {
-	override fun map(data: Any, options: Options): File? {
+private class WindowsLocalFileUriMapper : Mapper<okio.Path> {
+	override fun map(data: Any, options: Options): okio.Path? {
 		if (data !is Uri) return null
 		if (!isApplicable(data)) return null
-		return File(data.toString())
+		return data.toString().toPath()
 	}
 
 	private val pattern = Regex("""^[a-zA-Z]$""")

@@ -5,13 +5,11 @@ import com.darkrockstudios.apps.hammer.utilities.SResult
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.isSuccess
 import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
@@ -37,7 +35,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 			header("Authorization", "Bearer $BEARER_TOKEN")
 			header(HEADER_SYNC_ID, syncId)
 		}.apply {
-			assertTrue(status.isSuccess())
+			assertEquals(HttpStatusCode.OK, status)
 			coVerify {
 				projectsRepository.deleteProject(
 					userId = userId,

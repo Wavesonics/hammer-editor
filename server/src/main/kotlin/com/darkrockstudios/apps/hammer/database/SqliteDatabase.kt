@@ -2,7 +2,6 @@ package com.darkrockstudios.apps.hammer.database
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.darkrockstudios.apps.hammer.ServerDatabase
 import com.darkrockstudios.apps.hammer.utilities.getRootDataDirectory
 import okio.FileSystem
 
@@ -18,7 +17,7 @@ class SqliteDatabase(fileSystem: FileSystem) : Database {
 
 	override fun initialize() {
 		val dbFile = databasePath.toFile()
-		if (!dbFile.parentFile.exists()) {
+		if (dbFile.parentFile?.exists() == false) {
 			dbFile.parentFile.mkdirs()
 		}
 

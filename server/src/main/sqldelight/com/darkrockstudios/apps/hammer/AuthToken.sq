@@ -1,4 +1,4 @@
-CREATE TABLE authToken(
+CREATE TABLE auth_token(
     userId INTEGER NOT NULL,
     installId TEXT UNIQUE NOT NULL,
     token TEXT PRIMARY KEY NOT NULL,
@@ -11,21 +11,21 @@ CREATE TABLE authToken(
 
 getTokensByUserId:
 SELECT *
-FROM authToken
+FROM auth_token
 WHERE userId = ?;
 
 getTokenByToken:
 SELECT *
-FROM authToken
+FROM auth_token
 WHERE token = ?;
 
 getTokenByInstallId:
 SELECT *
-FROM authToken
+FROM auth_token
 WHERE userId = ?
 AND installId = ?;
 
 setToken:
-INSERT OR REPLACE INTO authToken(
+INSERT OR REPLACE INTO auth_token(
     userId, installId, token, refresh, expires
 ) VALUES (?, ?, ?, ?, ?);

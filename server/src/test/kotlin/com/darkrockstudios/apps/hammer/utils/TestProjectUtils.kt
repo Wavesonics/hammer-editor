@@ -24,7 +24,7 @@ fun getUserDirectory(userId: Long, ffs: FakeFileSystem): Path {
 fun getProjectDirectory(userId: Long, projectName: String, ffs: FakeFileSystem): Path {
 	return ProjectFilesystemDatasource.getProjectDirectory(
 		userId,
-		ProjectDefinition(projectName),
+		ProjectDefinition(projectName, ""),
 		ffs
 	)
 }

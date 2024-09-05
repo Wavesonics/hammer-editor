@@ -8,7 +8,6 @@ import com.darkrockstudios.apps.hammer.syncsessionmanager.SyncSessionManager
 import com.darkrockstudios.apps.hammer.utilities.Msg
 import com.darkrockstudios.apps.hammer.utilities.SResult
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.koin.core.qualifier.named
 import org.koin.java.KoinJavaComponent.inject
 
@@ -72,14 +71,14 @@ class ProjectsRepository(
 		}
 	}
 
-	private fun getDeletedProjects(userId: Long): Set<String> {
+	private suspend fun getDeletedProjects(userId: Long): Set<String> {
 		return projectsDatasource.loadSyncData(userId).deletedProjects
 	}
 
-	suspend fun deleteProject(userId: Long, syncId: String, projectName: String): Result<Unit> {
+	suspend fun deleteProject(userId: Long, syncId: String, projectName: String): SResult<Unit> {
 		if (syncSessionManager.validateSyncId(userId, syncId, true)
 				.not()
-		) return Result.failure(InvalidSyncIdException())
+		) return SResult.failure(InvalidSyncIdException())
 
 		val result = projectDatasource.deleteProject(userId, projectName)
 
@@ -92,12 +91,16 @@ class ProjectsRepository(
 		return result
 	}
 
-	suspend fun createProject(userId: Long, syncId: String, projectName: String): Result<Unit> {
+	suspend fun createProject(
+		userId: Long,
+		syncId: String,
+		projectName: String
+	): SResult<ProjectDefinition> {
 		if (syncSessionManager.validateSyncId(userId, syncId, true)
 				.not()
-		) return Result.failure(InvalidSyncIdException())
+		) return SResult.failure(InvalidSyncIdException())
 
-		projectDatasource.createProject(userId, ProjectDefinition(projectName))
+		val projectDef = projectDatasource.createProject(userId, projectName)
 
 		projectsDatasource.updateSyncData(userId) { data ->
 			data.copy(
@@ -105,15 +108,6 @@ class ProjectsRepository(
 			)
 		}
 
-		return Result.success(Unit)
-	}
-
-	companion object {
-		fun defaultData(userId: Long): ProjectsSyncData {
-			return ProjectsSyncData(
-				lastSync = Instant.DISTANT_PAST,
-				deletedProjects = emptySet()
-			)
-		}
+		return SResult.success(projectDef)
 	}
 }

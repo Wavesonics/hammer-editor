@@ -3,8 +3,7 @@ package com.darkrockstudios.apps.hammer.projects.repository
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
 import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.verify
+import io.mockk.coVerify
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.Test
@@ -23,8 +22,8 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 		createProjectsRepository().apply {
 			val result = createProject(userId, syncId, projectName)
 			assertTrue(result.isFailure)
-			verify(exactly = 0) { projectDatasource.createProject(any(), any()) }
-			verify(exactly = 0) { projectsDatasource.updateSyncData(any(), any()) }
+			coVerify(exactly = 0) { projectDatasource.createProject(any(), any()) }
+			coVerify(exactly = 0) { projectsDatasource.updateSyncData(any(), any()) }
 		}
 	}
 
@@ -32,14 +31,15 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 	fun `Create Project, successful`() = runTest {
 		val syncId = "sync-id"
 		val projectName = "Project Name"
+		val projectId = "uuid-1"
 
 		coEvery { projectsSessionManager.validateSyncId(userId, syncId, any()) } returns true
-		every {
+		coEvery {
 			projectDatasource.createProject(
 				userId,
-				ProjectDefinition(projectName)
+				projectName
 			)
-		} returns Unit
+		} returns ProjectDefinition(projectName, projectId)
 
 		val initialSyncData = ProjectsSyncData(
 			lastSync = Instant.DISTANT_PAST,
@@ -50,7 +50,7 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 		)
 
 		var updatedSyncData: ProjectsSyncData? = null
-		every { projectsDatasource.updateSyncData(userId, captureLambda()) } answers {
+		coEvery { projectsDatasource.updateSyncData(userId, captureLambda()) } answers {
 			lambda<(ProjectsSyncData) -> ProjectsSyncData>().captured.invoke(initialSyncData)
 				.apply {
 					updatedSyncData = this
@@ -68,8 +68,8 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 			val result = createProject(userId, syncId, projectName)
 
 			assertTrue(result.isSuccess)
-			verify { projectDatasource.createProject(userId, ProjectDefinition(projectName)) }
-			verify { projectsDatasource.updateSyncData(userId, any()) }
+			coVerify { projectDatasource.createProject(userId, projectName) }
+			coVerify { projectsDatasource.updateSyncData(userId, any()) }
 
 			assertEquals(expectedSyncData, updatedSyncData)
 		}

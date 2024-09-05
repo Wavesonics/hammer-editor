@@ -25,8 +25,8 @@ class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 		val syncData = ProjectsBeginSyncData(
 			syncId = syncId,
 			projects = setOf(
-				ProjectDefinition("Project 1"),
-				ProjectDefinition("Project 2"),
+				ProjectDefinition("Project 1", "uuid-1"),
+				ProjectDefinition("Project 2", "uuid-2"),
 			),
 			deletedProjects = setOf(
 				"Project 3",

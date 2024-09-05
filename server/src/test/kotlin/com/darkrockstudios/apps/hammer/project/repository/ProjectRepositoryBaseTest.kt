@@ -31,7 +31,7 @@ import org.koin.dsl.module
 
 abstract class ProjectRepositoryBaseTest : BaseTest() {
 	protected val userId = 1L
-	protected val projectDefinition = ProjectDefinition("Test Project")
+	protected val projectDefinition = ProjectDefinition("Test Project", "test-uuid")
 
 	protected lateinit var fileSystem: FileSystem
 	protected lateinit var clock: TestClock

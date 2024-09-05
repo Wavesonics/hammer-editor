@@ -1,7 +1,7 @@
 package com.darkrockstudios.apps.hammer.projects
 
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
-import com.darkrockstudios.apps.hammer.projects.ProjectsRepository.Companion.defaultData
+import com.darkrockstudios.apps.hammer.projects.ProjectsDatasource.Companion.defaultUserData
 import com.darkrockstudios.apps.hammer.utilities.getRootDataDirectory
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -13,13 +13,13 @@ class ProjectsFileSystemDatasource(
 	private val json: Json,
 ) : ProjectsDatasource {
 
-	override fun createUserData(userId: Long) {
+	override suspend fun createUserData(userId: Long) {
 		val userDir = getUserDirectory(userId)
 
 		fileSystem.createDirectories(userDir)
 
 		val dataFile = userDir / DATA_FILE
-		val data = defaultData(userId)
+		val data = defaultUserData(userId)
 		val dataJson = json.encodeToString(data)
 		fileSystem.write(dataFile) {
 			writeUtf8(dataJson)
@@ -40,7 +40,7 @@ class ProjectsFileSystemDatasource(
 		*/
 	}
 
-	override fun updateSyncData(
+	override suspend fun updateSyncData(
 		userId: Long,
 		action: (ProjectsSyncData) -> ProjectsSyncData
 	): ProjectsSyncData {
@@ -50,7 +50,7 @@ class ProjectsFileSystemDatasource(
 		return update
 	}
 
-	override fun saveSyncData(userId: Long, data: ProjectsSyncData) {
+	override suspend fun saveSyncData(userId: Long, data: ProjectsSyncData) {
 		val path = getSyncDataPath(userId)
 		fileSystem.write(path) {
 			val syncDataJson = json.encodeToString(data)
@@ -58,16 +58,16 @@ class ProjectsFileSystemDatasource(
 		}
 	}
 
-	override fun getProjects(userId: Long): Set<ProjectDefinition> {
+	override suspend fun getProjects(userId: Long): Set<ProjectDefinition> {
 		val projectsDir = getUserDirectory(userId)
 		return fileSystem.list(projectsDir)
 			.filter { fileSystem.metadata(it).isDirectory }
 			.filter { it.name.startsWith('.').not() }
-			.map { path -> ProjectDefinition(path.name) }
+			.map { path -> ProjectDefinition(path.name, "") }
 			.toSet()
 	}
 
-	override fun loadSyncData(userId: Long): ProjectsSyncData {
+	override suspend fun loadSyncData(userId: Long): ProjectsSyncData {
 		val path = getSyncDataPath(userId)
 		return if (fileSystem.exists(path)) {
 			fileSystem.read(path) {
@@ -75,7 +75,7 @@ class ProjectsFileSystemDatasource(
 				json.decodeFromString(syncDataJson)
 			}
 		} else {
-			val data = defaultData(userId)
+			val data = defaultUserData(userId)
 			saveSyncData(userId, data)
 			data
 		}

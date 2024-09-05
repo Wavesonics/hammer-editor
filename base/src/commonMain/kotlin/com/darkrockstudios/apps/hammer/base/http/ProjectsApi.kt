@@ -8,3 +8,8 @@ data class BeginProjectsSyncResponse(
 	val projects: Set<String>,
 	val deletedProjects: Set<String>,
 )
+
+@Serializable
+data class CreateProjectResponse(
+	val projectId: String,
+)

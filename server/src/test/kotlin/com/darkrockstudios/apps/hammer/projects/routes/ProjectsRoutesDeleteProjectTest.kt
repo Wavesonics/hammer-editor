@@ -27,7 +27,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 				syncId = syncId,
 				projectName = projectName,
 			)
-		} returns Result.success(Unit)
+		} returns SResult.success(Unit)
 
 		defaultApplication()
 
@@ -74,7 +74,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 				syncId = syncId,
 				projectName = projectName,
 			)
-		} returns Result.failure(Exception())
+		} returns SResult.failure(Exception())
 
 		defaultApplication()
 

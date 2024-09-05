@@ -1,6 +1,7 @@
 package com.darkrockstudios.apps.hammer.projects
 
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
+import com.darkrockstudios.apps.hammer.base.http.CreateProjectResponse
 import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
 import com.darkrockstudios.apps.hammer.base.http.HttpResponseError
 import com.darkrockstudios.apps.hammer.plugins.ServerUserIdPrincipal
@@ -97,10 +98,10 @@ private fun Route.deleteProject() {
 			)
 		} else {
 			val result = projectsRepository.deleteProject(principal.id, syncId, projectName)
-			if (result.isSuccess) {
+			if (isSuccess(result)) {
 				call.respond("Success")
 			} else {
-				when (val e = result.exceptionOrNull()) {
+				when (val e = result.exception) {
 					is InvalidSyncIdException -> {
 						call.respond(
 							status = HttpStatusCode.BadRequest,
@@ -140,10 +141,10 @@ private fun Route.createProject() {
 			)
 		} else {
 			val result = projectsRepository.createProject(principal.id, syncId, projectName)
-			if (result.isSuccess) {
-				call.respond("Success")
+			if (isSuccess(result)) {
+				call.respond(CreateProjectResponse(result.data.uuid))
 			} else {
-				when (val e = result.exceptionOrNull()) {
+				when (val e = result.exception) {
 					is InvalidSyncIdException -> {
 						call.respond(
 							status = HttpStatusCode.BadRequest,

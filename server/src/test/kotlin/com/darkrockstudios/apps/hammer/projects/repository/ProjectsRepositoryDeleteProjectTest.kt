@@ -1,9 +1,9 @@
 package com.darkrockstudios.apps.hammer.projects.repository
 
 import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
+import com.darkrockstudios.apps.hammer.utilities.SResult
 import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.verify
+import io.mockk.coVerify
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.Test
@@ -22,8 +22,8 @@ class ProjectsRepositoryDeleteProjectTest : ProjectsRepositoryBaseTest() {
 		createProjectsRepository().apply {
 			val result = deleteProject(userId, syncId, projectName)
 			assertTrue(result.isFailure)
-			verify(exactly = 0) { projectDatasource.deleteProject(any(), any()) }
-			verify(exactly = 0) { projectsDatasource.updateSyncData(any(), any()) }
+			coVerify(exactly = 0) { projectDatasource.deleteProject(any(), any()) }
+			coVerify(exactly = 0) { projectsDatasource.updateSyncData(any(), any()) }
 		}
 	}
 
@@ -33,7 +33,9 @@ class ProjectsRepositoryDeleteProjectTest : ProjectsRepositoryBaseTest() {
 		val projectName = "Project Name"
 
 		coEvery { projectsSessionManager.validateSyncId(userId, syncId, any()) } returns true
-		every { projectDatasource.deleteProject(userId, projectName) } returns Result.success(Unit)
+		coEvery { projectDatasource.deleteProject(userId, projectName) } returns SResult.success(
+			Unit
+		)
 
 		val initialSyncData = ProjectsSyncData(
 			lastSync = Instant.DISTANT_PAST,
@@ -43,7 +45,7 @@ class ProjectsRepositoryDeleteProjectTest : ProjectsRepositoryBaseTest() {
 		)
 
 		var updatedSyncData: ProjectsSyncData? = null
-		every { projectsDatasource.updateSyncData(userId, captureLambda()) } answers {
+		coEvery { projectsDatasource.updateSyncData(userId, captureLambda()) } answers {
 			lambda<(ProjectsSyncData) -> ProjectsSyncData>().captured.invoke(initialSyncData)
 				.apply {
 					updatedSyncData = this
@@ -62,8 +64,8 @@ class ProjectsRepositoryDeleteProjectTest : ProjectsRepositoryBaseTest() {
 			val result = deleteProject(userId, syncId, projectName)
 
 			assertTrue(result.isSuccess)
-			verify { projectDatasource.deleteProject(userId, projectName) }
-			verify { projectsDatasource.updateSyncData(userId, any()) }
+			coVerify { projectDatasource.deleteProject(userId, projectName) }
+			coVerify { projectsDatasource.updateSyncData(userId, any()) }
 
 			assertEquals(expectedSyncData, updatedSyncData)
 		}

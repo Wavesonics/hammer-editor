@@ -7,6 +7,7 @@ import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.projects.ProjectsFileSystemDatasource
 import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
 import com.darkrockstudios.apps.hammer.utils.BaseTest
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import okio.FileSystem
@@ -31,7 +32,7 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Create User Data`() {
+	fun `Create User Data`() = runTest {
 		val userId = 1L
 
 		val userDir = ProjectsFileSystemDatasource.getUserDirectory(userId, fileSystem)
@@ -47,7 +48,7 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Get Projects`() {
+	fun `Get Projects`() = runTest {
 		val userId = 1L
 		val projectName1 = "Test Project 1"
 		val projectName2 = "Test Project 2"
@@ -65,15 +66,15 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 
 		assertEquals(
 			setOf(
-				ProjectDefinition("Test Project 1"),
-				ProjectDefinition("Test Project 2"),
+				ProjectDefinition("Test Project 1", ""),
+				ProjectDefinition("Test Project 2", ""),
 			),
 			projects
 		)
 	}
 
 	@Test
-	fun `Save SyncData`() {
+	fun `Save SyncData`() = runTest {
 		val userId = 1L
 		val syncDataPath = ProjectsFileSystemDatasource.getSyncDataPath(userId, fileSystem)
 		fileSystem.createDirectories(syncDataPath.parent!!)
@@ -94,7 +95,7 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Load SyncData`() {
+	fun `Load SyncData`() = runTest {
 		val userId = 1L
 		val syncDataPath = ProjectsFileSystemDatasource.getSyncDataPath(userId, fileSystem)
 		fileSystem.createDirectories(syncDataPath.parent!!)
@@ -116,7 +117,7 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Update SyncData`() {
+	fun `Update SyncData`() = runTest {
 		val userId = 1L
 		val syncDataPath = ProjectsFileSystemDatasource.getSyncDataPath(userId, fileSystem)
 		fileSystem.createDirectories(syncDataPath.parent!!)

@@ -24,7 +24,7 @@ class AccountsRepository(
 	private val saltGenerator = RandomString(5)
 
 	private suspend fun createToken(userId: Long, installId: String): Token {
-		val expires = Clock.System.now() + tokenLifetime
+		val expires = clock.now() + tokenLifetime
 		val token = Token(
 			userId = userId,
 			auth = tokenGenerator.generateToken(),

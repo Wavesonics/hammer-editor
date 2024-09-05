@@ -1,0 +1,45 @@
+CREATE TABLE project (
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	uuid TEXT NOT NULL,
+	user_id INTEGER NOT NULL,
+	name TEXT NOT NULL,
+	last_id INTEGER NOT NULL,
+	last_sync TEXT DEFAULT (datetime('now')) NOT NULL,
+	deleted_ids TEXT,
+	FOREIGN KEY(user_id) REFERENCES account(id)
+);
+
+CREATE UNIQUE INDEX user_project_name_lookup
+ON project(user_id, name);
+
+getProjects:
+SELECT name, uuid
+FROM project
+WHERE user_id = ?;
+
+createProject:
+INSERT INTO project(user_id, name, uuid, last_id)
+VALUES(?, ?, ?, ?);
+
+hasProject:
+SELECT EXISTS(SELECT 1 FROM project WHERE user_id = ? AND name = ?);
+
+updateProjectName:
+UPDATE project
+SET name = ?
+WHERE user_id = ? AND name = ?;
+
+updateSyncData:
+UPDATE project
+SET last_id = ?, last_sync = ?, deleted_ids = ?
+WHERE user_id = ? AND name = ?;
+
+getSyncDataByName:
+SELECT *
+FROM project
+WHERE user_id = ? AND name = ?;
+
+getSyncData:
+SELECT *
+FROM project
+WHERE user_id = ? AND uuid = ?;

@@ -33,7 +33,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	private lateinit var json: Json
 
 	private val userId = 1L
-	private val projectDef = ProjectDefinition("Test Project")
+	private val projectDef = ProjectDefinition("Test Project", "Test UUID")
 
 	@Before
 	override fun setup() {
@@ -44,7 +44,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Check Project Exists`() {
+	fun `Check Project Exists`() = runTest {
 		val projDir = ProjectFilesystemDatasource.getProjectDirectory(
 			userId,
 			projectDef,
@@ -58,14 +58,14 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Check Project Exists - No Project`() {
+	fun `Check Project Exists - No Project`() = runTest {
 		val datasource = ProjectFilesystemDatasource(fileSystem, json)
 		val result = datasource.checkProjectExists(userId, projectDef)
 		assertFalse(result)
 	}
 
 	@Test
-	fun `Create Project`() {
+	fun `Create Project`() = runTest {
 		val projDir = ProjectFilesystemDatasource.getProjectDirectory(
 			userId,
 			projectDef,
@@ -73,20 +73,21 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 		)
 
 		val datasource = ProjectFilesystemDatasource(fileSystem, json)
-		datasource.createProject(userId, projectDef)
+		datasource.createProject(userId, projectDef.name)
 
 		val result = fileSystem.exists(projDir)
 		assertTrue(result)
 	}
 
 	@Test
-	fun `Delete Project`() {
+	fun `Delete Project`() = runTest {
 		val userId = 1L
 		val projectName = "Test Project"
+		val projectId = "Test UUID"
 
 		val projectDir = ProjectFilesystemDatasource.getProjectDirectory(
 			userId,
-			ProjectDefinition(projectName),
+			ProjectDefinition(projectName, projectId),
 			fileSystem
 		)
 		val testFile1 = projectDir / "test1.txt"
@@ -113,7 +114,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Load Project Sync Data`() {
+	fun `Load Project Sync Data`() = runTest {
 		val syncData = ProjectSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			lastId = 456,
@@ -135,7 +136,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	}
 
 	@Test
-	fun `Load Project Sync Data - No Data`() {
+	fun `Load Project Sync Data - No Data`() = runTest {
 		val defaultSyncData = ProjectSyncData(
 			lastId = -1,
 			lastSync = Instant.DISTANT_PAST,
@@ -215,7 +216,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	fun `Load Entity - Decode Scene JSON - SerializationException`() = runTest {
 		val userId = 1L
 		val entityId = 1
-		val projectDef = ProjectDefinition(PROJECT_1_NAME)
+		val projectDef = ProjectDefinition(PROJECT_1_NAME, "test-uuid")
 
 		createProject(userId, projectDef.name, fileSystem)
 
@@ -243,7 +244,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	fun `Load Entity - Decode Scene JSON - Entity Not Found`() = runTest {
 		val userId = 1L
 		val entityId = 10 // Not a real Entity ID
-		val projectDef = ProjectDefinition(PROJECT_1_NAME)
+		val projectDef = ProjectDefinition(PROJECT_1_NAME, "test-uuid")
 
 		createProject(userId, projectDef.name, fileSystem)
 

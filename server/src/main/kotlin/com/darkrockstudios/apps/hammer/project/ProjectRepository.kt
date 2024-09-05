@@ -61,8 +61,10 @@ class ProjectRepository(
 				Msg.r("api.project.sync.begin.error.session", userId)
 			)
 		} else {
+			// TODO abrown how does this work in our new UUID world...
+			// Should we be even trying to do this anymore?
 			if (!projectDatasource.checkProjectExists(userId, projectDef)) {
-				projectDatasource.createProject(userId, projectDef)
+				projectDatasource.createProject(userId, projectDef.name)
 			}
 
 			var projectSyncData = projectDatasource.loadProjectSyncData(userId, projectDef)
@@ -165,7 +167,7 @@ class ProjectRepository(
 		originalHash: String?,
 		syncId: String,
 		force: Boolean
-	): SResult<Boolean> {
+	): SResult<Unit> {
 		if (validateSyncId(userId, projectDef, syncId).not())
 			return SResult.failure("Invalid SyncId", exception = InvalidSyncIdException())
 

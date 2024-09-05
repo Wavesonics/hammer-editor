@@ -5,11 +5,11 @@ import com.darkrockstudios.apps.hammer.utilities.SResult
 import kotlinx.serialization.KSerializer
 
 interface ProjectDatasource {
-	fun loadProjectSyncData(userId: Long, projectDef: ProjectDefinition): ProjectSyncData
-	fun createProject(userId: Long, projectDef: ProjectDefinition)
-	fun deleteProject(userId: Long, projectName: String): Result<Unit>
-	fun checkProjectExists(userId: Long, projectDef: ProjectDefinition): Boolean
-	fun updateSyncData(
+	suspend fun loadProjectSyncData(userId: Long, projectDef: ProjectDefinition): ProjectSyncData
+	suspend fun createProject(userId: Long, projectName: String): ProjectDefinition
+	suspend fun deleteProject(userId: Long, projectName: String): SResult<Unit>
+	suspend fun checkProjectExists(userId: Long, projectDef: ProjectDefinition): Boolean
+	suspend fun updateSyncData(
 		userId: Long,
 		projectDef: ProjectDefinition,
 		action: (ProjectSyncData) -> ProjectSyncData
@@ -28,7 +28,7 @@ interface ProjectDatasource {
 		entity: T,
 		entityType: ApiProjectEntity.Type,
 		serializer: KSerializer<T>,
-	): SResult<Boolean>
+	): SResult<Unit>
 
 	suspend fun <T : ApiProjectEntity> loadEntity(
 		userId: Long,

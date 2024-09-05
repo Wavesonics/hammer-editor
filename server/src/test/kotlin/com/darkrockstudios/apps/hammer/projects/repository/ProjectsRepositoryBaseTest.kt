@@ -33,7 +33,7 @@ abstract class ProjectsRepositoryBaseTest : BaseTest() {
 	protected lateinit var projectsDatasource: ProjectsDatasource
 	protected lateinit var projectDatasource: ProjectDatasource
 
-	protected val projectDefinition = ProjectDefinition("Test Project 1")
+	protected val projectDefinition = ProjectDefinition("Test Project 1", "test-uuid-1")
 
 	protected fun createProjectsRepository(): ProjectsRepository {
 		return ProjectsRepository(clock, projectsDatasource, projectDatasource)

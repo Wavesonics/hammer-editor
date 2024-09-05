@@ -3,8 +3,8 @@ package com.darkrockstudios.apps.hammer.e2e.util
 import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
-import com.darkrockstudios.apps.hammer.ServerDatabase
 import com.darkrockstudios.apps.hammer.database.Database
+import com.darkrockstudios.apps.hammer.database.ServerDatabase
 
 class SqliteTestDatabase : Database {
 	private lateinit var driver: SqlDriver

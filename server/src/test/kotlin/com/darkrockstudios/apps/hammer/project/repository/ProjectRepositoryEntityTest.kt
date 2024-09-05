@@ -130,7 +130,7 @@ class ProjectRepositoryEntityTest : ProjectRepositoryBaseTest() {
 				null,
 				false
 			)
-		} returns SResult.success(true)
+		} returns SResult.success(Unit)
 
 		createProjectRepository().apply {
 			val result =
@@ -200,7 +200,7 @@ class ProjectRepositoryEntityTest : ProjectRepositoryBaseTest() {
 				null,
 				false
 			)
-		} returns SResult.success(true)
+		} returns SResult.success(Unit)
 
 		createProjectRepository().apply {
 			val result =

@@ -2,6 +2,7 @@ package com.darkrockstudios.apps.hammer.common.data.projectsync
 
 import com.darkrockstudios.apps.hammer.MR
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
+import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.ProjectId
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
 import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettingsRepository
 import com.darkrockstudios.apps.hammer.common.data.projectsrepository.ProjectsRepository
@@ -158,7 +159,7 @@ class ClientProjectsSynchronizer(
 		}
 
 		val localOnly = localProjects.filter { localProject ->
-			serverProjects.none { serverProject -> serverProject == localProject.name }
+			projectsRepository.getProjectId(localProject) == null
 		}.map { it.name }
 
 		val newLocalProjects = clientSyncData.projectsToCreate + localOnly
@@ -166,6 +167,10 @@ class ClientProjectsSynchronizer(
 		newLocalProjects.forEach { projectName ->
 			val result = serverProjectsApi.createProject(projectName, serverSyncData.syncId)
 			if (result.isSuccess) {
+				// Save the newly provisioned project id
+				val response = result.getOrThrow()
+				val projectDef = projectsRepository.getProjectDefinition(projectName)
+				projectsRepository.setProjectId(projectDef, ProjectId(response.projectId))
 
 				onLog(
 					syncAccLogI(

@@ -11,7 +11,13 @@ import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettings
 import com.darkrockstudios.apps.hammer.common.data.id.IdRepository
 import com.darkrockstudios.apps.hammer.common.data.projectInject
 import com.darkrockstudios.apps.hammer.common.data.projectbackup.ProjectBackupRepository
-import com.darkrockstudios.apps.hammer.common.data.projectsync.synchronizers.*
+import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.ProjectMetadataDatasource
+import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.loadProjectId
+import com.darkrockstudios.apps.hammer.common.data.projectsync.synchronizers.ClientEncyclopediaSynchronizer
+import com.darkrockstudios.apps.hammer.common.data.projectsync.synchronizers.ClientNoteSynchronizer
+import com.darkrockstudios.apps.hammer.common.data.projectsync.synchronizers.ClientSceneDraftSynchronizer
+import com.darkrockstudios.apps.hammer.common.data.projectsync.synchronizers.ClientSceneSynchronizer
+import com.darkrockstudios.apps.hammer.common.data.projectsync.synchronizers.ClientTimelineSynchronizer
 import com.darkrockstudios.apps.hammer.common.dependencyinjection.ProjectDefScope
 import com.darkrockstudios.apps.hammer.common.dependencyinjection.injectDefaultDispatcher
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toOkioPath
@@ -21,7 +27,7 @@ import com.darkrockstudios.apps.hammer.common.server.ServerProjectApi
 import com.darkrockstudios.apps.hammer.common.util.NetworkConnectivity
 import com.darkrockstudios.apps.hammer.common.util.StrRes
 import io.github.aakira.napier.Napier
-import io.ktor.utils.io.*
+import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
@@ -53,6 +59,7 @@ class ClientProjectSynchronizer(
 	private val networkConnectivity: NetworkConnectivity by inject()
 	private val strRes: StrRes by inject()
 	private val clock: Clock by inject()
+	private val projectMetadataDatasource: ProjectMetadataDatasource by inject()
 
 	private val sceneSynchronizer: ClientSceneSynchronizer by projectInject()
 	private val noteSynchronizer: ClientNoteSynchronizer by projectInject()
@@ -285,6 +292,10 @@ class ClientProjectSynchronizer(
 		return try {
 			prepareForSync()
 
+			val metadata = projectMetadataDatasource.loadMetadata(projectDef)
+			val serverProjectId =
+				metadata.info.serverProjectId ?: error("Server project ID missing")
+
 			var clientSyncData = loadSyncData()
 			val entityState = if (onlyNew) {
 				null
@@ -300,7 +311,13 @@ class ClientProjectSynchronizer(
 			)
 
 			val serverSyncData =
-				serverProjectApi.beginProjectSync(userId(), projectDef.name, entityState, onlyNew)
+				serverProjectApi.beginProjectSync(
+					userId(),
+					projectDef.name,
+					serverProjectId,
+					entityState,
+					onlyNew
+				)
 					.getOrThrow()
 
 			onProgress(
@@ -433,6 +450,7 @@ class ClientProjectSynchronizer(
 			val endSyncResult = serverProjectApi.endProjectSync(
 				userId(),
 				projectDef.name,
+				serverProjectId,
 				serverSyncData.syncId,
 				newLastId,
 				syncFinishedAt,
@@ -611,10 +629,12 @@ class ClientProjectSynchronizer(
 	private suspend fun endSync() {
 		try {
 			val syncId = loadSyncData().currentSyncId ?: throw IllegalStateException("No sync ID")
+			val serverProjectId = projectMetadataDatasource.loadProjectId(projectDef)
 
 			val endSyncResult = serverProjectApi.endProjectSync(
 				userId(),
 				projectDef.name,
+				serverProjectId,
 				syncId,
 				null,
 				null
@@ -673,7 +693,8 @@ class ClientProjectSynchronizer(
 	}
 
 	private suspend fun deleteEntityRemote(id: Int, syncId: String, onLog: OnSyncLog): Boolean {
-		val result = serverProjectApi.deleteId(projectDef.name, id, syncId)
+		val projectId = projectMetadataDatasource.loadProjectId(projectDef)
+		val result = serverProjectApi.deleteId(projectDef.name, projectId, id, syncId)
 		return if (result.isSuccess) {
 			onLog(syncLogI(strRes.get(MR.strings.sync_log_entity_delete_success, id), projectDef))
 			true
@@ -771,8 +792,10 @@ class ClientProjectSynchronizer(
 
 	private suspend fun downloadEntry(id: Int, syncId: String, onLog: OnSyncLog): Boolean {
 		val localEntityHash = getLocalEntityHash(id)
+		val serverProjectId = projectMetadataDatasource.loadProjectId(projectDef)
 		val entityResponse = serverProjectApi.downloadEntity(
-			projectDef = projectDef,
+			projectName = projectDef.name,
+			projectId = serverProjectId,
 			entityId = id,
 			syncId = syncId,
 			localHash = localEntityHash

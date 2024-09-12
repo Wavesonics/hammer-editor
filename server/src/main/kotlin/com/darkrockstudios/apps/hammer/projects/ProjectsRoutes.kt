@@ -142,7 +142,8 @@ private fun Route.createProject() {
 		} else {
 			val result = projectsRepository.createProject(principal.id, syncId, projectName)
 			if (isSuccess(result)) {
-				call.respond(CreateProjectResponse(result.data.uuid))
+				val data = result.data
+				call.respond(CreateProjectResponse(data.project.uuid, data.alreadyExisted))
 			} else {
 				when (val e = result.exception) {
 					is InvalidSyncIdException -> {

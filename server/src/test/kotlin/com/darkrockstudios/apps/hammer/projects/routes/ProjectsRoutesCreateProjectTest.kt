@@ -3,6 +3,7 @@ package com.darkrockstudios.apps.hammer.projects.routes
 import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
 import com.darkrockstudios.apps.hammer.project.InvalidSyncIdException
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
+import com.darkrockstudios.apps.hammer.projects.ProjectsRepository.ProjectCreatedResult
 import com.darkrockstudios.apps.hammer.utilities.SResult
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -32,7 +33,12 @@ class ProjectsRoutesCreateProjectTest : ProjectsRoutesBaseTest() {
 				syncId = syncId,
 				projectName = projectName,
 			)
-		} returns SResult.success(ProjectDefinition(projectName, projectId))
+		} returns SResult.success(
+			ProjectCreatedResult(
+				project = ProjectDefinition(projectName, projectId),
+				alreadyExisted = false
+			)
+		)
 
 		defaultApplication()
 

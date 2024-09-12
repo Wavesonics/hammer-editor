@@ -34,6 +34,7 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 		val projectId = "uuid-1"
 
 		coEvery { projectsSessionManager.validateSyncId(userId, syncId, any()) } returns true
+		coEvery { projectDatasource.findProjectByName(userId, projectName) } returns null
 		coEvery {
 			projectDatasource.createProject(
 				userId,

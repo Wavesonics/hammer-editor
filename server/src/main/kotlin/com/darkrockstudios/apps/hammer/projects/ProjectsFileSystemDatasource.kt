@@ -67,6 +67,10 @@ class ProjectsFileSystemDatasource(
 			.toSet()
 	}
 
+	override suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition? {
+		error("findProjectByName not implemented for FileSystem datasource")
+	}
+
 	override suspend fun loadSyncData(userId: Long): ProjectsSyncData {
 		val path = getSyncDataPath(userId)
 		return if (fileSystem.exists(path)) {

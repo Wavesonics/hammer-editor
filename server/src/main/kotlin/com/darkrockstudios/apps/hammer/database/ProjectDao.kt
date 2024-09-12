@@ -61,19 +61,19 @@ class ProjectDao(
 		)
 	}
 
-	suspend fun getProjectData(
+	suspend fun findProjectData(
 		userId: Long,
 		projectName: String,
-	): Project = withContext(ioDispatcher) {
+	): Project? = withContext(ioDispatcher) {
 		queries.getSyncDataByName(userId, projectName)
-			.executeAsOne()
+			.executeAsOneOrNull()
 	}
 
 	suspend fun getProjectData(
 		userId: Long,
-		projectUuid: UUID,
+		projectUuid: String,
 	): Project = withContext(ioDispatcher) {
-		queries.getSyncData(userId, projectUuid.toString())
+		queries.getSyncData(userId, projectUuid)
 			.executeAsOne()
 	}
 }

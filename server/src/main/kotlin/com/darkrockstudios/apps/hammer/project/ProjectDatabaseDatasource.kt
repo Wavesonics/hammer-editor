@@ -59,6 +59,18 @@ class ProjectDatabaseDatasource(
 		return projectDao.hasProject(userId, projectDef.name)
 	}
 
+	override suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition? {
+		val project = projectDao.findProjectData(userId, projectName)
+		return if (project != null) {
+			ProjectDefinition(
+				name = project.name,
+				uuid = project.uuid,
+			)
+		} else {
+			null
+		}
+	}
+
 	override suspend fun updateSyncData(
 		userId: Long,
 		projectDef: ProjectDefinition,
@@ -76,7 +88,7 @@ class ProjectDatabaseDatasource(
 	}
 
 	override suspend fun findLastId(userId: Long, projectDef: ProjectDefinition): Int? {
-		val proj = projectDao.getProjectData(userId, projectDef.name)
+		val proj = projectDao.getProjectData(userId, projectDef.uuid)
 		return storyEntityDao.findMaxId(userId, proj.id)?.toInt()
 	}
 

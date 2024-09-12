@@ -27,6 +27,10 @@ class ProjectFilesystemDatasource(
 		return fileSystem.exists(projectDir)
 	}
 
+	override suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition? {
+		error("Not implemented for FileSystem datasource")
+	}
+
 	override suspend fun createProject(userId: Long, projectName: String): ProjectDefinition {
 		val projectDef = ProjectDefinition(name = projectName, uuid = UUID.randomUUID().toString())
 

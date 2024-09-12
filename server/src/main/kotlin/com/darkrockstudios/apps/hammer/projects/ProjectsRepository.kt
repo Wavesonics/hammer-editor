@@ -95,12 +95,14 @@ class ProjectsRepository(
 		userId: Long,
 		syncId: String,
 		projectName: String
-	): SResult<ProjectDefinition> {
+	): SResult<ProjectCreatedResult> {
 		if (syncSessionManager.validateSyncId(userId, syncId, true)
 				.not()
 		) return SResult.failure(InvalidSyncIdException())
 
-		val projectDef = projectDatasource.createProject(userId, projectName)
+		val existingProject = projectDatasource.findProjectByName(userId, projectName)
+		val projectDef = existingProject ?: projectDatasource.createProject(userId, projectName)
+		val alreadyExists = (existingProject != null)
 
 		projectsDatasource.updateSyncData(userId) { data ->
 			data.copy(
@@ -108,6 +110,16 @@ class ProjectsRepository(
 			)
 		}
 
-		return SResult.success(projectDef)
+		return SResult.success(
+			ProjectCreatedResult(
+				project = projectDef,
+				alreadyExisted = alreadyExists
+			)
+		)
 	}
+
+	data class ProjectCreatedResult(
+		val project: ProjectDefinition,
+		val alreadyExisted: Boolean,
+	)
 }

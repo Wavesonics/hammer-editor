@@ -12,4 +12,5 @@ data class BeginProjectsSyncResponse(
 @Serializable
 data class CreateProjectResponse(
 	val projectId: String,
+	val alreadyExisted: Boolean,
 )

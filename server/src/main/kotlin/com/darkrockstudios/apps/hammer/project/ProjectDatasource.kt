@@ -9,6 +9,7 @@ interface ProjectDatasource {
 	suspend fun createProject(userId: Long, projectName: String): ProjectDefinition
 	suspend fun deleteProject(userId: Long, projectName: String): SResult<Unit>
 	suspend fun checkProjectExists(userId: Long, projectDef: ProjectDefinition): Boolean
+	suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition?
 	suspend fun updateSyncData(
 		userId: Long,
 		projectDef: ProjectDefinition,

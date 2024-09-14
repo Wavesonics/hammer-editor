@@ -7,7 +7,7 @@ CREATE TABLE account(
     isAdmin INTEGER AS kotlin.Boolean DEFAULT FALSE NOT NULL
 );
 
-selectAll:
+getAllAccount:
 SELECT *
 FROM account;
 

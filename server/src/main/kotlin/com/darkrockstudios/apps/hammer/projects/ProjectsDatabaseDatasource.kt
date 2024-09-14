@@ -8,7 +8,6 @@ import com.darkrockstudios.apps.hammer.projects.ProjectsDatasource.Companion.def
 class ProjectsDatabaseDatasource(
 	private val projectDao: ProjectDao,
 	private val projectsDao: ProjectsDao,
-
 	) : ProjectsDatasource {
 
 	override suspend fun saveSyncData(userId: Long, data: ProjectsSyncData) {
@@ -30,6 +29,11 @@ class ProjectsDatabaseDatasource(
 		} else {
 			null
 		}
+	}
+
+	override suspend fun getProject(userId: Long, projectId: String): ProjectDefinition {
+		val project = projectDao.getProjectData(userId, projectId)
+		return ProjectDefinition(name = project.name, uuid = project.uuid)
 	}
 
 	override suspend fun loadSyncData(userId: Long): ProjectsSyncData {

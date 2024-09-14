@@ -7,7 +7,7 @@ import kotlinx.serialization.KSerializer
 interface ProjectDatasource {
 	suspend fun loadProjectSyncData(userId: Long, projectDef: ProjectDefinition): ProjectSyncData
 	suspend fun createProject(userId: Long, projectName: String): ProjectDefinition
-	suspend fun deleteProject(userId: Long, projectName: String): SResult<Unit>
+	suspend fun deleteProject(userId: Long, project: ProjectDefinition): SResult<Unit>
 	suspend fun checkProjectExists(userId: Long, projectDef: ProjectDefinition): Boolean
 	suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition?
 	suspend fun updateSyncData(

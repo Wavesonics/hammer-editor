@@ -66,7 +66,7 @@ class ProjectsRepositoryBeginSyncTest : ProjectsRepositoryBaseTest() {
 		coEvery { projectsDatasource.loadSyncData(userId) } returns
 			ProjectsSyncData(
 				lastSync = Instant.fromEpochSeconds(123),
-				deletedProjects = setOf("Project 3")
+				deletedProjects = setOf(ProjectDefinition("Project 3", "uuid-3"))
 			)
 
 		mockCreateSession(newSyncId)
@@ -83,7 +83,7 @@ class ProjectsRepositoryBeginSyncTest : ProjectsRepositoryBaseTest() {
 					ProjectDefinition("Project 1", "uuid-1"),
 					ProjectDefinition("Project 2", "uuid-2")
 				),
-				deletedProjects = setOf("Project 3")
+				deletedProjects = setOf(ProjectDefinition("Project 3", "uuid-3"))
 			)
 
 			assertEquals(expectedData, syncData)

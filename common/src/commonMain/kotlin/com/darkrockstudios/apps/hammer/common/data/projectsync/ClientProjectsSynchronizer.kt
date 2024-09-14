@@ -98,10 +98,10 @@ class ClientProjectsSynchronizer(
 		localProjects: List<ProjectDef>,
 		onLog: OnSyncLog,
 	) {
-		val newlyDeletedProjects = serverSyncData.deletedProjects.filter { projectName ->
-			clientSyncData.deletedProjects.contains(projectName).not() &&
-				clientSyncData.projectsToCreate.contains(projectName).not()
-		}.mapNotNull { serverProjectName -> localProjects.find { it.name == serverProjectName } }
+		val newlyDeletedProjects = serverSyncData.deletedProjects.filter { project ->
+			clientSyncData.deletedProjects.contains(project.uuid).not() &&
+				clientSyncData.projectsToCreate.contains(project.name).not()
+		}.mapNotNull { serverProject -> localProjects.find { it.name == serverProject.name } }
 
 		// Delete projects on the server
 		clientSyncData.projectsToDelete.forEach { projectName ->

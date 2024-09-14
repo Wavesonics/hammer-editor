@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.database
 
+import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
 import com.darkrockstudios.apps.hammer.utilities.injectIoDispatcher
 import kotlinx.coroutines.withContext
@@ -18,7 +19,12 @@ class ProjectsDao(
 
 		return@withContext if (data != null) {
 			val deletedProjects = deletedProjectQueries.getDeletedProjects(userId).executeAsList()
-				.map { it.name }
+				.map {
+					ProjectDefinition(
+						name = it.name,
+						uuid = it.uuid,
+					)
+				}
 				.toSet()
 
 			ProjectsSyncData(
@@ -35,7 +41,7 @@ class ProjectsDao(
 	suspend fun updateProjectSyncData(
 		userId: Long,
 		lastSync: Instant,
-		newDeletedProjects: Set<String>
+		newDeletedProjects: Set<ProjectDefinition>
 	) = withContext(ioDispatcher) {
 		syncDataQueries.updateSyncData(
 			last_sync = lastSync.toString(),
@@ -43,21 +49,30 @@ class ProjectsDao(
 		)
 
 		// Un-delete a project name
-		val currentDeletedProjects = deletedProjectQueries.getDeletedProjects(userId)
+		val currentDeletedProjects = deletedProjectQueries
+			.getDeletedProjects(userId)
 			.executeAsList()
-			.map { it.name }
-		currentDeletedProjects.filterNot {
-			newDeletedProjects.contains(it)
+
+		currentDeletedProjects.filterNot { currentDeletedProject: DeletedProject ->
+			// TODO https://youtrack.jetbrains.com/issue/KT-55239
+			newDeletedProjects.contains<Any?> { deletedProject: ProjectDefinition ->
+				deletedProject.uuid == currentDeletedProject.uuid
+			}
 		}.forEach {
-			deletedProjectQueries.removeDeletedProject(userId, it)
+			deletedProjectQueries.removeDeletedProject(userId, it.uuid)
 		}
 
 		// Delete newly deleted project names
-		newDeletedProjects.filterNot {
-			currentDeletedProjects.contains(it)
-		}.forEach { projectName ->
-			if (deletedProjectQueries.hasDeletedProject(userId, projectName).executeAsOne().not()) {
-				deletedProjectQueries.addDeletedProject(userId, projectName)
+		newDeletedProjects.filterNot { newlyDeleted: ProjectDefinition ->
+			// TODO https://youtrack.jetbrains.com/issue/KT-55239
+			currentDeletedProjects.contains<Any?> { oldlyDeleted: DeletedProject ->
+				oldlyDeleted.uuid == newlyDeleted.uuid
+			}
+		}.forEach { project ->
+			if (deletedProjectQueries.hasDeletedProject(userId, project.uuid).executeAsOne()
+					.not()
+			) {
+				deletedProjectQueries.addDeletedProject(userId, project.name, project.uuid)
 			}
 		}
 	}

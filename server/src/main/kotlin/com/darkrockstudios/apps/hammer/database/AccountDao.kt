@@ -12,6 +12,11 @@ class AccountDao(
 	private val ioDispatcher by injectIoDispatcher()
 	private val queries = database.serverDatabase.accountQueries
 
+	suspend fun getAllAccounts(): List<Account> = withContext(ioDispatcher) {
+		val query = queries.getAllAccount()
+		return@withContext query.executeAsList()
+	}
+
 	suspend fun getAccount(id: Long): Account? = withContext(ioDispatcher) {
 		val query = queries.getAccount(id)
 		return@withContext query.executeAsOneOrNull()

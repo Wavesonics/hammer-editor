@@ -14,6 +14,7 @@ import io.mockk.coVerify
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 
@@ -29,7 +30,7 @@ class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 				ProjectDefinition("Project 2", "uuid-2"),
 			),
 			deletedProjects = setOf(
-				"Project 3",
+				ProjectDefinition("Project 3", "uuid-3"),
 			),
 		)
 
@@ -50,7 +51,11 @@ class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 			Json.decodeFromString<BeginProjectsSyncResponse>(responseBody).apply {
 				assertEquals(syncId, this.syncId)
 				assertEquals(syncData.projects.map { it.name }.toSet(), this.projects)
-				assertEquals(syncData.deletedProjects, this.deletedProjects)
+				syncData.deletedProjects.forEach { syncProject ->
+					val found =
+						deletedProjects.any { it.uuid == syncProject.uuid && it.name == syncProject.name }
+					assertTrue(found, "Deleted project not found: $syncProject")
+				}
 			}
 
 			coVerify { projectsRepository.beginProjectsSync(userId = userId) }

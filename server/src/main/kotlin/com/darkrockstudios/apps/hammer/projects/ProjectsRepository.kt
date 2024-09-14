@@ -71,20 +71,21 @@ class ProjectsRepository(
 		}
 	}
 
-	private suspend fun getDeletedProjects(userId: Long): Set<String> {
+	private suspend fun getDeletedProjects(userId: Long): Set<ProjectDefinition> {
 		return projectsDatasource.loadSyncData(userId).deletedProjects
 	}
 
-	suspend fun deleteProject(userId: Long, syncId: String, projectName: String): SResult<Unit> {
+	suspend fun deleteProject(userId: Long, syncId: String, projectId: String): SResult<Unit> {
 		if (syncSessionManager.validateSyncId(userId, syncId, true)
 				.not()
 		) return SResult.failure(InvalidSyncIdException())
 
-		val result = projectDatasource.deleteProject(userId, projectName)
+		val project = projectsDatasource.getProject(userId, projectId)
+		val result = projectDatasource.deleteProject(userId, project)
 
 		projectsDatasource.updateSyncData(userId) { data ->
 			data.copy(
-				deletedProjects = data.deletedProjects + projectName
+				deletedProjects = data.deletedProjects + project
 			)
 		}
 
@@ -105,8 +106,12 @@ class ProjectsRepository(
 		val alreadyExists = (existingProject != null)
 
 		projectsDatasource.updateSyncData(userId) { data ->
+			val updatedDeletedProjects = data.deletedProjects.filterNot {
+				it.name == projectName
+			}
+
 			data.copy(
-				deletedProjects = data.deletedProjects - projectName
+				deletedProjects = updatedDeletedProjects.toSet()
 			)
 		}
 

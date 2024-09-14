@@ -1,0 +1,34 @@
+ALTER TABLE authToken RENAME TO auth_token;
+ALTER TABLE whiteList RENAME TO white_list;
+CREATE TABLE sync_data (
+	user_id INTEGER NOT NULL,
+	last_sync TEXT DEFAULT (datetime('now')) NOT NULL,
+	FOREIGN KEY(user_id) REFERENCES account(id)
+);
+CREATE TABLE project (
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	uuid TEXT NOT NULL,
+	user_id INTEGER NOT NULL,
+	name TEXT NOT NULL,
+	last_id INTEGER NOT NULL,
+	last_sync TEXT DEFAULT (datetime('now')) NOT NULL,
+	deleted_ids TEXT,
+	FOREIGN KEY(user_id) REFERENCES account(id)
+);
+CREATE TABLE story_entity (
+	user_id INTEGER NOT NULL,
+	project_id INTEGER NOT NULL,
+	id INTEGER NOT NULL,
+	type INTEGER NOT NULL,
+	content TEXT NOT NULL,
+	hash TEXT NOT NULL,
+	deleted INTEGER NOT NULL DEFAULT 0,
+	FOREIGN KEY(user_id) REFERENCES account(id),
+	FOREIGN KEY(project_id) REFERENCES project(id)
+);
+CREATE TABLE deleted_project (
+		user_id INTEGER NOT NULL,
+    	name TEXT NOT NULL,
+    	uuid TEXT NOT NULL,
+    	FOREIGN KEY(user_id) REFERENCES account(id)
+);

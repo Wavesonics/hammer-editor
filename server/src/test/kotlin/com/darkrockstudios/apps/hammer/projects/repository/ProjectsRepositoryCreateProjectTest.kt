@@ -45,8 +45,8 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 		val initialSyncData = ProjectsSyncData(
 			lastSync = Instant.DISTANT_PAST,
 			deletedProjects = setOf(
-				projectName,
-				"Project 2"
+				ProjectDefinition(projectName, "uuid-$projectName"),
+				ProjectDefinition("Project 2", "uuid-project-2"),
 			),
 		)
 
@@ -61,7 +61,7 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 		val expectedSyncData = ProjectsSyncData(
 			lastSync = Instant.DISTANT_PAST,
 			deletedProjects = setOf(
-				"Project 2"
+				ProjectDefinition("Project 2", "uuid-project-2"),
 			),
 		)
 

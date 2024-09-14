@@ -82,8 +82,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				"Test Project 1",
-				"Test Project 2",
+				ProjectDefinition("Test Project 1", "project-id-1"),
+				ProjectDefinition("Test Project 2", "project-id-2"),
 			)
 		)
 
@@ -103,8 +103,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				"Test Project 1",
-				"Test Project 2",
+				ProjectDefinition("Test Project 1", "project-id-1"),
+				ProjectDefinition("Test Project 2", "project-id-2"),
 			)
 		)
 
@@ -125,8 +125,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				"Test Project 1",
-				"Test Project 2",
+				ProjectDefinition("Test Project 1", "project-id-1"),
+				ProjectDefinition("Test Project 2", "project-id-2"),
 			)
 		)
 
@@ -136,16 +136,19 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val loadedSyncData = datasource.updateSyncData(userId) { data ->
 			data.copy(
 				lastSync = Instant.fromEpochSeconds(456),
-				deletedProjects = data.deletedProjects + "Test Project 3"
+				deletedProjects = data.deletedProjects + ProjectDefinition(
+					"Test Project 3",
+					"project-id-3"
+				)
 			)
 		}
 
 		val updatedSyncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(456),
 			deletedProjects = setOf(
-				"Test Project 1",
-				"Test Project 2",
-				"Test Project 3",
+				ProjectDefinition("Test Project 1", "project-id-1"),
+				ProjectDefinition("Test Project 2", "project-id-2"),
+				ProjectDefinition("Test Project 3", "project-id-3"),
 			)
 		)
 

@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.database
 
+import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.utilities.injectIoDispatcher
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -12,11 +13,19 @@ class DeletedProjectDao(
 
 	suspend fun deleteProject(
 		userId: Long,
-		projectName: String,
+		project: ProjectDefinition,
 	) = withContext(ioDispatcher) {
-		val alreadyDeleted = queries.hasDeletedProject(userId, projectName).executeAsOne()
+		val alreadyDeleted = queries.hasDeletedProject(
+			user_id = userId,
+			uuid = project.uuid,
+		).executeAsOne()
+
 		if (alreadyDeleted.not()) {
-			queries.addDeletedProject(userId, projectName)
+			queries.addDeletedProject(
+				user_id = userId,
+				uuid = project.uuid,
+				name = project.name,
+			)
 		}
 	}
 }

@@ -84,10 +84,11 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 		val userId = 1L
 		val projectName = "Test Project"
 		val projectId = "Test UUID"
+		val project = ProjectDefinition(projectName, projectId)
 
 		val projectDir = ProjectFilesystemDatasource.getProjectDirectory(
 			userId,
-			ProjectDefinition(projectName, projectId),
+			project,
 			fileSystem
 		)
 		val testFile1 = projectDir / "test1.txt"
@@ -106,7 +107,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 		assertTrue { fileSystem.exists(projectDir) }
 
 		val datasource = ProjectFilesystemDatasource(fileSystem, json)
-		datasource.deleteProject(userId, projectName)
+		datasource.deleteProject(userId, project)
 
 		assertFalse { fileSystem.exists(testFile1) }
 		assertFalse { fileSystem.exists(testFile2) }

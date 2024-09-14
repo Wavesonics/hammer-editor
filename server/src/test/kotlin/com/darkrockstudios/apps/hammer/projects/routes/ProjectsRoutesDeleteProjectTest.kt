@@ -1,9 +1,12 @@
 package com.darkrockstudios.apps.hammer.projects.routes
 
+import com.darkrockstudios.apps.hammer.base.http.HAMMER_PROTOCOL_HEADER
+import com.darkrockstudios.apps.hammer.base.http.HAMMER_PROTOCOL_VERSION
 import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
 import com.darkrockstudios.apps.hammer.utilities.SResult
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
@@ -15,7 +18,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
 	@Test
 	fun `Projects - Delete Project - Success`() = testApplication {
-		val projectName = "TestProject"
+		val projectId = "TestProjectId"
 		val syncId = "syncId-test"
 		val userId = 0L
 
@@ -25,22 +28,25 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 			projectsRepository.deleteProject(
 				userId = userId,
 				syncId = syncId,
-				projectName = projectName,
+				projectId = projectId,
 			)
 		} returns SResult.success(Unit)
 
 		defaultApplication()
 
 		client.get("api/projects/0/TestProject/delete") {
+			header(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 			header("Authorization", "Bearer $BEARER_TOKEN")
 			header(HEADER_SYNC_ID, syncId)
+
+			parameter("projectId", projectId)
 		}.apply {
 			assertEquals(HttpStatusCode.OK, status)
 			coVerify {
 				projectsRepository.deleteProject(
 					userId = userId,
 					syncId = syncId,
-					projectName = projectName,
+					projectId = projectId,
 				)
 			}
 		}
@@ -54,7 +60,10 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 		defaultApplication()
 
 		client.get("api/projects/0/TestProject/delete") {
+			header(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 			header("Authorization", "Bearer $BEARER_TOKEN")
+
+			parameter("projectId", "project-id-1")
 		}.apply {
 			assertEquals(HttpStatusCode.BadRequest, status)
 		}
@@ -62,7 +71,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
 	@Test
 	fun `Projects - Delete Project - Failure - Repository Exception`() = testApplication {
-		val projectName = "TestProject"
+		val projectId = "TestProjectId"
 		val syncId = "syncId-test"
 		val userId = 0L
 
@@ -72,15 +81,18 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 			projectsRepository.deleteProject(
 				userId = userId,
 				syncId = syncId,
-				projectName = projectName,
+				projectId = projectId,
 			)
 		} returns SResult.failure(Exception())
 
 		defaultApplication()
 
 		client.get("api/projects/0/TestProject/delete") {
+			header(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 			header("Authorization", "Bearer $BEARER_TOKEN")
 			header(HEADER_SYNC_ID, syncId)
+
+			parameter("projectId", projectId)
 		}.apply {
 			assertEquals(HttpStatusCode.InternalServerError, status)
 		}

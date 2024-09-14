@@ -71,6 +71,10 @@ class ProjectsFileSystemDatasource(
 		error("findProjectByName not implemented for FileSystem datasource")
 	}
 
+	override suspend fun getProject(userId: Long, projectId: String): ProjectDefinition {
+		error("getProject not implemented for FileSystem datasource")
+	}
+
 	override suspend fun loadSyncData(userId: Long): ProjectsSyncData {
 		val path = getSyncDataPath(userId)
 		return if (fileSystem.exists(path)) {
@@ -89,7 +93,7 @@ class ProjectsFileSystemDatasource(
 		return getUserDirectory(userId, fileSystem)
 	}
 
-	private fun getSyncDataPath(userId: Long): Path = getUserDirectory(userId) / DATA_FILE
+	fun getSyncDataPath(userId: Long): Path = getUserDirectory(userId) / DATA_FILE
 
 	companion object {
 		private const val DATA_DIRECTORY = "user_data"

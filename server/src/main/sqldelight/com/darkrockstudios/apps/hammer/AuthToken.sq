@@ -8,7 +8,6 @@ CREATE TABLE auth_token(
     FOREIGN KEY(userId) REFERENCES account(id)
 );
 
-
 getTokensByUserId:
 SELECT *
 FROM auth_token

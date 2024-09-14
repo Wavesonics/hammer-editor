@@ -57,8 +57,8 @@ class ProjectFilesystemDatasource(
 		return projectDef
 	}
 
-	override suspend fun deleteProject(userId: Long, projectName: String): SResult<Unit> {
-		val projectDef = ProjectDefinition(projectName, uuid = "")
+	override suspend fun deleteProject(userId: Long, project: ProjectDefinition): SResult<Unit> {
+		val projectDef = ProjectDefinition(project.name, uuid = "")
 		val projectDir = getProjectDirectory(userId, projectDef, fileSystem)
 		fileSystem.deleteRecursively(projectDir)
 

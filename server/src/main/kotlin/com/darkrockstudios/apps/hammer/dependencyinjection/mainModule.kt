@@ -16,7 +16,6 @@ import com.darkrockstudios.apps.hammer.database.StoryEntityDao
 import com.darkrockstudios.apps.hammer.database.WhiteListDao
 import com.darkrockstudios.apps.hammer.project.ProjectDatabaseDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectDatasource
-import com.darkrockstudios.apps.hammer.project.ProjectFilesystemDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectRepository
 import com.darkrockstudios.apps.hammer.project.ProjectSyncKey
 import com.darkrockstudios.apps.hammer.project.ProjectSynchronizationSession
@@ -27,7 +26,6 @@ import com.darkrockstudios.apps.hammer.project.synchronizers.ServerSceneSynchron
 import com.darkrockstudios.apps.hammer.project.synchronizers.ServerTimelineSynchronizer
 import com.darkrockstudios.apps.hammer.projects.ProjectsDatabaseDatasource
 import com.darkrockstudios.apps.hammer.projects.ProjectsDatasource
-import com.darkrockstudios.apps.hammer.projects.ProjectsFileSystemDatasource
 import com.darkrockstudios.apps.hammer.projects.ProjectsRepository
 import com.darkrockstudios.apps.hammer.projects.ProjectsSynchronizationSession
 import com.darkrockstudios.apps.hammer.syncsessionmanager.SyncSessionManager
@@ -73,11 +71,6 @@ fun mainModule(
 	singleOf(::ProjectsRepository)
 	singleOf(::ProjectRepository)
 	singleOf(::WhiteListRepository)
-
-	//factoryOf(::ProjectsFileSystemDatasource) bind ProjectsDatasource::class
-	//factoryOf(::ProjectFilesystemDatasource) bind ProjectDatasource::class
-	factoryOf(::ProjectsFileSystemDatasource)
-	factoryOf(::ProjectFilesystemDatasource)
 
 	factoryOf(::ProjectsDatabaseDatasource) bind ProjectsDatasource::class
 	factoryOf(::ProjectDatabaseDatasource) bind ProjectDatasource::class

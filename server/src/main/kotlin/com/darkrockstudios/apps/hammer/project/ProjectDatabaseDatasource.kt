@@ -46,10 +46,10 @@ class ProjectDatabaseDatasource(
 		)
 	}
 
-	override suspend fun deleteProject(userId: Long, projectName: String): SResult<Unit> {
+	override suspend fun deleteProject(userId: Long, project: ProjectDefinition): SResult<Unit> {
 		deletedProjectDao.deleteProject(
 			userId = userId,
-			projectName = projectName,
+			project = project,
 		)
 
 		return SResult.success(Unit)

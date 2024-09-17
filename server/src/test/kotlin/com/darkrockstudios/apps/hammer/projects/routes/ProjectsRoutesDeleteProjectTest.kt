@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects.routes
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.HAMMER_PROTOCOL_HEADER
 import com.darkrockstudios.apps.hammer.base.http.HAMMER_PROTOCOL_VERSION
 import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
@@ -18,7 +19,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
 	@Test
 	fun `Projects - Delete Project - Success`() = testApplication {
-		val projectId = "TestProjectId"
+		val projectId = ProjectId("TestProjectId")
 		val syncId = "syncId-test"
 		val userId = 0L
 
@@ -34,12 +35,12 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
 		defaultApplication()
 
-		client.get("api/projects/0/TestProject/delete") {
+		client.get("api/projects/0/delete") {
 			header(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 			header("Authorization", "Bearer $BEARER_TOKEN")
 			header(HEADER_SYNC_ID, syncId)
 
-			parameter("projectId", projectId)
+			parameter("projectId", projectId.id)
 		}.apply {
 			assertEquals(HttpStatusCode.OK, status)
 			coVerify {
@@ -59,7 +60,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
 		defaultApplication()
 
-		client.get("api/projects/0/TestProject/delete") {
+		client.get("api/projects/0/delete") {
 			header(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 			header("Authorization", "Bearer $BEARER_TOKEN")
 
@@ -71,7 +72,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
 	@Test
 	fun `Projects - Delete Project - Failure - Repository Exception`() = testApplication {
-		val projectId = "TestProjectId"
+		val projectId = ProjectId("TestProjectId")
 		val syncId = "syncId-test"
 		val userId = 0L
 
@@ -87,7 +88,7 @@ class ProjectsRoutesDeleteProjectTest : ProjectsRoutesBaseTest() {
 
 		defaultApplication()
 
-		client.get("api/projects/0/TestProject/delete") {
+		client.get("api/projects/0/delete") {
 			header(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 			header("Authorization", "Bearer $BEARER_TOKEN")
 			header(HEADER_SYNC_ID, syncId)

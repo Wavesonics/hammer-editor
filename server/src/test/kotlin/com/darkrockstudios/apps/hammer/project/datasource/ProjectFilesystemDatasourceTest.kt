@@ -1,6 +1,7 @@
 package com.darkrockstudios.apps.hammer.project.datasource
 
 import PROJECT_1_NAME
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.ApiSceneType
 import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
@@ -33,7 +34,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	private lateinit var json: Json
 
 	private val userId = 1L
-	private val projectDef = ProjectDefinition("Test Project", "Test UUID")
+	private val projectDef = ProjectDefinition("Test Project", ProjectId("Test UUID"))
 
 	@Before
 	override fun setup() {
@@ -83,7 +84,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	fun `Delete Project`() = runTest {
 		val userId = 1L
 		val projectName = "Test Project"
-		val projectId = "Test UUID"
+		val projectId = ProjectId("Test UUID")
 		val project = ProjectDefinition(projectName, projectId)
 
 		val projectDir = ProjectFilesystemDatasource.getProjectDirectory(
@@ -217,7 +218,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	fun `Load Entity - Decode Scene JSON - SerializationException`() = runTest {
 		val userId = 1L
 		val entityId = 1
-		val projectDef = ProjectDefinition(PROJECT_1_NAME, "test-uuid")
+		val projectDef = ProjectDefinition(PROJECT_1_NAME, ProjectId("test-uuid"))
 
 		createProject(userId, projectDef.name, fileSystem)
 
@@ -245,7 +246,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 	fun `Load Entity - Decode Scene JSON - Entity Not Found`() = runTest {
 		val userId = 1L
 		val entityId = 10 // Not a real Entity ID
-		val projectDef = ProjectDefinition(PROJECT_1_NAME, "test-uuid")
+		val projectDef = ProjectDefinition(PROJECT_1_NAME, ProjectId("test-uuid"))
 
 		createProject(userId, projectDef.name, fileSystem)
 

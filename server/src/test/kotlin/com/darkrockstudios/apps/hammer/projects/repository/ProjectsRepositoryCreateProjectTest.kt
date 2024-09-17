@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects.repository
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
 import io.mockk.coEvery
@@ -31,7 +32,7 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 	fun `Create Project, successful`() = runTest {
 		val syncId = "sync-id"
 		val projectName = "Project Name"
-		val projectId = "uuid-1"
+		val projectId = ProjectId("uuid-1")
 
 		coEvery { projectsSessionManager.validateSyncId(userId, syncId, any()) } returns true
 		coEvery { projectDatasource.findProjectByName(userId, projectName) } returns null
@@ -45,8 +46,8 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 		val initialSyncData = ProjectsSyncData(
 			lastSync = Instant.DISTANT_PAST,
 			deletedProjects = setOf(
-				ProjectDefinition(projectName, "uuid-$projectName"),
-				ProjectDefinition("Project 2", "uuid-project-2"),
+				ProjectDefinition(projectName, ProjectId("uuid-$projectName")),
+				ProjectDefinition("Project 2", ProjectId("uuid-project-2")),
 			),
 		)
 
@@ -61,7 +62,7 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 		val expectedSyncData = ProjectsSyncData(
 			lastSync = Instant.DISTANT_PAST,
 			deletedProjects = setOf(
-				ProjectDefinition("Project 2", "uuid-project-2"),
+				ProjectDefinition("Project 2", ProjectId("uuid-project-2")),
 			),
 		)
 

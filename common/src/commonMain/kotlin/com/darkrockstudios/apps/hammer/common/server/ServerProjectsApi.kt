@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.common.server
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
 import com.darkrockstudios.apps.hammer.base.http.CreateProjectResponse
 import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
@@ -8,6 +9,7 @@ import com.darkrockstudios.apps.hammer.common.util.StrRes
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
 
 class ServerProjectsApi(
 	httpClient: HttpClient,
@@ -33,13 +35,14 @@ class ServerProjectsApi(
 		)
 	}
 
-	suspend fun deleteProject(projectName: String, syncId: String): Result<String> {
+	suspend fun deleteProject(projectId: ProjectId, syncId: String): Result<String> {
 		return get(
-			path = "/api/projects/$userId/$projectName/delete",
+			path = "/api/projects/$userId/delete",
 			builder = {
 				headers {
 					append(HEADER_SYNC_ID, syncId)
 				}
+				parameter("projectId", projectId.id)
 			}
 		)
 	}

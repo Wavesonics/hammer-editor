@@ -9,6 +9,7 @@ import com.darkrockstudios.apps.hammer.database.AuthTokenDao
 import com.darkrockstudios.apps.hammer.utilities.isFailure
 import com.darkrockstudios.apps.hammer.utilities.isSuccess
 import com.darkrockstudios.apps.hammer.utilities.toISO8601
+import com.darkrockstudios.apps.hammer.utilities.toSqliteDateTimeString
 import com.darkrockstudios.apps.hammer.utils.BaseTest
 import com.darkrockstudios.apps.hammer.utils.TestClock
 import io.mockk.Runs
@@ -65,8 +66,9 @@ class AccountsRepositoryTest : BaseTest() {
 			email = email,
 			salt = salt,
 			password_hash = hashedPassword,
-			created = (Clock.System.now() - 128.days).toISO8601(),
-			isAdmin = true
+			created = (Clock.System.now() - 128.days).toSqliteDateTimeString(),
+			is_admin = true,
+			last_sync = Clock.System.now().toSqliteDateTimeString()
 		)
 	}
 

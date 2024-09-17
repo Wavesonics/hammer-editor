@@ -156,7 +156,7 @@ class AccountsRepository(
 	}
 
 	suspend fun isAdmin(userId: Long): Boolean {
-		return accountDao.getAccount(userId)?.isAdmin == true
+		return accountDao.getAccount(userId)?.is_admin == true
 	}
 
 	suspend fun findAccount(email: String): Account? {

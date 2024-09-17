@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects.routes
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
 import com.darkrockstudios.apps.hammer.project.InvalidSyncIdException
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
@@ -21,7 +22,7 @@ class ProjectsRoutesCreateProjectTest : ProjectsRoutesBaseTest() {
 	@Test
 	fun `Projects - Create Project - Success`() = testApplication {
 		val projectName = "TestProject"
-		val projectId = "uuid-1"
+		val projectId = ProjectId("uuid-1")
 		val syncId = "syncId-test"
 		val userId = 0L
 

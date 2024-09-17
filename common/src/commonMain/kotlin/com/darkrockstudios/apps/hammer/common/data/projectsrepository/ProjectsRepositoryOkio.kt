@@ -1,8 +1,8 @@
 package com.darkrockstudios.apps.hammer.common.data.projectsrepository
 
 import com.darkrockstudios.apps.hammer.MR
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.Info
-import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.ProjectId
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.ProjectMetadata
 import com.darkrockstudios.apps.hammer.common.data.CResult
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef

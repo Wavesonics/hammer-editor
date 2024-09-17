@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.database.ProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectsDao
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
@@ -25,15 +26,15 @@ class ProjectsDatabaseDatasource(
 	override suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition? {
 		val data = projectDao.findProjectData(userId, projectName)
 		return if (data != null) {
-			ProjectDefinition(name = data.name, uuid = data.uuid)
+			ProjectDefinition(name = data.name, uuid = ProjectId(data.uuid))
 		} else {
 			null
 		}
 	}
 
-	override suspend fun getProject(userId: Long, projectId: String): ProjectDefinition {
+	override suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition {
 		val project = projectDao.getProjectData(userId, projectId)
-		return ProjectDefinition(name = project.name, uuid = project.uuid)
+		return ProjectDefinition(name = project.name, uuid = ProjectId(project.uuid))
 	}
 
 	override suspend fun loadSyncData(userId: Long): ProjectsSyncData {

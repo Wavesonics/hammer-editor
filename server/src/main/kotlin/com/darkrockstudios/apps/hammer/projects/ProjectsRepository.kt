@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.dependencyinjection.PROJECTS_SYNC_MANAGER
 import com.darkrockstudios.apps.hammer.project.InvalidSyncIdException
 import com.darkrockstudios.apps.hammer.project.ProjectDatasource
@@ -75,7 +76,7 @@ class ProjectsRepository(
 		return projectsDatasource.loadSyncData(userId).deletedProjects
 	}
 
-	suspend fun deleteProject(userId: Long, syncId: String, projectId: String): SResult<Unit> {
+	suspend fun deleteProject(userId: Long, syncId: String, projectId: ProjectId): SResult<Unit> {
 		if (syncSessionManager.validateSyncId(userId, syncId, true)
 				.not()
 		) return SResult.failure(InvalidSyncIdException())

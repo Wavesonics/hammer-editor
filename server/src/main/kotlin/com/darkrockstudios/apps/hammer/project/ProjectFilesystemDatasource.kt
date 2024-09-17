@@ -1,9 +1,9 @@
 package com.darkrockstudios.apps.hammer.project
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.projects.ProjectsFileSystemDatasource.Companion.getUserDirectory
 import com.darkrockstudios.apps.hammer.utilities.SResult
-import korlibs.io.util.UUID
 import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -32,7 +32,7 @@ class ProjectFilesystemDatasource(
 	}
 
 	override suspend fun createProject(userId: Long, projectName: String): ProjectDefinition {
-		val projectDef = ProjectDefinition(name = projectName, uuid = UUID.randomUUID().toString())
+		val projectDef = ProjectDefinition(name = projectName, uuid = ProjectId.randomUUID())
 
 		val projectDir = getProjectDirectory(userId, projectDef)
 		fileSystem.createDirectories(projectDir)
@@ -58,7 +58,7 @@ class ProjectFilesystemDatasource(
 	}
 
 	override suspend fun deleteProject(userId: Long, project: ProjectDefinition): SResult<Unit> {
-		val projectDef = ProjectDefinition(project.name, uuid = "")
+		val projectDef = ProjectDefinition(project.name, uuid = ProjectId(""))
 		val projectDir = getProjectDirectory(userId, projectDef, fileSystem)
 		fileSystem.deleteRecursively(projectDir)
 

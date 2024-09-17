@@ -1,6 +1,6 @@
 package com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository
 
-import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.ProjectId
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.ProjectMetadata
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
 import com.darkrockstudios.apps.hammer.common.fileio.HPath

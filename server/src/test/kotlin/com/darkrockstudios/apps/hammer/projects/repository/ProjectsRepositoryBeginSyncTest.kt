@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects.repository
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.projects.ProjectsBeginSyncData
 import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
@@ -59,14 +60,14 @@ class ProjectsRepositoryBeginSyncTest : ProjectsRepositoryBaseTest() {
 		coEvery { projectSessionManager.hasActiveSyncSession(any()) } returns false
 
 		coEvery { projectsDatasource.getProjects(userId) } returns setOf(
-			ProjectDefinition("Project 1", "uuid-1"),
-			ProjectDefinition("Project 2", "uuid-2"),
+			ProjectDefinition("Project 1", ProjectId("uuid-1")),
+			ProjectDefinition("Project 2", ProjectId("uuid-2")),
 		)
 
 		coEvery { projectsDatasource.loadSyncData(userId) } returns
 			ProjectsSyncData(
 				lastSync = Instant.fromEpochSeconds(123),
-				deletedProjects = setOf(ProjectDefinition("Project 3", "uuid-3"))
+				deletedProjects = setOf(ProjectDefinition("Project 3", ProjectId("uuid-3")))
 			)
 
 		mockCreateSession(newSyncId)
@@ -80,10 +81,10 @@ class ProjectsRepositoryBeginSyncTest : ProjectsRepositoryBaseTest() {
 			val expectedData = ProjectsBeginSyncData(
 				syncId = syncData.syncId,
 				projects = setOf(
-					ProjectDefinition("Project 1", "uuid-1"),
-					ProjectDefinition("Project 2", "uuid-2")
+					ProjectDefinition("Project 1", ProjectId("uuid-1")),
+					ProjectDefinition("Project 2", ProjectId("uuid-2"))
 				),
-				deletedProjects = setOf(ProjectDefinition("Project 3", "uuid-3"))
+				deletedProjects = setOf(ProjectDefinition("Project 3", ProjectId("uuid-3")))
 			)
 
 			assertEquals(expectedData, syncData)

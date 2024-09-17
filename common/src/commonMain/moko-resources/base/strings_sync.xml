@@ -76,7 +76,9 @@
 	<string name="sync_log_account_server_data_loaded">Server data loaded</string>
 	<string name="sync_log_account_complete">Account Sync complete</string>
 	<string name="sync_log_account_failed">Failed to sync projects: %1$s</string>
-	<string name="sync_log_account_project_delete_server_success">Deleting server project: %1$s</string>
+	<string name="sync_log_account_project_delete_server_success">Deleting server project:
+		ID(%1$s)
+	</string>
 	<string name="sync_log_account_project_delete_server_failure">Failed to delete project on server: %1$s</string>
 	<string name="sync_log_account_project_delete_client">Deleting local project: %1$s</string>
 	<string name="sync_log_account_project_create_server_success">Created project on server: %1$s</string>

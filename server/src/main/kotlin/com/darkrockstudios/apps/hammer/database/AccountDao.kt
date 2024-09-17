@@ -30,7 +30,12 @@ class AccountDao(
 	suspend fun createAccount(email: String, salt: String, hashedPassword: String, isAdmin: Boolean): Long =
 		withContext(ioDispatcher) {
 			val newId = queries.transactionWithResult {
-				queries.createAccount(email = email, salt = salt, password_hash = hashedPassword, isAdmin = isAdmin)
+				queries.createAccount(
+					email = email,
+					salt = salt,
+					password_hash = hashedPassword,
+					is_admin = isAdmin
+				)
 				val rowId = queries.lastInsertedRowId().executeAsOne()
 				val account = queries.getByRowId(rowId).executeAsOne()
 				account.id

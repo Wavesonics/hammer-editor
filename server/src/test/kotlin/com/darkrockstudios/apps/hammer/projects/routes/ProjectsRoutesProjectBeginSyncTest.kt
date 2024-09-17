@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects.routes
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.projects.ProjectsBeginSyncData
@@ -26,11 +27,11 @@ class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 		val syncData = ProjectsBeginSyncData(
 			syncId = syncId,
 			projects = setOf(
-				ProjectDefinition("Project 1", "uuid-1"),
-				ProjectDefinition("Project 2", "uuid-2"),
+				ProjectDefinition("Project 1", ProjectId("uuid-1")),
+				ProjectDefinition("Project 2", ProjectId("uuid-2")),
 			),
 			deletedProjects = setOf(
-				ProjectDefinition("Project 3", "uuid-3"),
+				ProjectDefinition("Project 3", ProjectId("uuid-3")),
 			),
 		)
 

@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects.datasource
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
 import com.darkrockstudios.apps.hammer.base.http.readJson
 import com.darkrockstudios.apps.hammer.base.http.writeJson
@@ -66,8 +67,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 
 		assertEquals(
 			setOf(
-				ProjectDefinition("Test Project 1", ""),
-				ProjectDefinition("Test Project 2", ""),
+				ProjectDefinition("Test Project 1", ProjectId("")),
+				ProjectDefinition("Test Project 2", ProjectId("")),
 			),
 			projects
 		)
@@ -82,8 +83,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", "project-id-1"),
-				ProjectDefinition("Test Project 2", "project-id-2"),
+				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
+				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
 			)
 		)
 
@@ -103,8 +104,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", "project-id-1"),
-				ProjectDefinition("Test Project 2", "project-id-2"),
+				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
+				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
 			)
 		)
 
@@ -125,8 +126,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", "project-id-1"),
-				ProjectDefinition("Test Project 2", "project-id-2"),
+				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
+				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
 			)
 		)
 
@@ -138,7 +139,7 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 				lastSync = Instant.fromEpochSeconds(456),
 				deletedProjects = data.deletedProjects + ProjectDefinition(
 					"Test Project 3",
-					"project-id-3"
+					ProjectId("project-id-3")
 				)
 			)
 		}
@@ -146,9 +147,9 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val updatedSyncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(456),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", "project-id-1"),
-				ProjectDefinition("Test Project 2", "project-id-2"),
-				ProjectDefinition("Test Project 3", "project-id-3"),
+				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
+				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
+				ProjectDefinition("Test Project 3", ProjectId("project-id-3")),
 			)
 		)
 

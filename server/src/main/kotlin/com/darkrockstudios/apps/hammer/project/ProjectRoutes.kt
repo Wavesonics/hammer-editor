@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.project
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.ClientEntityState
 import com.darkrockstudios.apps.hammer.base.http.DeleteIdsResponse
@@ -60,7 +61,7 @@ private fun Route.beginProjectSync() {
 	post("/begin_sync") {
 		val principal = call.principal<ServerUserIdPrincipal>()!!
 		val projectName = call.parameters["projectName"]
-		val projectId = call.request.queryParameters["projectId"]
+		val projectIdRaw = call.request.queryParameters["projectId"]
 		val lite = call.parameters["lite"]?.toBoolean() ?: false
 
 		val clientState: ClientEntityState? = withContext(ioDispatcher) {
@@ -81,7 +82,7 @@ private fun Route.beginProjectSync() {
 					displayMessage = call.t(R("api.project.sync.error.projectnamemissing"))
 				)
 			)
-		} else if (projectId == null) {
+		} else if (projectIdRaw == null) {
 			call.respond(
 				status = HttpStatusCode.BadRequest,
 				HttpResponseError(
@@ -90,7 +91,7 @@ private fun Route.beginProjectSync() {
 				)
 			)
 		} else {
-			val projectDef = ProjectDefinition(projectName, projectId)
+			val projectDef = ProjectDefinition(projectName, ProjectId(projectIdRaw))
 			val result =
 				projectRepository.beginProjectSync(principal.id, projectDef, clientState, lite)
 			if (isSuccess(result)) {
@@ -115,7 +116,7 @@ private fun Route.endProjectSync() {
 	get("/end_sync") {
 		val principal = call.principal<ServerUserIdPrincipal>()!!
 		val projectName = call.parameters["projectName"]
-		val projectId = call.request.queryParameters["projectId"]
+		val projectIdRaw = call.request.queryParameters["projectId"]
 		val syncId = call.request.headers[HEADER_SYNC_ID]
 
 		val formParameters = call.receiveParameters()
@@ -134,7 +135,7 @@ private fun Route.endProjectSync() {
 					displayMessage = call.t(R("api.project.sync.error.projectnamemissing"))
 				)
 			)
-		} else if (projectId == null) {
+		} else if (projectIdRaw == null) {
 			call.respond(
 				status = HttpStatusCode.BadRequest,
 				HttpResponseError(
@@ -151,7 +152,7 @@ private fun Route.endProjectSync() {
 				)
 			)
 		} else {
-			val projectDef = ProjectDefinition(projectName, projectId)
+			val projectDef = ProjectDefinition(projectName, ProjectId(projectIdRaw))
 			val result =
 				projectRepository.endProjectSync(principal.id, projectDef, syncId, lastSync, lastId)
 			if (isSuccess(result)) {
@@ -177,7 +178,7 @@ private fun Route.uploadEntity() {
 		val log = call.application.log
 		val principal = call.principal<ServerUserIdPrincipal>()!!
 		val projectName = call.parameters["projectName"]
-		val projectId = call.request.queryParameters["projectId"]
+		val projectIdRaw = call.request.queryParameters["projectId"]
 		val entityId = call.parameters["entityId"]?.toIntOrNull()
 		val syncId = call.request.headers[HEADER_SYNC_ID]
 		val originalHash = call.request.headers[HEADER_ORIGINAL_HASH]
@@ -210,7 +211,7 @@ private fun Route.uploadEntity() {
 						displayMessage = call.t(R("api.project.sync.error.projectnamemissing"))
 					)
 				)
-			} else if (projectId == null) {
+			} else if (projectIdRaw == null) {
 				call.respond(
 					status = HttpStatusCode.BadRequest,
 					HttpResponseError(
@@ -235,7 +236,7 @@ private fun Route.uploadEntity() {
 					)
 				)
 			} else {
-				val projectDef = ProjectDefinition(projectName, projectId)
+				val projectDef = ProjectDefinition(projectName, ProjectId(projectIdRaw))
 				val result =
 					projectRepository.saveEntity(
 						principal.id,
@@ -323,7 +324,7 @@ private fun Route.downloadEntity(log: Logger) {
 	get("/download_entity/{entityId}") {
 		val principal = call.principal<ServerUserIdPrincipal>()!!
 		val projectName = call.parameters["projectName"]
-		val projectId = call.request.queryParameters["projectId"]
+		val projectIdRaw = call.request.queryParameters["projectId"]
 		val entityId = call.parameters["entityId"]?.toIntOrNull()
 		val entityHash = call.request.headers[HEADER_ENTITY_HASH]
 		val syncId = call.request.headers[HEADER_SYNC_ID]
@@ -336,7 +337,7 @@ private fun Route.downloadEntity(log: Logger) {
 					displayMessage = call.t(R("api.project.sync.error.projectnamemissing"))
 				)
 			)
-		} else if (projectId == null) {
+		} else if (projectIdRaw == null) {
 			call.respond(
 				status = HttpStatusCode.BadRequest,
 				HttpResponseError(
@@ -361,7 +362,7 @@ private fun Route.downloadEntity(log: Logger) {
 				)
 			)
 		} else {
-			val projectDef = ProjectDefinition(projectName, projectId)
+			val projectDef = ProjectDefinition(projectName, ProjectId(projectIdRaw))
 
 			val result =
 				projectRepository.loadEntity(principal.id, projectDef, entityId, syncId)
@@ -429,7 +430,7 @@ private fun Route.deleteEntity() {
 	get("/delete_entity/{entityId}") {
 		val principal = call.principal<ServerUserIdPrincipal>()!!
 		val projectName = call.parameters["projectName"]
-		val projectId = call.request.queryParameters["projectId"]
+		val projectIdRaw = call.request.queryParameters["projectId"]
 		val entityId = call.parameters["entityId"]?.toIntOrNull()
 		val syncId = call.request.headers[HEADER_SYNC_ID]
 
@@ -441,7 +442,7 @@ private fun Route.deleteEntity() {
 					displayMessage = call.t(R("api.project.sync.error.projectnamemissing"))
 				)
 			)
-		} else if (projectId == null) {
+		} else if (projectIdRaw == null) {
 			call.respond(
 				status = HttpStatusCode.BadRequest,
 				HttpResponseError(
@@ -466,7 +467,7 @@ private fun Route.deleteEntity() {
 				)
 			)
 		} else {
-			val projectDef = ProjectDefinition(projectName, projectId)
+			val projectDef = ProjectDefinition(projectName, ProjectId(projectIdRaw))
 			val result = projectRepository.deleteEntity(principal.id, projectDef, entityId, syncId)
 
 			if (isSuccess(result)) {

@@ -1,36 +1,45 @@
 package com.darkrockstudios.apps.hammer.database
 
 import com.darkrockstudios.apps.hammer.Project
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.utilities.injectIoDispatcher
-import com.darkrockstudios.apps.hammer.utilities.toISO8601
-import korlibs.io.util.UUID
+import com.darkrockstudios.apps.hammer.utilities.toSqliteDateTimeString
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
 
 class ProjectDao(
 	database: Database,
+	private val clock: Clock,
 ) : KoinComponent {
 	private val ioDispatcher by injectIoDispatcher()
 	private val queries = database.serverDatabase.projectQueries
 
 	suspend fun getProjects(userId: Long): Set<ProjectDefinition> = withContext(ioDispatcher) {
 		val projects = queries.getProjects(userId).executeAsList()
-		return@withContext projects.map { ProjectDefinition(it.name, it.uuid) }.toSet()
+		return@withContext projects.map { ProjectDefinition.wrap(it.name, it.uuid) }.toSet()
 	}
 
 	suspend fun createProject(
 		userId: Long,
-		uuid: UUID,
+		uuid: ProjectId,
 		projectName: String
-	) = withContext(ioDispatcher) {
-		queries.createProject(
-			user_id = userId,
-			name = projectName,
-			uuid = uuid.toString(),
-			last_id = 0,
-		)
+	): Boolean = withContext(ioDispatcher) {
+		return@withContext try {
+			queries.createProject(
+				userId = userId,
+				name = projectName,
+				uuid = uuid.id,
+				lastSync = clock.now().toSqliteDateTimeString(),
+				lastId = 0,
+			)
+			true
+		} catch (e: Exception) {
+			println(e.message)
+			false
+		}
 	}
 
 	suspend fun hasProject(userId: Long, projectName: String): Boolean = withContext(ioDispatcher) {
@@ -54,7 +63,7 @@ class ProjectDao(
 	) = withContext(ioDispatcher) {
 		queries.updateSyncData(
 			last_id = lastId,
-			last_sync = lastSync.toISO8601(),
+			last_sync = lastSync.toSqliteDateTimeString(),
 			deleted_ids = deletedIds.joinToString(","),
 			userId,
 			projectName,
@@ -65,15 +74,15 @@ class ProjectDao(
 		userId: Long,
 		projectName: String,
 	): Project? = withContext(ioDispatcher) {
-		queries.getSyncDataByName(userId, projectName)
+		queries.findSyncDataByName(userId, projectName)
 			.executeAsOneOrNull()
 	}
 
 	suspend fun getProjectData(
 		userId: Long,
-		projectUuid: String,
+		projectUuid: ProjectId,
 	): Project = withContext(ioDispatcher) {
-		queries.getSyncData(userId, projectUuid)
+		queries.getProject(userId, projectUuid.id)
 			.executeAsOne()
 	}
 }

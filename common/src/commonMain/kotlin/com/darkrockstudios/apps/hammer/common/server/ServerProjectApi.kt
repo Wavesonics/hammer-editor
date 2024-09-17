@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.common.server
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.ClientEntityState
 import com.darkrockstudios.apps.hammer.base.http.DeleteIdsResponse
@@ -11,7 +12,6 @@ import com.darkrockstudios.apps.hammer.base.http.LoadEntityResponse
 import com.darkrockstudios.apps.hammer.base.http.ProjectSynchronizationBegan
 import com.darkrockstudios.apps.hammer.base.http.SaveEntityResponse
 import com.darkrockstudios.apps.hammer.base.http.synchronizer.EntityConflictException
-import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.ProjectId
 import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettingsRepository
 import com.darkrockstudios.apps.hammer.common.util.StrRes
 import io.ktor.client.HttpClient
@@ -54,13 +54,12 @@ class ServerProjectApi(
 			path = "/api/project/$userId/$projectName/begin_sync",
 			parse = { it.body() }
 		) {
-			if (lite) {
-				url {
+			url {
+				parameters.append("projectId", projectId.id)
+				if (lite) {
 					parameters.append("lite", lite.toString())
-					parameters.append("projectId", projectId.id)
 				}
 			}
-
 			if (compressed != null) {
 				setBody(compressed)
 			}

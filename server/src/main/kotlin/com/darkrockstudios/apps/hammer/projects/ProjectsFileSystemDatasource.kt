@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.projects.ProjectsDatasource.Companion.defaultUserData
 import com.darkrockstudios.apps.hammer.utilities.getRootDataDirectory
@@ -63,7 +64,7 @@ class ProjectsFileSystemDatasource(
 		return fileSystem.list(projectsDir)
 			.filter { fileSystem.metadata(it).isDirectory }
 			.filter { it.name.startsWith('.').not() }
-			.map { path -> ProjectDefinition(path.name, "") }
+			.map { path -> ProjectDefinition(path.name, ProjectId("")) }
 			.toSet()
 	}
 
@@ -71,7 +72,7 @@ class ProjectsFileSystemDatasource(
 		error("findProjectByName not implemented for FileSystem datasource")
 	}
 
-	override suspend fun getProject(userId: Long, projectId: String): ProjectDefinition {
+	override suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition {
 		error("getProject not implemented for FileSystem datasource")
 	}
 

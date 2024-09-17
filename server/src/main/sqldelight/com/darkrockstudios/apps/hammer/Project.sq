@@ -6,7 +6,8 @@ CREATE TABLE project (
 	last_id INTEGER NOT NULL,
 	last_sync TEXT DEFAULT (datetime('now')) NOT NULL,
 	deleted_ids TEXT,
-	FOREIGN KEY(user_id) REFERENCES account(id)
+	FOREIGN KEY(user_id) REFERENCES account(id),
+	UNIQUE(name, user_id)
 );
 
 CREATE UNIQUE INDEX user_project_name_lookup
@@ -18,8 +19,8 @@ FROM project
 WHERE user_id = ?;
 
 createProject:
-INSERT INTO project(user_id, name, uuid, last_id)
-VALUES(?, ?, ?, ?);
+INSERT INTO project(user_id, name, uuid, last_sync, last_id)
+VALUES(:userId, :name, :uuid, :lastSync, :lastId);
 
 hasProject:
 SELECT EXISTS(SELECT 1 FROM project WHERE user_id = ? AND name = ?);
@@ -34,12 +35,12 @@ UPDATE project
 SET last_id = ?, last_sync = ?, deleted_ids = ?
 WHERE user_id = ? AND name = ?;
 
-getSyncDataByName:
+findSyncDataByName:
 SELECT *
 FROM project
 WHERE user_id = ? AND name = ?;
 
-getSyncData:
+getProject:
 SELECT *
 FROM project
 WHERE user_id = ? AND uuid = ?;

@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectDefinition
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
 import com.darkrockstudios.apps.hammer.base.http.CreateProjectResponse
@@ -87,12 +88,12 @@ private fun Route.endProjectSync() {
 private fun Route.deleteProject() {
 	val projectsRepository: ProjectsRepository = get()
 
-	get("/{projectName}/delete") {
+	get("/delete") {
 		val principal = call.principal<ServerUserIdPrincipal>()!!
-		val projectId = call.parameters["projectId"]
+		val projectIdRaw = call.parameters["projectId"]
 		val syncId = call.request.headers[HEADER_SYNC_ID]
 
-		if (projectId == null) {
+		if (projectIdRaw == null) {
 			call.respond(
 				status = HttpStatusCode.BadRequest,
 				HttpResponseError(
@@ -106,7 +107,8 @@ private fun Route.deleteProject() {
 				HttpResponseError(error = "Missing Header", displayMessage = "syncId was missing")
 			)
 		} else {
-			val result = projectsRepository.deleteProject(principal.id, syncId, projectId)
+			val result =
+				projectsRepository.deleteProject(principal.id, syncId, ProjectId(projectIdRaw))
 			if (isSuccess(result)) {
 				call.respond("Success")
 			} else {

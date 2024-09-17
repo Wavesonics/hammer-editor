@@ -51,5 +51,4 @@ WHERE user_id = :userId AND project_id = :projectId AND id = :id;
 deleteEntity:
 UPDATE story_entity
 SET deleted = TRUE
-WHERE user_id = :user_id AND project_id = :projectId AND id = :id
-LIMIT 1;
+WHERE user_id = :user_id AND project_id = :projectId AND id = :id;

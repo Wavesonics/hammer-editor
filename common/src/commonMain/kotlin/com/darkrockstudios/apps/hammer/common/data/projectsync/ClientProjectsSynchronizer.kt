@@ -2,15 +2,18 @@ package com.darkrockstudios.apps.hammer.common.data.projectsync
 
 import com.darkrockstudios.apps.hammer.MR
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
-import com.darkrockstudios.apps.hammer.common.components.storyeditor.metadata.ProjectId
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
 import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettingsRepository
+import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.ProjectMetadataDatasource
+import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.loadProjectId
 import com.darkrockstudios.apps.hammer.common.data.projectsrepository.ProjectsRepository
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toOkioPath
 import com.darkrockstudios.apps.hammer.common.server.ServerProjectsApi
 import com.darkrockstudios.apps.hammer.common.util.NetworkConnectivity
 import com.darkrockstudios.apps.hammer.common.util.StrRes
 import io.github.aakira.napier.Napier
+import korlibs.io.lang.InvalidArgumentException
+import korlibs.io.util.UUID
 import kotlinx.coroutines.yield
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
@@ -24,6 +27,7 @@ class ClientProjectsSynchronizer(
 	private val fileSystem: FileSystem,
 	private val globalSettingsRepository: GlobalSettingsRepository,
 	private val projectsRepository: ProjectsRepository,
+	private val projectMetadataDatasource: ProjectMetadataDatasource,
 	private val serverProjectsApi: ServerProjectsApi,
 	private val networkConnectivity: NetworkConnectivity,
 	private val json: Json,
@@ -104,21 +108,21 @@ class ClientProjectsSynchronizer(
 		}.mapNotNull { serverProject -> localProjects.find { it.name == serverProject.name } }
 
 		// Delete projects on the server
-		clientSyncData.projectsToDelete.forEach { projectName ->
-			val result = serverProjectsApi.deleteProject(projectName, serverSyncData.syncId)
+		clientSyncData.projectsToDelete.forEach { projectId ->
+			val result = serverProjectsApi.deleteProject(projectId, serverSyncData.syncId)
 			if (result.isSuccess) {
 				onLog(
 					syncAccLogI(
 						strRes.get(
 							MR.strings.sync_log_account_project_delete_server_success,
-							projectName
+							projectId.id
 						)
 					)
 				)
 				updateSyncData { syncData ->
 					syncData.copy(
-						projectsToDelete = syncData.projectsToDelete - projectName,
-						deletedProjects = syncData.deletedProjects + projectName,
+						projectsToDelete = syncData.projectsToDelete - projectId,
+						deletedProjects = syncData.deletedProjects + projectId,
 					)
 				}
 			} else {
@@ -126,7 +130,7 @@ class ClientProjectsSynchronizer(
 					syncAccLogE(
 						strRes.get(
 							MR.strings.sync_log_account_project_delete_server_failure,
-							projectName
+							projectId
 						)
 					)
 				)
@@ -170,7 +174,7 @@ class ClientProjectsSynchronizer(
 				// Save the newly provisioned project id
 				val response = result.getOrThrow()
 				val projectDef = projectsRepository.getProjectDefinition(projectName)
-				projectsRepository.setProjectId(projectDef, ProjectId(response.projectId))
+				projectsRepository.setProjectId(projectDef, response.projectId)
 
 				onLog(
 					syncAccLogI(
@@ -212,9 +216,11 @@ class ClientProjectsSynchronizer(
 	}
 
 	fun deleteProject(projectDef: ProjectDef) {
+		val projectId = projectMetadataDatasource.loadProjectId(projectDef)
+
 		updateSyncData { syncData ->
 			syncData.copy(
-				projectsToDelete = syncData.projectsToDelete + projectDef.name,
+				projectsToDelete = syncData.projectsToDelete + projectId,
 				projectsToCreate = syncData.projectsToCreate - projectDef.name,
 			)
 		}
@@ -224,8 +230,6 @@ class ClientProjectsSynchronizer(
 		updateSyncData { syncData ->
 			syncData.copy(
 				projectsToCreate = syncData.projectsToCreate + projectName,
-				projectsToDelete = syncData.projectsToDelete - projectName,
-				deletedProjects = syncData.deletedProjects - projectName,
 			)
 		}
 	}
@@ -235,7 +239,7 @@ class ClientProjectsSynchronizer(
 
 	private fun loadSyncData(): ProjectsSynchronizationData {
 		val path = getSyncDataPath()
-		return if (fileSystem.exists(path)) {
+		val syncData = if (fileSystem.exists(path)) {
 			fileSystem.read(path) {
 				val syncDataJson = readUtf8()
 				try {
@@ -247,6 +251,31 @@ class ClientProjectsSynchronizer(
 		} else {
 			createAndSaveSyncData()
 		}
+
+		// Handling migration which replaced project names with UUIDs
+		val projectsToDelete = syncData.projectsToDelete.filter {
+			try {
+				UUID.invoke(it.id)
+				true
+			} catch (e: InvalidArgumentException) {
+				Napier.w("Invalid UUID for deleted project: $it")
+				false
+			}
+		}
+		val deletedProjects = syncData.deletedProjects.filter {
+			try {
+				UUID.invoke(it.id)
+				true
+			} catch (e: InvalidArgumentException) {
+				Napier.w("Invalid UUID for deleted project: $it")
+				false
+			}
+		}
+
+		return syncData.copy(
+			projectsToDelete = projectsToDelete.toSet(),
+			deletedProjects = deletedProjects.toSet(),
+		)
 	}
 
 	private fun createAndSaveSyncData(): ProjectsSynchronizationData {

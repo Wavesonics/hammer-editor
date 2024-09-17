@@ -14,6 +14,7 @@ import com.darkrockstudios.apps.hammer.projects.ProjectsDatabaseDatasource
 import com.darkrockstudios.apps.hammer.projects.ProjectsFileSystemDatasource
 import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
 import com.darkrockstudios.apps.hammer.utilities.isSuccess
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -38,9 +39,6 @@ class FilesystemToDatabaseMigration : DataMigration {
 		db.initialize()
 		//ServerDatabase.Schema.migrate(db.getDriver(), 1, 2)
 
-		val projectsFsDatasource = ProjectsFileSystemDatasource(fileSystem, json)
-		val projectFsDatasource = ProjectFilesystemDatasource(fileSystem, json)
-
 		val rootFilesDir = ProjectsFileSystemDatasource.getRootDirectory(fileSystem)
 		if (fileSystem.exists(rootFilesDir).not()) {
 			println("No need to run FS data migration")
@@ -53,9 +51,12 @@ class FilesystemToDatabaseMigration : DataMigration {
 			modules(mainModule(LoggerFactory.getLogger(FilesystemToDatabaseMigration::class.java)))
 		}
 
+		val projectsFsDatasource = ProjectsFileSystemDatasource(fileSystem, json)
+		val projectFsDatasource = ProjectFilesystemDatasource(fileSystem, json)
+
 		val accountDao = AccountDao(db)
 		val projectsDao = ProjectsDao(db)
-		val projectDao = ProjectDao(db)
+		val projectDao = ProjectDao(db, Clock.System)
 		val deletedProjectDao = DeletedProjectDao(db)
 		val storyEntityDao = StoryEntityDao(db)
 

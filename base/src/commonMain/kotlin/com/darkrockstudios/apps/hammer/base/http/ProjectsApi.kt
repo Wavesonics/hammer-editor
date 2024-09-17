@@ -1,11 +1,12 @@
 package com.darkrockstudios.apps.hammer.base.http
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ApiProjectDefinition(
 	val name: String,
-	val uuid: String,
+	val uuid: ProjectId,
 )
 
 @Serializable
@@ -17,6 +18,6 @@ data class BeginProjectsSyncResponse(
 
 @Serializable
 data class CreateProjectResponse(
-	val projectId: String,
+	val projectId: ProjectId,
 	val alreadyExisted: Boolean,
 )

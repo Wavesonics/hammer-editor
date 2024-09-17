@@ -17,13 +17,13 @@ class DeletedProjectDao(
 	) = withContext(ioDispatcher) {
 		val alreadyDeleted = queries.hasDeletedProject(
 			user_id = userId,
-			uuid = project.uuid,
+			uuid = project.uuid.id,
 		).executeAsOne()
 
 		if (alreadyDeleted.not()) {
 			queries.addDeletedProject(
 				user_id = userId,
-				uuid = project.uuid,
+				uuid = project.uuid.id,
 				name = project.name,
 			)
 		}

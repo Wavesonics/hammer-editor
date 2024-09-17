@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.project
 
+import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.synchronizer.EntityHasher
 import com.darkrockstudios.apps.hammer.database.DeletedProjectDao
@@ -9,7 +10,6 @@ import com.darkrockstudios.apps.hammer.database.parseDeletedIds
 import com.darkrockstudios.apps.hammer.database.parseLastSync
 import com.darkrockstudios.apps.hammer.utilities.SResult
 import com.darkrockstudios.apps.hammer.utilities.hashEntity
-import korlibs.io.util.UUID
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 
@@ -24,7 +24,7 @@ class ProjectDatabaseDatasource(
 		userId: Long,
 		projectDef: ProjectDefinition
 	): ProjectSyncData {
-		val project = projectDao.getProjectData(userId, projectDef.name)
+		val project = projectDao.getProjectData(userId, projectDef.uuid)
 
 		return ProjectSyncData(
 			lastSync = project.parseLastSync(),
@@ -34,15 +34,21 @@ class ProjectDatabaseDatasource(
 	}
 
 	override suspend fun createProject(userId: Long, projectName: String): ProjectDefinition {
-		val newUuid = UUID.randomUUID()
-		projectDao.createProject(
-			userId = userId,
-			uuid = newUuid,
-			projectName = projectName,
-		)
+		val existingProject = projectDao.findProjectData(userId = userId, projectName = projectName)
+		val uuid = if (existingProject == null) {
+			val newUuid = ProjectId.randomUUID()
+			projectDao.createProject(
+				userId = userId,
+				uuid = newUuid,
+				projectName = projectName,
+			)
+			newUuid
+		} else {
+			ProjectId(existingProject.uuid)
+		}
 		return ProjectDefinition(
 			name = projectName,
-			uuid = newUuid.toString(),
+			uuid = uuid,
 		)
 	}
 
@@ -62,7 +68,7 @@ class ProjectDatabaseDatasource(
 	override suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition? {
 		val project = projectDao.findProjectData(userId, projectName)
 		return if (project != null) {
-			ProjectDefinition(
+			ProjectDefinition.wrap(
 				name = project.name,
 				uuid = project.uuid,
 			)

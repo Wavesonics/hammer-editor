@@ -85,25 +85,20 @@ class ClientProjectSynchronizer(
 		scope.launch {
 			for (conflict in conflictResolution) {
 				when (conflict) {
-					is ApiProjectEntity.SceneEntity -> sceneSynchronizer.conflictResolution.send(
-						conflict
-					)
+					is ApiProjectEntity.SceneEntity ->
+						sceneSynchronizer.conflictResolution.send(conflict)
 
-					is ApiProjectEntity.NoteEntity -> noteSynchronizer.conflictResolution.send(
-						conflict
-					)
+					is ApiProjectEntity.NoteEntity ->
+						noteSynchronizer.conflictResolution.send(conflict)
 
-					is ApiProjectEntity.TimelineEventEntity -> timelineSynchronizer.conflictResolution.send(
-						conflict
-					)
+					is ApiProjectEntity.TimelineEventEntity ->
+						timelineSynchronizer.conflictResolution.send(conflict)
 
-					is ApiProjectEntity.EncyclopediaEntryEntity -> encyclopediaSynchronizer.conflictResolution.send(
-						conflict
-					)
+					is ApiProjectEntity.EncyclopediaEntryEntity ->
+						encyclopediaSynchronizer.conflictResolution.send(conflict)
 
-					is ApiProjectEntity.SceneDraftEntity -> sceneDraftSynchronizer.conflictResolution.send(
-						conflict
-					)
+					is ApiProjectEntity.SceneDraftEntity ->
+						sceneDraftSynchronizer.conflictResolution.send(conflict)
 				}
 			}
 		}

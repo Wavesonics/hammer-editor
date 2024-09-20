@@ -38,7 +38,6 @@ material = "1.12.0"
 orchestrator = "1.5.0"
 
 serialization = "1.7.3"
-serialization_json = "1.7.3"
 
 coroutines = "1.9.0"
 datetime = "0.6.1"
@@ -153,7 +152,7 @@ androidx_datastore = { module = "androidx.datastore:datastore-preferences", vers
 androidx_window = { module = "androidx.window:window", version.ref = "androidx-window" }
 serialization_core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "serialization" }
 serialization_jvm = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core-jvm", version.ref = "serialization" }
-serialization_json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization_json" }
+serialization_json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 
 coroutines_core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines_android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }

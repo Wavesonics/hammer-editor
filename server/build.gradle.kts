@@ -27,6 +27,7 @@ sqldelight {
 			packageName.set("com.darkrockstudios.apps.hammer.database")
 			//dialect("app.cash.sqldelight:sqlite-3-35-dialect:$sqldelight_version")
 			version = 2
+			schemaOutputDirectory.set(project.file("build/generated/sqldelight"))
 		}
 	}
 }

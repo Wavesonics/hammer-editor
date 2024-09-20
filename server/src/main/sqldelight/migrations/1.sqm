@@ -1,5 +1,22 @@
+CREATE TABLE tmp_account (
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	email TEXT UNIQUE NOT NULL,
+	salt TEXT NOT NULL,
+	password_hash TEXT NOT NULL,
+	created TEXT DEFAULT (datetime('now')) NOT NULL,
+	is_admin INTEGER DEFAULT FALSE NOT NULL,
+	last_sync TEXT DEFAULT (datetime('now')) NOT NULL
+);
+
+INSERT INTO tmp_account (id, email, salt, password_hash, created, is_admin)
+SELECT id, email, salt, password_hash, created, isAdmin FROM account;
+
+DROP TABLE account;
+ALTER TABLE tmp_account RENAME TO account;
+
 ALTER TABLE authToken RENAME TO auth_token;
 ALTER TABLE whiteList RENAME TO white_list;
+
 CREATE TABLE project (
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	uuid TEXT NOT NULL,
@@ -11,6 +28,10 @@ CREATE TABLE project (
 	FOREIGN KEY(user_id) REFERENCES account(id),
 	UNIQUE(name, user_id)
 );
+
+CREATE UNIQUE INDEX user_project_name_lookup
+ON project(user_id, name);
+
 CREATE TABLE story_entity (
 	user_id INTEGER NOT NULL,
 	project_id INTEGER NOT NULL,
@@ -28,18 +49,3 @@ CREATE TABLE deleted_project (
     	uuid TEXT NOT NULL,
     	FOREIGN KEY(user_id) REFERENCES account(id)
 );
-
-
-CREATE TABLE account_temp (
-       id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-       email TEXT UNIQUE NOT NULL,
-       salt TEXT NOT NULL,
-       password_hash TEXT NOT NULL,
-       created TEXT NOT NULL,
-       is_admin INTEGER AS kotlin.Boolean DEFAULT FALSE NOT NULL,
-       last_sync TEXT DEFAULT (datetime('now')) NOT NULL
-   );
-INSERT INTO account_temp (id, email, salt, password_hash, created, is_admin)
-  SELECT id, email, salt, password_hash, created, isAdmin FROM account;
-DROP TABLE account;
-ALTER TABLE account_temp RENAME TO account;

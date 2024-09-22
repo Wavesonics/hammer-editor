@@ -5,6 +5,7 @@ import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.utilities.injectIoDispatcher
 import com.darkrockstudios.apps.hammer.utilities.toSqliteDateTimeString
+import korlibs.io.util.UUID
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -48,25 +49,23 @@ class ProjectDao(
 
 	suspend fun updateProjectName(
 		userId: Long,
-		oldName: String,
+		projectUuid: UUID,
 		newName: String
 	) = withContext(ioDispatcher) {
-		queries.updateProjectName(newName, userId, oldName)
+		queries.updateProjectName(userId = userId, uuid = projectUuid.toString(), name = newName)
 	}
 
 	suspend fun updateSyncData(
 		lastId: Long,
 		lastSync: Instant,
-		deletedIds: List<Int>,
 		userId: Long,
 		projectName: String,
 	) = withContext(ioDispatcher) {
 		queries.updateSyncData(
-			last_id = lastId,
-			last_sync = lastSync.toSqliteDateTimeString(),
-			deleted_ids = deletedIds.joinToString(","),
-			userId,
-			projectName,
+			lastId = lastId,
+			lastSync = lastSync.toSqliteDateTimeString(),
+			userId = userId,
+			name = projectName,
 		)
 	}
 
@@ -83,6 +82,14 @@ class ProjectDao(
 		projectUuid: ProjectId,
 	): Project = withContext(ioDispatcher) {
 		queries.getProject(userId, projectUuid.id)
+			.executeAsOne()
+	}
+
+	suspend fun getProjectId(
+		userId: Long,
+		projectUuid: ProjectId,
+	): Long = withContext(ioDispatcher) {
+		queries.getProjectId(userId, projectUuid.id)
 			.executeAsOne()
 	}
 }

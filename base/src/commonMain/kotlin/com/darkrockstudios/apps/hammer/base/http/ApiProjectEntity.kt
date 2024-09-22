@@ -86,7 +86,7 @@ sealed interface ApiProjectEntity {
 				}
 			}
 
-			fun fromInt(id: Int): Type? {
+			fun fromInt(id: Int?): Type? {
 				return entries.find { it.id == id }
 			}
 		}

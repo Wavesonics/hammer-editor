@@ -15,3 +15,5 @@ class EntityTypeConflictException(
 			" Existing Type: $existingType\n" +
 			" Submitted Type: $submittedType"
 	)
+class ProjectNotFound(val projectDef: ProjectDefinition) :
+	Exception("Project $projectDef not found on server")

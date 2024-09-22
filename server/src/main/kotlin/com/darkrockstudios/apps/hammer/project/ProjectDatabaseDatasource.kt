@@ -3,10 +3,10 @@ package com.darkrockstudios.apps.hammer.project
 import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.synchronizer.EntityHasher
+import com.darkrockstudios.apps.hammer.database.DeletedEntityDao
 import com.darkrockstudios.apps.hammer.database.DeletedProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectDao
 import com.darkrockstudios.apps.hammer.database.StoryEntityDao
-import com.darkrockstudios.apps.hammer.database.parseDeletedIds
 import com.darkrockstudios.apps.hammer.database.parseLastSync
 import com.darkrockstudios.apps.hammer.utilities.SResult
 import com.darkrockstudios.apps.hammer.utilities.hashEntity
@@ -17,6 +17,7 @@ class ProjectDatabaseDatasource(
 	private val projectDao: ProjectDao,
 	private val deletedProjectDao: DeletedProjectDao,
 	private val storyEntityDao: StoryEntityDao,
+	private val deletedEntityDao: DeletedEntityDao,
 	private val json: Json,
 ) : ProjectDatasource {
 
@@ -25,11 +26,14 @@ class ProjectDatabaseDatasource(
 		projectDef: ProjectDefinition
 	): ProjectSyncData {
 		val project = projectDao.getProjectData(userId, projectDef.uuid)
+		val deletedIds = deletedEntityDao.getDeletedEntities(userId, project.id)
+			.map { it.entity_id.toInt() }
+			.toSet()
 
 		return ProjectSyncData(
 			lastSync = project.parseLastSync(),
 			lastId = project.last_id.toInt(),
-			deletedIds = project.parseDeletedIds()
+			deletedIds = deletedIds
 		)
 	}
 
@@ -87,15 +91,40 @@ class ProjectDatabaseDatasource(
 		projectDao.updateSyncData(
 			lastId = updated.lastId.toLong(),
 			lastSync = updated.lastSync,
-			deletedIds = updated.deletedIds.toList(),
 			userId = userId,
 			projectName = projectDef.name,
 		)
+
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
+		updated.deletedIds.forEach { entityId ->
+			// If it exists, or isn't already deleted, delete it
+			if (storyEntityDao.checkExists(
+					userId = userId,
+					projectId = projectId,
+					id = entityId.toLong()
+				) || deletedEntityDao.isDeleted(
+					userId = userId,
+					projectId = projectId,
+					id = entityId.toLong(),
+				).not()
+			) {
+				storyEntityDao.deleteEntity(
+					userId = userId,
+					projectId = projectId,
+					id = entityId.toLong(),
+				)
+				deletedEntityDao.markEntityDeleted(
+					userId = userId,
+					projectId = projectId,
+					id = entityId.toLong(),
+				)
+			}
+		}
 	}
 
 	override suspend fun findLastId(userId: Long, projectDef: ProjectDefinition): Int? {
-		val proj = projectDao.getProjectData(userId, projectDef.uuid)
-		return storyEntityDao.findMaxId(userId, proj.id)?.toInt()
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
+		return storyEntityDao.findMaxId(userId, projectId)?.toInt()
 	}
 
 	override suspend fun findEntityType(
@@ -103,8 +132,9 @@ class ProjectDatabaseDatasource(
 		userId: Long,
 		projectDef: ProjectDefinition
 	): ApiProjectEntity.Type? {
-		val typeId = storyEntityDao.getType(userId, entityId.toLong())
-		return ApiProjectEntity.Type.fromInt(typeId.toInt())
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
+		val typeId = storyEntityDao.getType(userId, projectId, entityId.toLong())
+		return ApiProjectEntity.Type.fromInt(typeId?.toInt())
 	}
 
 	override suspend fun <T : ApiProjectEntity> storeEntity(
@@ -114,12 +144,12 @@ class ProjectDatabaseDatasource(
 		entityType: ApiProjectEntity.Type,
 		serializer: KSerializer<T>
 	): SResult<Unit> {
-		val projId = projectDao.getProjectData(userId, projectDef.uuid).id
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
 		val hash = EntityHasher.hashEntity(entity)
 		val jsonString: String = json.encodeToString(serializer, entity)
 		val result = storyEntityDao.upsert(
 			userId = userId,
-			projectId = projId,
+			projectId = projectId,
 			id = entity.id.toLong(),
 			type = entityType.id.toLong(),
 			content = jsonString,
@@ -135,7 +165,7 @@ class ProjectDatabaseDatasource(
 		entityType: ApiProjectEntity.Type,
 		serializer: KSerializer<T>
 	): SResult<T> {
-		val projectId = projectDao.getProjectData(userId, projectDef.uuid).id
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
 		val dbEntity = storyEntityDao.getEntity(
 			userId = userId,
 			projectId = projectId,
@@ -158,7 +188,7 @@ class ProjectDatabaseDatasource(
 		projectDef: ProjectDefinition,
 		entityId: Int
 	): SResult<Unit> {
-		val projectId = projectDao.getProjectData(userId, projectDef.uuid).id
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
 		storyEntityDao.deleteEntity(
 			userId = userId,
 			projectId = projectId,
@@ -172,10 +202,10 @@ class ProjectDatabaseDatasource(
 		projectDef: ProjectDefinition,
 		filter: (EntityDefinition) -> Boolean
 	): List<EntityDefinition> {
-		val proj = projectDao.getProjectData(userId, projectDef.uuid)
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
 		return storyEntityDao.getEntityDefs(
 			userId = userId,
-			projectId = proj.id,
-		)
+			projectId = projectId,
+		).filter { filter(it) }
 	}
 }

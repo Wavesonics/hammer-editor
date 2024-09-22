@@ -2,6 +2,7 @@ package com.darkrockstudios.apps.hammer.datamigrator.migrations
 
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.database.AccountDao
+import com.darkrockstudios.apps.hammer.database.DeletedEntityDao
 import com.darkrockstudios.apps.hammer.database.DeletedProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectsDao
@@ -59,10 +60,17 @@ class FilesystemToDatabaseMigration : DataMigration {
 		val projectDao = ProjectDao(db, Clock.System)
 		val deletedProjectDao = DeletedProjectDao(db)
 		val storyEntityDao = StoryEntityDao(db)
+		val deletedEntityDao = DeletedEntityDao(db)
 
 		val projectsDbDatasource = ProjectsDatabaseDatasource(projectDao, projectsDao)
 		val projectDbDatasource =
-			ProjectDatabaseDatasource(projectDao, deletedProjectDao, storyEntityDao, json)
+			ProjectDatabaseDatasource(
+				projectDao,
+				deletedProjectDao,
+				storyEntityDao,
+				deletedEntityDao,
+				json
+			)
 
 		accountDao.getAllAccounts().forEach { account ->
 			projectsDbDatasource.createUserData(account.id)
@@ -132,7 +140,7 @@ class FilesystemToDatabaseMigration : DataMigration {
 @Serializable
 private class OldProjectsSyncData(
 	val lastSync: Instant = Instant.DISTANT_PAST,
-	val deletedProjects: Set<String>,
+	val deletedProjects: Set<String>, // This is just ignored during migration
 )
 
 private fun getSerializerForType(type: ApiProjectEntity.Type): KSerializer<ApiProjectEntity> {

@@ -26,22 +26,23 @@ class StoryEntityDao(
 			return@withContext query.executeAsList()
 		}
 
-
 	suspend fun getAllEntityDefs(userId: Long, projectId: Long): List<StoryEntity> =
 		withContext(ioDispatcher) {
 			val query = queries.getAllEntities(userId = userId, projectId = projectId)
 			return@withContext query.executeAsList()
 		}
 
-	suspend fun checkExists(userId: Long, id: Long): Boolean = withContext(ioDispatcher) {
-		val query = queries.checkExists(userId, id)
-		return@withContext query.executeAsOne()
-	}
+	suspend fun checkExists(userId: Long, projectId: Long, id: Long): Boolean =
+		withContext(ioDispatcher) {
+			val query = queries.checkExists(userId = userId, projectId = projectId, id = id)
+			return@withContext query.executeAsOne()
+		}
 
-	suspend fun getType(userId: Long, id: Long): Long = withContext(ioDispatcher) {
-		val query = queries.getType(userId, id)
-		return@withContext query.executeAsOne()
-	}
+	suspend fun getType(userId: Long, projectId: Long, id: Long): Long? =
+		withContext(ioDispatcher) {
+			val query = queries.getType(userId = userId, projectId = projectId, id = id)
+			return@withContext query.executeAsOneOrNull()
+		}
 
 	suspend fun getEntityDefs(userId: Long, projectId: Long): List<EntityDefinition> =
 		withContext(ioDispatcher) {
@@ -81,7 +82,8 @@ class StoryEntityDao(
 		content: String,
 		hash: String,
 	): SResult<Unit> = withContext(ioDispatcher) {
-		val curType = queries.getType(userId = userId, id = id).executeAsOne()
+		val curType =
+			queries.getType(userId = userId, projectId = projectId, id = id).executeAsOne()
 		if (type != curType) {
 			SResult.failure<Unit>("Invalid entity type. userId=$userId projectId=$projectId entityId=${id} entityType=$type")
 		} else {
@@ -105,10 +107,13 @@ class StoryEntityDao(
 		content: String,
 		hash: String,
 	): SResult<Unit> = withContext(ioDispatcher) {
-		return@withContext if (queries.checkExists(userId = userId, id = id).executeAsOne()) {
-			val curType = queries.getType(userId = userId, id = id).executeAsOne()
+		return@withContext if (queries.checkExists(userId = userId, projectId, id = id)
+				.executeAsOne()
+		) {
+			val curType =
+				queries.getType(userId = userId, projectId = projectId, id = id).executeAsOne()
 			if (type != curType) {
-				SResult.failure<Unit>("Invalid entity type. userId=$userId projectId=$projectId entityId=${id} entityType=$type")
+				SResult.failure<Unit>("Invalid entity type. userId=$userId projectId=$projectId entityId=$id entityType=$type")
 			} else {
 				queries.update(
 					userId = userId,
@@ -137,11 +142,11 @@ class StoryEntityDao(
 		projectId: Long,
 		id: Long,
 	) = withContext(ioDispatcher) {
-		queries.deleteEntity(userId, projectId, id)
+		queries.deleteEntity(userId = userId, projectId = projectId, id = id)
 	}
 
 	suspend fun getEntity(userId: Long, projectId: Long, id: Long): Story_entity? =
 		withContext(ioDispatcher) {
-			queries.getEntity(userId, projectId, id).executeAsOneOrNull()
+			queries.getEntity(userId = userId, projectId = projectId, id = id).executeAsOneOrNull()
 		}
 }

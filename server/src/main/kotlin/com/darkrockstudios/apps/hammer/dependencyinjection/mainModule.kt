@@ -8,6 +8,7 @@ import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
 import com.darkrockstudios.apps.hammer.database.AccountDao
 import com.darkrockstudios.apps.hammer.database.AuthTokenDao
 import com.darkrockstudios.apps.hammer.database.Database
+import com.darkrockstudios.apps.hammer.database.DeletedEntityDao
 import com.darkrockstudios.apps.hammer.database.DeletedProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectsDao
@@ -66,6 +67,7 @@ fun mainModule(
 	singleOf(::ProjectsDao)
 	singleOf(::ProjectDao)
 	singleOf(::DeletedProjectDao)
+	singleOf(::DeletedEntityDao)
 
 	singleOf(::AccountsRepository)
 	singleOf(::ProjectsRepository)

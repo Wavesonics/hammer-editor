@@ -5,9 +5,9 @@ CREATE TABLE story_entity (
 	type INTEGER NOT NULL,
 	content TEXT NOT NULL,
 	hash TEXT NOT NULL,
-	deleted INTEGER NOT NULL DEFAULT FALSE,
 	FOREIGN KEY(user_id) REFERENCES account(id),
-	FOREIGN KEY(project_id) REFERENCES project(id)
+	FOREIGN KEY(project_id) REFERENCES project(id),
+	UNIQUE(user_id, project_id, id)
 );
 
 getEntity:
@@ -19,13 +19,13 @@ LIMIT 1;
 getAllEntities:
 SELECT *
 FROM story_entity
-WHERE user_id = :userId AND project_id = :projectId AND deleted = FALSE
+WHERE user_id = :userId AND project_id = :projectId
 ORDER BY id;
 
 getEntityDefs:
 SELECT id, type
 FROM story_entity
-WHERE user_id = :userId AND project_id = :projectId AND deleted = FALSE
+WHERE user_id = :userId AND project_id = :projectId
 ORDER BY id;
 
 findMaxEntityId:
@@ -34,10 +34,13 @@ FROM story_entity
 WHERE user_id = :userId AND project_id = :projectId;
 
 checkExists:
-SELECT EXISTS(SELECT 1 FROM story_entity WHERE user_id = :userId AND id = :id);
+SELECT EXISTS(
+	SELECT 1 FROM story_entity
+	WHERE user_id = :userId AND project_id = :projectId AND id = :id
+);
 
 getType:
-SELECT type FROM story_entity WHERE user_id = :userId AND id = :id;
+SELECT type FROM story_entity WHERE user_id = :userId AND project_id = :projectId AND id = :id;
 
 insertNew:
 INSERT INTO story_entity(user_id, project_id, id, type, content, hash)
@@ -49,6 +52,5 @@ SET content = :content, hash = :hash
 WHERE user_id = :userId AND project_id = :projectId AND id = :id;
 
 deleteEntity:
-UPDATE story_entity
-SET deleted = TRUE
-WHERE user_id = :user_id AND project_id = :projectId AND id = :id;
+DELETE FROM story_entity
+WHERE user_id = :userId AND project_id = :projectId AND id = :id;

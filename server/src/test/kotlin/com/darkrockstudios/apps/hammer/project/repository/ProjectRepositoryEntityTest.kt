@@ -248,10 +248,10 @@ class ProjectRepositoryEntityTest : ProjectRepositoryBaseTest() {
 
 		createProjectRepository().apply {
 			val result = deleteEntity(userId, projectDefinition, entityId, syncId)
-			assertFalse(isSuccess(result))
+			assertTrue(isSuccess(result))
 		}
 
-		coVerify(exactly = 0) { projectDatasource.updateSyncData(any(), any(), any()) }
+		coVerify(exactly = 1) { projectDatasource.updateSyncData(any(), any(), any()) }
 		coVerify(exactly = 0) { sceneSynchronizer.deleteEntity(any(), any(), any()) }
 	}
 

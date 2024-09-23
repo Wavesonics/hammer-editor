@@ -12,7 +12,7 @@ data class ApiProjectDefinition(
 @Serializable
 data class BeginProjectsSyncResponse(
 	val syncId: String,
-	val projects: Set<String>,
+	val projects: Set<ApiProjectDefinition>,
 	val deletedProjects: Set<ApiProjectDefinition>,
 )
 

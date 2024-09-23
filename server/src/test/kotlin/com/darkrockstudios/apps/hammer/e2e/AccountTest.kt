@@ -23,7 +23,8 @@ import kotlin.test.assertTrue
 class AccountTest : EndToEndTest() {
 
 	@Test
-	fun `Create Account - First User - Whitelist - Success`(): Unit = runBlocking {
+	fun `Create Account the First User with Whitelist enabled, who becomes Admin`(): Unit =
+		runBlocking {
 		createTestServer(SERVER_EMPTY_NO_WHITELIST, fileSystem, database())
 		doStartServer()
 		client().apply {

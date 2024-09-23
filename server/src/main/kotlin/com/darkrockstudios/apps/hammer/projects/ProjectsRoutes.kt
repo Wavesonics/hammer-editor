@@ -42,7 +42,7 @@ private fun Route.beginProjectsSync() {
 			val syncData = result.data
 			val responseData = BeginProjectsSyncResponse(
 				syncId = syncData.syncId,
-				projects = syncData.projects.map { it.name }.toSet(),
+				projects = syncData.projects.map { it.toApi() }.toSet(),
 				deletedProjects = syncData.deletedProjects.map {
 					ApiProjectDefinition(
 						name = it.name,

@@ -51,7 +51,7 @@ class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 			val responseBody = bodyAsText()
 			Json.decodeFromString<BeginProjectsSyncResponse>(responseBody).apply {
 				assertEquals(syncId, this.syncId)
-				assertEquals(syncData.projects.map { it.name }.toSet(), this.projects)
+				assertEquals(syncData.projects.map { it.toApi() }.toSet(), this.projects)
 				syncData.deletedProjects.forEach { syncProject ->
 					val found =
 						deletedProjects.any { it.uuid == syncProject.uuid && it.name == syncProject.name }

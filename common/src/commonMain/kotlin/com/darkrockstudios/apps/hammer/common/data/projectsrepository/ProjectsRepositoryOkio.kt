@@ -93,7 +93,7 @@ class ProjectsRepositoryOkio(
 		return ProjectDef(projectName, projectDir.toHPath())
 	}
 
-	override fun createProject(projectName: String): CResult<Unit> {
+	override fun createProject(projectName: String): CResult<ProjectDef> {
 		val strippedName = projectName.trim()
 		val result = validateFileName(strippedName)
 		return if (isSuccess(result)) {
@@ -118,7 +118,7 @@ class ProjectsRepositoryOkio(
 				)
 				projectsMetadataDatasource.saveMetadata(metadata, newDef)
 
-				CResult.success()
+				CResult.success(newDef)
 			}
 		} else {
 			CResult.failure(

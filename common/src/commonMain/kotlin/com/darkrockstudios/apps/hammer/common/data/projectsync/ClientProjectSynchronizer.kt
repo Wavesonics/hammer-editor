@@ -290,9 +290,8 @@ class ClientProjectSynchronizer(
 			prepareForSync()
 
 			val metadata = projectMetadataDatasource.loadMetadata(projectDef)
-			val serverProjectId =
-				metadata.info.serverProjectId
-					?: error("Server project ID missing for: ${projectDef.name}")
+			val serverProjectId = metadata.info.serverProjectId
+				?: error("Server project ID missing for: ${projectDef.name}")
 
 			var clientSyncData = loadSyncData()
 			val entityState = if (onlyNew) {
@@ -315,8 +314,7 @@ class ClientProjectSynchronizer(
 					serverProjectId,
 					entityState,
 					onlyNew
-				)
-					.getOrThrow()
+				).getOrThrow()
 
 			onProgress(
 				0.1f,

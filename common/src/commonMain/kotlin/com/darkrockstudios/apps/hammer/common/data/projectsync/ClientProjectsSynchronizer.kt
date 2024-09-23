@@ -4,6 +4,7 @@ import com.darkrockstudios.apps.hammer.MR
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
 import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettingsRepository
+import com.darkrockstudios.apps.hammer.common.data.isSuccess
 import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.ProjectMetadataDatasource
 import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.loadProjectId
 import com.darkrockstudios.apps.hammer.common.data.projectsrepository.ProjectsRepository
@@ -157,14 +158,21 @@ class ClientProjectsSynchronizer(
 		localProjects: List<ProjectDef>,
 		onLog: OnSyncLog,
 	) {
-		val serverProjects = serverSyncData.projects
-		val newServerProjects = serverProjects.filter { serverProject ->
-			localProjects.none { localProject -> localProject.name == serverProject }
+		val localProjectsWithIds = localProjects.map {
+			val projectId = projectsRepository.getProjectId(it)
+			it to projectId
 		}
 
-		val localOnly = localProjects.filter { localProject ->
-			projectsRepository.getProjectId(localProject) == null
-		}.map { it.name }
+		val serverProjects = serverSyncData.projects
+		val newServerProjects = serverProjects.filter { serverProject ->
+			localProjectsWithIds.none { (_, uuid) ->
+				uuid == serverProject.uuid
+			}
+		}
+
+		val localOnly = localProjectsWithIds.filter { (_, uuid) ->
+			uuid == null
+		}.map { it.first.name }
 
 		val newLocalProjects = clientSyncData.projectsToCreate + localOnly
 		// Create projects on the server
@@ -202,16 +210,29 @@ class ClientProjectsSynchronizer(
 		}
 
 		// Create local projects from server
-		newServerProjects.forEach { projectName ->
-			projectsRepository.createProject(projectName)
-			onLog(
-				syncAccLogI(
-					strRes.get(
-						MR.strings.sync_log_account_project_create_client,
-						projectName
+		newServerProjects.forEach { serverProject ->
+			val createResult = projectsRepository.createProject(serverProject.name)
+			if (isSuccess(createResult)) {
+				val projectDef = createResult.data
+				projectsRepository.setProjectId(projectDef, serverProject.uuid)
+				onLog(
+					syncAccLogI(
+						strRes.get(
+							MR.strings.sync_log_account_project_create_client,
+							serverProject.name
+						)
 					)
 				)
-			)
+			} else {
+				onLog(
+					syncAccLogW(
+						strRes.get(
+							MR.strings.sync_log_account_project_create_client_failure,
+							serverProject.toString(),
+						)
+					)
+				)
+			}
 		}
 	}
 

@@ -24,7 +24,7 @@ abstract class ProjectsRepository : KoinComponent {
 	abstract fun getProjects(projectsDir: HPath = getProjectsDirectory()): List<ProjectDef>
 	abstract fun getProjectDirectory(projectName: String): HPath
 	abstract fun getProjectDefinition(projectName: String): ProjectDef
-	abstract fun createProject(projectName: String): CResult<Unit>
+	abstract fun createProject(projectName: String): CResult<ProjectDef>
 	abstract fun deleteProject(projectDef: ProjectDef): Boolean
 	abstract fun ensureProjectDirectory()
 

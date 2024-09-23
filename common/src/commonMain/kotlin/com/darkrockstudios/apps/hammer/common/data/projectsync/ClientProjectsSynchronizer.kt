@@ -3,10 +3,10 @@ package com.darkrockstudios.apps.hammer.common.data.projectsync
 import com.darkrockstudios.apps.hammer.MR
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
 import com.darkrockstudios.apps.hammer.common.data.ProjectDef
+import com.darkrockstudios.apps.hammer.common.data.SyncedProjectDefinition
 import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettingsRepository
 import com.darkrockstudios.apps.hammer.common.data.isSuccess
 import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.ProjectMetadataDatasource
-import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.loadProjectId
 import com.darkrockstudios.apps.hammer.common.data.projectsrepository.ProjectsRepository
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toOkioPath
 import com.darkrockstudios.apps.hammer.common.server.ServerProjectsApi
@@ -236,13 +236,11 @@ class ClientProjectsSynchronizer(
 		}
 	}
 
-	fun deleteProject(projectDef: ProjectDef) {
-		val projectId = projectMetadataDatasource.loadProjectId(projectDef)
-
+	fun deleteProject(project: SyncedProjectDefinition) {
 		updateSyncData { syncData ->
 			syncData.copy(
-				projectsToDelete = syncData.projectsToDelete + projectId,
-				projectsToCreate = syncData.projectsToCreate - projectDef.name,
+				projectsToDelete = syncData.projectsToDelete + project.projectId,
+				projectsToCreate = syncData.projectsToCreate - project.projectDef.name,
 			)
 		}
 	}

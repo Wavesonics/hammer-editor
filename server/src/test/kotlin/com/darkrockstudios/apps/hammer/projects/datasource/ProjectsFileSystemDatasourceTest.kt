@@ -83,8 +83,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
-				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
+				ProjectId("project-id-1"),
+				ProjectId("project-id-2"),
 			)
 		)
 
@@ -104,8 +104,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
-				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
+				ProjectId("project-id-1"),
+				ProjectId("project-id-2"),
 			)
 		)
 
@@ -126,8 +126,8 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val syncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(123),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
-				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
+				ProjectId("project-id-1"),
+				ProjectId("project-id-2"),
 			)
 		)
 
@@ -137,19 +137,16 @@ class ProjectsFileSystemDatasourceTest : BaseTest() {
 		val loadedSyncData = datasource.updateSyncData(userId) { data ->
 			data.copy(
 				lastSync = Instant.fromEpochSeconds(456),
-				deletedProjects = data.deletedProjects + ProjectDefinition(
-					"Test Project 3",
-					ProjectId("project-id-3")
-				)
+				deletedProjects = data.deletedProjects + ProjectId("project-id-3")
 			)
 		}
 
 		val updatedSyncData = ProjectsSyncData(
 			lastSync = Instant.fromEpochSeconds(456),
 			deletedProjects = setOf(
-				ProjectDefinition("Test Project 1", ProjectId("project-id-1")),
-				ProjectDefinition("Test Project 2", ProjectId("project-id-2")),
-				ProjectDefinition("Test Project 3", ProjectId("project-id-3")),
+				ProjectId("project-id-1"),
+				ProjectId("project-id-2"),
+				ProjectId("project-id-3"),
 			)
 		)
 

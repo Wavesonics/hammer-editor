@@ -21,12 +21,7 @@ class ProjectsDao(
 		val lastSync = accountQueries.getLastSync(userId).executeAsOne()
 
 		val deletedProjects = deletedProjectQueries.getDeletedProjects(userId).executeAsList()
-			.map {
-				ProjectDefinition.wrap(
-					name = it.name,
-					uuid = it.uuid,
-				)
-			}
+			.map { ProjectId(it.uuid) }
 			.toSet()
 
 		ProjectsSyncData(
@@ -38,7 +33,7 @@ class ProjectsDao(
 	suspend fun updateProjectSyncData(
 		userId: Long,
 		lastSync: Instant,
-		newDeletedProjects: Set<ProjectDefinition>
+		newDeletedProjects: Set<ProjectId>
 	) = withContext(ioDispatcher) {
 		accountQueries.updateLastSync(
 			newSyncTime = lastSync.toSqliteDateTimeString(),
@@ -56,20 +51,21 @@ class ProjectsDao(
 				deletedProject.uuid == ProjectId(currentDeletedProject.uuid)
 			}
 		}.forEach {
-			deletedProjectQueries.removeDeletedProject(userId, it.uuid)
+			deletedProjectQueries.removeDeletedProject(userId = userId, uuid = it.uuid)
 		}
 
 		// Delete newly deleted project names
-		newDeletedProjects.filterNot { newlyDeleted: ProjectDefinition ->
+		newDeletedProjects.filterNot { newlyDeleted: ProjectId ->
 			// TODO https://youtrack.jetbrains.com/issue/KT-55239
 			currentDeletedProjects.contains<Any?> { oldlyDeleted: DeletedProject ->
-				ProjectId(oldlyDeleted.uuid) == newlyDeleted.uuid
+				ProjectId(oldlyDeleted.uuid) == newlyDeleted
 			}
 		}.forEach { project ->
-			if (deletedProjectQueries.hasDeletedProject(userId, project.uuid.id).executeAsOne()
+			if (deletedProjectQueries.hasDeletedProject(userId = userId, uuid = project.id)
+					.executeAsOne()
 					.not()
 			) {
-				deletedProjectQueries.addDeletedProject(userId, project.name, project.uuid.id)
+				deletedProjectQueries.addDeletedProject(userId = userId, uuid = project.id)
 			}
 		}
 	}

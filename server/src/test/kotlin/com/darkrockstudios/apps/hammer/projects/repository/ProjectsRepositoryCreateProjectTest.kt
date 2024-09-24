@@ -2,13 +2,10 @@ package com.darkrockstudios.apps.hammer.projects.repository
 
 import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
-import com.darkrockstudios.apps.hammer.projects.ProjectsSyncData
 import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
 import org.junit.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
@@ -43,37 +40,11 @@ class ProjectsRepositoryCreateProjectTest : ProjectsRepositoryBaseTest() {
 			)
 		} returns ProjectDefinition(projectName, projectId)
 
-		val initialSyncData = ProjectsSyncData(
-			lastSync = Instant.DISTANT_PAST,
-			deletedProjects = setOf(
-				ProjectDefinition(projectName, ProjectId("uuid-$projectName")),
-				ProjectDefinition("Project 2", ProjectId("uuid-project-2")),
-			),
-		)
-
-		var updatedSyncData: ProjectsSyncData? = null
-		coEvery { projectsDatasource.updateSyncData(userId, captureLambda()) } answers {
-			lambda<(ProjectsSyncData) -> ProjectsSyncData>().captured.invoke(initialSyncData)
-				.apply {
-					updatedSyncData = this
-				}
-		}
-
-		val expectedSyncData = ProjectsSyncData(
-			lastSync = Instant.DISTANT_PAST,
-			deletedProjects = setOf(
-				ProjectDefinition("Project 2", ProjectId("uuid-project-2")),
-			),
-		)
-
 		createProjectsRepository().apply {
 			val result = createProject(userId, syncId, projectName)
 
 			assertTrue(result.isSuccess)
 			coVerify { projectDatasource.createProject(userId, projectName) }
-			coVerify { projectsDatasource.updateSyncData(userId, any()) }
-
-			assertEquals(expectedSyncData, updatedSyncData)
 		}
 	}
 }

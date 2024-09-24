@@ -10,6 +10,7 @@ import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettings
 import com.darkrockstudios.apps.hammer.common.data.isSuccess
 import com.darkrockstudios.apps.hammer.common.data.migrator.PROJECT_DATA_VERSION
 import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.ProjectMetadataDatasource
+import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.loadProjectId
 import com.darkrockstudios.apps.hammer.common.fileio.HPath
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toHPath
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toOkioPath
@@ -72,6 +73,15 @@ class ProjectsRepositoryOkio(
 	override fun getProjectId(projectDef: ProjectDef): ProjectId? {
 		val metadata = projectsMetadataDatasource.loadMetadata(projectDef)
 		return metadata.info.serverProjectId
+	}
+
+	override fun findProject(projectId: ProjectId): ProjectDef? {
+		val allProjects = getProjects()
+		val found = allProjects.find { project ->
+			val id = projectsMetadataDatasource.loadProjectId(project)
+			projectId == id
+		}
+		return found
 	}
 
 	override fun getProjects(projectsDir: HPath): List<ProjectDef> {

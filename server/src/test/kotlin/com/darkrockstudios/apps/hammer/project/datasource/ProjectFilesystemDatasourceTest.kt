@@ -108,7 +108,7 @@ class ProjectFilesystemDatasourceTest : BaseTest() {
 		assertTrue { fileSystem.exists(projectDir) }
 
 		val datasource = ProjectFilesystemDatasource(fileSystem, json)
-		datasource.deleteProject(userId, project)
+		datasource.deleteProject(userId, projectId)
 
 		assertFalse { fileSystem.exists(testFile1) }
 		assertFalse { fileSystem.exists(testFile2) }

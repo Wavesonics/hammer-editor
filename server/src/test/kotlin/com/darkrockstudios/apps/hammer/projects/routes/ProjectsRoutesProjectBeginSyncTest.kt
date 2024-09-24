@@ -31,7 +31,7 @@ class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 				ProjectDefinition("Project 2", ProjectId("uuid-2")),
 			),
 			deletedProjects = setOf(
-				ProjectDefinition("Project 3", ProjectId("uuid-3")),
+				ProjectId("uuid-3"),
 			),
 		)
 
@@ -53,8 +53,7 @@ class ProjectsRoutesProjectBeginSyncTest : ProjectsRoutesBaseTest() {
 				assertEquals(syncId, this.syncId)
 				assertEquals(syncData.projects.map { it.toApi() }.toSet(), this.projects)
 				syncData.deletedProjects.forEach { syncProject ->
-					val found =
-						deletedProjects.any { it.uuid == syncProject.uuid && it.name == syncProject.name }
+					val found = deletedProjects.any { it == syncProject }
 					assertTrue(found, "Deleted project not found: $syncProject")
 				}
 			}

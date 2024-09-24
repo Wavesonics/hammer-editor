@@ -3,9 +3,7 @@ CREATE TABLE deleted_entity (
 	project_id INTEGER NOT NULL,
 	entity_id INTEGER NOT NULL,
 	deleted_at TEXT DEFAULT (datetime('now')) NOT NULL,
-	FOREIGN KEY(user_id) REFERENCES account(id),
-	FOREIGN KEY(project_id) REFERENCES project(id),
-	FOREIGN KEY(entity_id) REFERENCES story_entity(id),
+	FOREIGN KEY(project_id) REFERENCES project(id) ON DELETE CASCADE,
 	UNIQUE(user_id, project_id, entity_id)
 );
 

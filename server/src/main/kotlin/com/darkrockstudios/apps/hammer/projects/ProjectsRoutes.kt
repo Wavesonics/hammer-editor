@@ -1,7 +1,6 @@
 package com.darkrockstudios.apps.hammer.projects
 
 import com.darkrockstudios.apps.hammer.base.ProjectId
-import com.darkrockstudios.apps.hammer.base.http.ApiProjectDefinition
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
 import com.darkrockstudios.apps.hammer.base.http.CreateProjectResponse
 import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
@@ -43,12 +42,7 @@ private fun Route.beginProjectsSync() {
 			val responseData = BeginProjectsSyncResponse(
 				syncId = syncData.syncId,
 				projects = syncData.projects.map { it.toApi() }.toSet(),
-				deletedProjects = syncData.deletedProjects.map {
-					ApiProjectDefinition(
-						name = it.name,
-						uuid = it.uuid,
-					)
-				}.toSet()
+				deletedProjects = syncData.deletedProjects
 			)
 			call.respond(responseData)
 		} else {

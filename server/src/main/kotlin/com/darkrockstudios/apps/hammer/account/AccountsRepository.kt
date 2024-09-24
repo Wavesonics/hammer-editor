@@ -44,12 +44,16 @@ class AccountsRepository(
 	private suspend fun getAuthToken(userId: Long, installId: String): Token {
 		val existingToken = authTokenDao.getTokenByInstallId(userId, installId)
 		return if (existingToken != null) {
-			if (existingToken.userId != userId) {
-				error("Existing Token returned for installId `$installId` was for user: ${existingToken.userId} instead of user: $userId")
+			if (existingToken.user_id != userId) {
+				error("Existing Token returned for installId `$installId` was for user: ${existingToken.user_id} instead of user: $userId")
 			} else if (existingToken.isExpired(clock)) {
 				createToken(userId = userId, installId = installId)
 			} else {
-				Token(userId = existingToken.userId, auth = existingToken.token, refresh = existingToken.refresh)
+				Token(
+					userId = existingToken.user_id,
+					auth = existingToken.token,
+					refresh = existingToken.refresh
+				)
 			}
 		} else {
 			createToken(userId = userId, installId = installId)
@@ -123,8 +127,8 @@ class AccountsRepository(
 	suspend fun checkToken(userId: Long, token: String): SResult<Long> {
 		val authToken = authTokenDao.getTokenByAuthToken(token)
 
-		return if (authToken != null && authToken.userId == userId && !authToken.isExpired(clock)) {
-			SResult.success(authToken.userId)
+		return if (authToken != null && authToken.user_id == userId && !authToken.isExpired(clock)) {
+			SResult.success(authToken.user_id)
 		} else {
 			SResult.failure("No valid token not found", Msg.r("api.accounts.login.error.notoken"))
 		}

@@ -72,7 +72,7 @@ class ProjectsRepository(
 		}
 	}
 
-	private suspend fun getDeletedProjects(userId: Long): Set<ProjectDefinition> {
+	private suspend fun getDeletedProjects(userId: Long): Set<ProjectId> {
 		return projectsDatasource.loadSyncData(userId).deletedProjects
 	}
 
@@ -81,16 +81,27 @@ class ProjectsRepository(
 				.not()
 		) return SResult.failure(InvalidSyncIdException())
 
-		val project = projectsDatasource.getProject(userId, projectId)
-		val result = projectDatasource.deleteProject(userId, project)
-
-		projectsDatasource.updateSyncData(userId) { data ->
-			data.copy(
-				deletedProjects = data.deletedProjects + project
-			)
+		val projectDef = projectsDatasource.getProject(userId, projectId)
+		return if (projectDef != null) {
+			val result = projectDatasource.deleteProject(userId, projectDef.uuid)
+			if (result.isSuccess) {
+				projectsDatasource.updateSyncData(userId) { data ->
+					data.copy(
+						deletedProjects = data.deletedProjects + projectDef.uuid
+					)
+				}
+				SResult.success()
+			} else {
+				SResult.failure(Exception("Server failed to delete project: $projectId"))
+			}
+		} else {
+			projectsDatasource.updateSyncData(userId) { data ->
+				data.copy(
+					deletedProjects = data.deletedProjects + projectId
+				)
+			}
+			SResult.success()
 		}
-
-		return result
 	}
 
 	suspend fun createProject(
@@ -105,16 +116,6 @@ class ProjectsRepository(
 		val existingProject = projectDatasource.findProjectByName(userId, projectName)
 		val projectDef = existingProject ?: projectDatasource.createProject(userId, projectName)
 		val alreadyExists = (existingProject != null)
-
-		projectsDatasource.updateSyncData(userId) { data ->
-			val updatedDeletedProjects = data.deletedProjects.filterNot {
-				it.name == projectName
-			}
-
-			data.copy(
-				deletedProjects = updatedDeletedProjects.toSet()
-			)
-		}
 
 		return SResult.success(
 			ProjectCreatedResult(

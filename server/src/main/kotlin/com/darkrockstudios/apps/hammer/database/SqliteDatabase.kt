@@ -4,6 +4,7 @@ import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.darkrockstudios.apps.hammer.utilities.getRootDataDirectory
 import okio.FileSystem
+import java.util.Properties
 
 class SqliteDatabase(fileSystem: FileSystem) : Database {
 	private lateinit var driver: JdbcSqliteDriver
@@ -21,7 +22,10 @@ class SqliteDatabase(fileSystem: FileSystem) : Database {
 			dbFile.parentFile.mkdirs()
 		}
 
-		driver = JdbcSqliteDriver(url = "jdbc:sqlite:" + dbFile.absolutePath)
+		driver = JdbcSqliteDriver(
+			url = "jdbc:sqlite:" + dbFile.absolutePath,
+			properties = Properties().apply { put("foreign_keys", "true") }
+		)
 
 		if (!dbFile.exists()) {
 			ServerDatabase.Schema.create(driver)

@@ -72,7 +72,7 @@ class ProjectsFileSystemDatasource(
 		error("findProjectByName not implemented for FileSystem datasource")
 	}
 
-	override suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition {
+	override suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition? {
 		error("getProject not implemented for FileSystem datasource")
 	}
 

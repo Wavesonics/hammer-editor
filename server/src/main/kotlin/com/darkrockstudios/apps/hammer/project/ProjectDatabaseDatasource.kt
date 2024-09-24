@@ -26,6 +26,7 @@ class ProjectDatabaseDatasource(
 		projectDef: ProjectDefinition
 	): ProjectSyncData {
 		val project = projectDao.getProjectData(userId, projectDef.uuid)
+			?: error("Project not found $userId : $projectDef")
 		val deletedIds = deletedEntityDao.getDeletedEntities(userId, project.id)
 			.map { it.entity_id.toInt() }
 			.toSet()
@@ -56,10 +57,15 @@ class ProjectDatabaseDatasource(
 		)
 	}
 
-	override suspend fun deleteProject(userId: Long, project: ProjectDefinition): SResult<Unit> {
-		deletedProjectDao.deleteProject(
+	override suspend fun deleteProject(userId: Long, projectId: ProjectId): SResult<Unit> {
+		projectDao.deleteProject(
 			userId = userId,
-			project = project,
+			projectId = projectId,
+		)
+
+		deletedProjectDao.recordProjectDeleted(
+			userId = userId,
+			projectId = projectId,
 		)
 
 		return SResult.success(Unit)

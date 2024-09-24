@@ -32,8 +32,8 @@ class ProjectsDatabaseDatasource(
 		}
 	}
 
-	override suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition {
-		val project = projectDao.getProjectData(userId, projectId)
+	override suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition? {
+		val project = projectDao.getProjectData(userId, projectId) ?: return null
 		return ProjectDefinition(name = project.name, uuid = ProjectId(project.uuid))
 	}
 

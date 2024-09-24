@@ -1,17 +1,17 @@
 CREATE TABLE auth_token(
-    userId INTEGER NOT NULL,
-    installId TEXT UNIQUE NOT NULL,
+    user_id INTEGER NOT NULL,
+    install_id TEXT UNIQUE NOT NULL,
     token TEXT PRIMARY KEY NOT NULL,
     refresh TEXT NOT NULL,
     created TEXT DEFAULT (datetime('now')) NOT NULL,
     expires TEXT NOT NULL,
-    FOREIGN KEY(userId) REFERENCES account(id)
+    FOREIGN KEY(user_id) REFERENCES account(id) ON DELETE CASCADE
 );
 
 getTokensByUserId:
 SELECT *
 FROM auth_token
-WHERE userId = ?;
+WHERE user_id = ?;
 
 getTokenByToken:
 SELECT *
@@ -21,10 +21,10 @@ WHERE token = ?;
 getTokenByInstallId:
 SELECT *
 FROM auth_token
-WHERE userId = ?
-AND installId = ?;
+WHERE user_id = ?
+AND install_id = ?;
 
 setToken:
 INSERT OR REPLACE INTO auth_token(
-    userId, installId, token, refresh, expires
-) VALUES (?, ?, ?, ?, ?);
+    user_id, install_id, token, refresh, expires
+) VALUES (:userId, :installId, :token, :refresh, :expires);

@@ -8,7 +8,7 @@ interface ProjectsDatasource {
 	suspend fun saveSyncData(userId: Long, data: ProjectsSyncData)
 	suspend fun getProjects(userId: Long): Set<ProjectDefinition>
 	suspend fun findProjectByName(userId: Long, projectName: String): ProjectDefinition?
-	suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition
+	suspend fun getProject(userId: Long, projectId: ProjectId): ProjectDefinition?
 	suspend fun loadSyncData(userId: Long): ProjectsSyncData
 	suspend fun createUserData(userId: Long)
 

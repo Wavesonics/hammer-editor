@@ -32,6 +32,7 @@ abstract class ProjectsRepository : KoinComponent {
 	abstract fun removeProjectId(projectDef: ProjectDef)
 	abstract fun setProjectId(projectDef: ProjectDef, projectId: ProjectId)
 	abstract fun getProjectId(projectDef: ProjectDef): ProjectId?
+	abstract fun findProject(projectId: ProjectId): ProjectDef?
 
 	private data class Validator(
 		val name: String,

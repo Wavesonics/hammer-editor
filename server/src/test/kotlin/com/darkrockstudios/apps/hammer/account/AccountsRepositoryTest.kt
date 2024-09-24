@@ -42,8 +42,8 @@ class AccountsRepositoryTest : BaseTest() {
 	private lateinit var account: Account
 
 	private fun createAuthToken() = AuthToken(
-		userId = userId,
-		installId = installId,
+		user_id = userId,
+		install_id = installId,
 		token = bearerToken,
 		refresh = refreshToken,
 		created = (Clock.System.now() - 365.days).toISO8601(),

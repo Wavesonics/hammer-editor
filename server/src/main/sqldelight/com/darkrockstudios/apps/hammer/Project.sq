@@ -48,3 +48,7 @@ getProjectId:
 SELECT id
 FROM project
 WHERE user_id = :userId AND uuid = :uuid;
+
+deleteProject:
+DELETE FROM project
+WHERE user_id = :userId AND uuid = :uuid;

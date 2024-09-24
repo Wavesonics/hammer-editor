@@ -621,22 +621,28 @@ class ClientProjectSynchronizer(
 						state.serverSyncData.syncId,
 						onLog,
 					)
-					if (isFailure(downloadSuccess)) {
-						if (downloadSuccess.exception is EntityNotModifiedException) {
+					val isFinalSuccess = if (isFailure(downloadSuccess)) {
+						if (downloadSuccess.exception is EntityNotFoundException) {
 							val entityId = downloadSuccess.exception.entityId
 							val entityExistsLocally = (findEntityType(entityId) != null)
 							if (entityExistsLocally.not()) {
 								Napier.i("Entity ID $entityId missing from both client and server, marking it as deleted")
+								deleteEntityRemote(thisId, state.serverSyncData.syncId, onLog)
 								state.combinedDeletions += entityId
+								true
 							} else {
 								// TODO what do we do here?
 								Napier.d("Entity ID $entityId missing from server, but it does exist locally, should we upload it? How did we get here?")
+								false
 							}
 						} else {
 							Napier.d("Download failed for ID $thisId")
+							false
 						}
+					} else {
+						downloadSuccess.isSuccess
 					}
-					allSuccess && downloadSuccess.isSuccess
+					allSuccess && isFinalSuccess
 				}
 			onProgress(ENTITY_START + (ENTITY_TOTAL * (currentIndex / totalIds.toFloat())), null)
 

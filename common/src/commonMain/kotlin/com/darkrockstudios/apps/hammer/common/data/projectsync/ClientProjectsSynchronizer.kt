@@ -6,7 +6,6 @@ import com.darkrockstudios.apps.hammer.common.data.ProjectDef
 import com.darkrockstudios.apps.hammer.common.data.SyncedProjectDefinition
 import com.darkrockstudios.apps.hammer.common.data.globalsettings.GlobalSettingsRepository
 import com.darkrockstudios.apps.hammer.common.data.isSuccess
-import com.darkrockstudios.apps.hammer.common.data.projectmetadatarepository.ProjectMetadataDatasource
 import com.darkrockstudios.apps.hammer.common.data.projectsrepository.ProjectsRepository
 import com.darkrockstudios.apps.hammer.common.fileio.okio.toOkioPath
 import com.darkrockstudios.apps.hammer.common.server.ServerProjectsApi
@@ -28,7 +27,6 @@ class ClientProjectsSynchronizer(
 	private val fileSystem: FileSystem,
 	private val globalSettingsRepository: GlobalSettingsRepository,
 	private val projectsRepository: ProjectsRepository,
-	private val projectMetadataDatasource: ProjectMetadataDatasource,
 	private val serverProjectsApi: ServerProjectsApi,
 	private val networkConnectivity: NetworkConnectivity,
 	private val json: Json,
@@ -57,15 +55,24 @@ class ClientProjectsSynchronizer(
 				syncId = serverSyncData.syncId
 
 				val clientSyncData = loadSyncData()
+
+				yield()
+
+				syncDeletedProjects(clientSyncData, serverSyncData, onLog)
+
+				yield()
+
+				// Remove client deleted projects the list of projects to sync
+				val updatedServerSyncData = serverSyncData.copy(
+					projects = serverSyncData.projects.filter { serverProj ->
+						clientSyncData.projectsToDelete.none { clientProj ->
+							clientProj.id == serverProj.uuid.id
+						}
+					}.toSet()
+				)
+
 				val localProjects = projectsRepository.getProjects()
-
-				yield()
-
-				syncDeletedProjects(clientSyncData, serverSyncData, localProjects, onLog)
-
-				yield()
-
-				syncCreatedProjects(clientSyncData, serverSyncData, localProjects, onLog)
+				syncCreatedProjects(clientSyncData, updatedServerSyncData, localProjects, onLog)
 
 				yield()
 
@@ -100,13 +107,11 @@ class ClientProjectsSynchronizer(
 	private suspend fun syncDeletedProjects(
 		clientSyncData: ProjectsSynchronizationData,
 		serverSyncData: BeginProjectsSyncResponse,
-		localProjects: List<ProjectDef>,
 		onLog: OnSyncLog,
 	) {
 		val newlyDeletedProjects = serverSyncData.deletedProjects.filter { project ->
-			clientSyncData.deletedProjects.contains(project.uuid).not() &&
-				clientSyncData.projectsToCreate.contains(project.name).not()
-		}.mapNotNull { serverProject -> localProjects.find { it.name == serverProject.name } }
+			clientSyncData.deletedProjects.contains(project).not()
+		}
 
 		// Delete projects on the server
 		clientSyncData.projectsToDelete.forEach { projectId ->
@@ -138,17 +143,21 @@ class ClientProjectsSynchronizer(
 			}
 		}
 
-		// Delete local projects from server
-		newlyDeletedProjects.forEach { projectName ->
-			onLog(
-				syncAccLogI(
-					strRes.get(
-						MR.strings.sync_log_account_project_delete_client,
-						projectName
+		// Delete locally deleted projects from server
+		newlyDeletedProjects.forEach { projectId ->
+			val projectDef = projectsRepository.findProject(projectId)
+			if (projectDef != null) {
+				onLog(
+					syncAccLogI(
+						strRes.get(
+							MR.strings.sync_log_account_project_delete_client,
+							projectDef.name
+						)
 					)
 				)
-			)
-			projectsRepository.deleteProject(projectName)
+
+				projectsRepository.deleteProject(projectDef)
+			}
 		}
 	}
 

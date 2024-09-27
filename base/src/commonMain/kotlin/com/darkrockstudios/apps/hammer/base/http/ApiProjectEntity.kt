@@ -74,9 +74,17 @@ sealed interface ApiProjectEntity {
 		ENCYCLOPEDIA_ENTRY(3),
 		SCENE_DRAFT(4);
 
+		fun toStringId() = when (this) {
+			SCENE -> "scene"
+			NOTE -> "note"
+			TIMELINE_EVENT -> "timeline_event"
+			ENCYCLOPEDIA_ENTRY -> "encyclopedia_entry"
+			SCENE_DRAFT -> "scene_draft"
+		}
+
 		companion object {
-			fun fromString(string: String): Type? {
-				return when (string.trim().lowercase()) {
+			fun fromString(string: String?): Type? {
+				return when (string?.trim()?.lowercase()) {
 					"scene" -> SCENE
 					"note" -> NOTE
 					"timeline_event" -> TIMELINE_EVENT

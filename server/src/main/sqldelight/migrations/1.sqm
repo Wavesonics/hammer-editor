@@ -46,7 +46,7 @@ CREATE TABLE story_entity (
 	user_id INTEGER NOT NULL,
 	project_id INTEGER NOT NULL,
 	id INTEGER NOT NULL,
-	type INTEGER NOT NULL,
+	type TEXT NOT NULL,
 	content TEXT NOT NULL,
 	hash TEXT NOT NULL,
 	FOREIGN KEY(user_id) REFERENCES account(id),

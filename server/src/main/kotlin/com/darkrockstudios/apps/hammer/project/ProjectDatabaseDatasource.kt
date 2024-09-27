@@ -140,7 +140,7 @@ class ProjectDatabaseDatasource(
 	): ApiProjectEntity.Type? {
 		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
 		val typeId = storyEntityDao.getType(userId, projectId, entityId.toLong())
-		return ApiProjectEntity.Type.fromInt(typeId?.toInt())
+		return ApiProjectEntity.Type.fromString(typeId)
 	}
 
 	override suspend fun <T : ApiProjectEntity> storeEntity(
@@ -157,7 +157,7 @@ class ProjectDatabaseDatasource(
 			userId = userId,
 			projectId = projectId,
 			id = entity.id.toLong(),
-			type = entityType.id.toLong(),
+			type = entityType.toStringId(),
 			content = jsonString,
 			hash = hash,
 		)
@@ -180,7 +180,7 @@ class ProjectDatabaseDatasource(
 
 		return if (dbEntity == null) {
 			SResult.failure("Entity not found. userId=$userId projectId=$projectId entityId=$entityId")
-		} else if (dbEntity.type != entityType.id.toLong()) {
+		} else if (dbEntity.type != entityType.toStringId()) {
 			SResult.failure("Invalid entity type. userId=$userId projectId=$projectId entityId=$entityId entityType=$entityType")
 		} else {
 			val entity = json.decodeFromString(serializer, dbEntity.content)

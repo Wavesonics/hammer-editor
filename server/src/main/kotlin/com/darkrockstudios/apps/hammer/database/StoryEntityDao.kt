@@ -38,7 +38,7 @@ class StoryEntityDao(
 			return@withContext query.executeAsOne()
 		}
 
-	suspend fun getType(userId: Long, projectId: Long, id: Long): Long? =
+	suspend fun getType(userId: Long, projectId: Long, id: Long): String? =
 		withContext(ioDispatcher) {
 			val query = queries.getType(userId = userId, projectId = projectId, id = id)
 			return@withContext query.executeAsOneOrNull()
@@ -49,7 +49,7 @@ class StoryEntityDao(
 			val defs = queries.getEntityDefs(userId, projectId).executeAsList().map {
 				EntityDefinition(
 					id = it.id.toInt(),
-					type = ApiProjectEntity.Type.fromInt(it.type.toInt())
+					type = ApiProjectEntity.Type.fromString(it.type)
 						?: error("Invalid entity type. userId=$userId projectId=$projectId entityId=${it.id} entityType=${it.type}")
 				)
 			}
@@ -60,7 +60,7 @@ class StoryEntityDao(
 		userId: Long,
 		projectId: Long,
 		id: Long,
-		type: Long,
+		type: String,
 		content: String,
 		hash: String,
 	) = withContext(ioDispatcher) {
@@ -78,7 +78,7 @@ class StoryEntityDao(
 		userId: Long,
 		projectId: Long,
 		id: Long,
-		type: Long,
+		type: String,
 		content: String,
 		hash: String,
 	): SResult<Unit> = withContext(ioDispatcher) {
@@ -103,7 +103,7 @@ class StoryEntityDao(
 		userId: Long,
 		projectId: Long,
 		id: Long,
-		type: Long,
+		type: String,
 		content: String,
 		hash: String,
 	): SResult<Unit> = withContext(ioDispatcher) {

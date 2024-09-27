@@ -174,8 +174,8 @@ class ProjectRepository(
 				"Entity type mismatch",
 				exception = EntityTypeConflictException(
 					id = entity.id,
-					existingType = existingType,
-					submittedType = entity.type
+					existingType = existingType.toStringId(),
+					submittedType = entity.type.toStringId()
 				),
 				displayMessage = Msg.r("api.project.saveentity.error.typeconflict")
 			)

@@ -11,6 +11,7 @@ import com.darkrockstudios.apps.hammer.database.parseLastSync
 import com.darkrockstudios.apps.hammer.utilities.SResult
 import com.darkrockstudios.apps.hammer.utilities.hashEntity
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 class ProjectDatabaseDatasource(
@@ -179,12 +180,26 @@ class ProjectDatabaseDatasource(
 		)
 
 		return if (dbEntity == null) {
-			SResult.failure("Entity not found. userId=$userId projectId=$projectId entityId=$entityId")
-		} else if (dbEntity.type != entityType.toStringId()) {
-			SResult.failure("Invalid entity type. userId=$userId projectId=$projectId entityId=$entityId entityType=$entityType")
+			SResult.failure(
+				error = "Entity not found. userId=$userId projectId=$projectId entityId=$entityId",
+				exception = EntityNotFound(entityId)
+			)
+		} else if (dbEntity.type.compareTo(entityType.toStringId(), ignoreCase = true) != 0) {
+			SResult.failure(
+				"Invalid entity type. userId=$userId projectId=$projectId entityId=$entityId entityType=$entityType",
+				exception = EntityTypeConflictException(
+					id = entityId,
+					existingType = dbEntity.type,
+					submittedType = entityType.toStringId()
+				)
+			)
 		} else {
-			val entity = json.decodeFromString(serializer, dbEntity.content)
-			SResult.success(entity)
+			try {
+				val entity = json.decodeFromString(serializer, dbEntity.content)
+				SResult.success(entity)
+			} catch (e: SerializationException) {
+				SResult.failure(e)
+			}
 		}
 	}
 
@@ -196,6 +211,11 @@ class ProjectDatabaseDatasource(
 	): SResult<Unit> {
 		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
 		storyEntityDao.deleteEntity(
+			userId = userId,
+			projectId = projectId,
+			id = entityId.toLong(),
+		)
+		deletedEntityDao.markEntityDeleted(
 			userId = userId,
 			projectId = projectId,
 			id = entityId.toLong(),

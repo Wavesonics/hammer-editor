@@ -3,6 +3,7 @@ package com.darkrockstudios.apps.hammer.e2e
 import com.darkrockstudios.apps.hammer.base.http.BeginProjectsSyncResponse
 import com.darkrockstudios.apps.hammer.base.http.HAMMER_PROTOCOL_HEADER
 import com.darkrockstudios.apps.hammer.base.http.HAMMER_PROTOCOL_VERSION
+import com.darkrockstudios.apps.hammer.base.http.HEADER_SYNC_ID
 import com.darkrockstudios.apps.hammer.e2e.util.E2eTestData.createAuthToken
 import com.darkrockstudios.apps.hammer.e2e.util.E2eTestData.preDeletedProject1
 import com.darkrockstudios.apps.hammer.e2e.util.EndToEndTest
@@ -12,6 +13,7 @@ import com.darkrockstudios.apps.hammer.utils.createTestServer
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -36,7 +38,7 @@ class ProjectsTest : EndToEndTest() {
 	}
 
 	@Test
-	fun `Project - Begin Sync - Success`(): Unit = runBlocking {
+	fun `Project Sync - Golden Path`(): Unit = runBlocking {
 		val database = database()
 		createTestServer(SERVER_EMPTY_NO_WHITELIST, fileSystem, database)
 		TestDataSet1.createFullDataset(database)
@@ -45,28 +47,65 @@ class ProjectsTest : EndToEndTest() {
 		doStartServer()
 
 		client().apply {
-			val response = get(api("projects/$userId/begin_sync")) {
+			// Begin Sync
+			val beginSyncResponse = get(api("projects/$userId/begin_sync")) {
 				headers {
 					append(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 					append("Authorization", "Bearer ${authToken.auth}")
 				}
 			}
 
-			assertEquals(HttpStatusCode.OK, response.status)
+			assertEquals(HttpStatusCode.OK, beginSyncResponse.status)
 
-			val beginSyncResponse: BeginProjectsSyncResponse = response.body()
-			assertTrue(beginSyncResponse.syncId.isNotEmpty())
-			assertEquals(1, beginSyncResponse.projects.size)
-			assertEquals(1, beginSyncResponse.deletedProjects.size)
+			val beginSyncResponseBody: BeginProjectsSyncResponse = beginSyncResponse.body()
+			assertTrue(beginSyncResponseBody.syncId.isNotEmpty())
+			assertEquals(1, beginSyncResponseBody.projects.size)
+			assertEquals(1, beginSyncResponseBody.deletedProjects.size)
 
-			beginSyncResponse.projects.first().let { project ->
+			beginSyncResponseBody.projects.first().let { project ->
 				assertEquals(TestDataSet1.project1.uuid.toString(), project.uuid.id)
 				assertEquals(TestDataSet1.project1.name, project.name)
 			}
 
-			beginSyncResponse.deletedProjects.first().let { uuid ->
+			beginSyncResponseBody.deletedProjects.first().let { uuid ->
 				assertEquals(preDeletedProject1.toString(), uuid.id)
 			}
+
+			// Create Project
+			val newProjectName = "New Project"
+			val createProjectResponse = get(api("projects/$userId/create")) {
+				headers {
+					append(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
+					append("Authorization", "Bearer ${authToken.auth}")
+					append(HEADER_SYNC_ID, beginSyncResponseBody.syncId)
+				}
+
+				parameter("projectName", newProjectName)
+			}
+			assertEquals(HttpStatusCode.OK, createProjectResponse.status)
+
+			// Delete Project
+			val deleteProjectResponse = get(api("projects/$userId/delete")) {
+				headers {
+					append(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
+					append("Authorization", "Bearer ${authToken.auth}")
+					append(HEADER_SYNC_ID, beginSyncResponseBody.syncId)
+				}
+
+				parameter("projectId", TestDataSet1.project1.uuid)
+			}
+			assertEquals(HttpStatusCode.OK, deleteProjectResponse.status)
+
+			// End sync
+			val endSyncResponse = get(api("projects/$userId/end_sync")) {
+				headers {
+					append(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
+					append("Authorization", "Bearer ${authToken.auth}")
+					append(HEADER_SYNC_ID, beginSyncResponseBody.syncId)
+				}
+			}
+
+			assertEquals(HttpStatusCode.OK, endSyncResponse.status)
 		}
 	}
 }

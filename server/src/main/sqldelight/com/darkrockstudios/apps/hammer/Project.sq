@@ -3,7 +3,7 @@ CREATE TABLE project (
 	uuid TEXT NOT NULL,
 	user_id INTEGER NOT NULL,
 	name TEXT NOT NULL,
-	last_id INTEGER NOT NULL,
+	last_id INTEGER DEFAULT 0 NOT NULL,
 	last_sync TEXT DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY(user_id) REFERENCES account(id),
 	UNIQUE(name, user_id)
@@ -17,9 +17,13 @@ SELECT name, uuid
 FROM project
 WHERE user_id = :userId;
 
-createProject:
+insertProject:
 INSERT INTO project(user_id, name, uuid, last_sync, last_id)
 VALUES(:userId, :name, :uuid, :lastSync, :lastId);
+
+createProject:
+INSERT INTO project(user_id, name, uuid)
+VALUES(:userId, :name, :uuid);
 
 hasProject:
 SELECT EXISTS(SELECT 1 FROM project WHERE user_id = :userId AND name = :name);

@@ -305,7 +305,7 @@ class ProjectDatabaseDatasourceTest : BaseTest() {
 		val datasource = createDatasource()
 
 		testDatabase.serverDatabase.projectQueries
-			.createProject(userId, projectDef.name, projectDef.uuid.id, "2023-10-03 17:08:13", 0)
+			.createProject(userId, projectDef.name, projectDef.uuid.id)
 
 		val result = datasource.storeEntity(
 			userId,
@@ -334,7 +334,7 @@ class ProjectDatabaseDatasourceTest : BaseTest() {
 	private fun setupEntities(testDatabase: SqliteTestDatabase) {
 		setupAccount(testDatabase)
 
-		testDatabase.serverDatabase.projectQueries.createProject(
+		testDatabase.serverDatabase.projectQueries.insertProject(
 			uuid = projectDef.uuid.id,
 			name = projectDef.name,
 			userId = 1,

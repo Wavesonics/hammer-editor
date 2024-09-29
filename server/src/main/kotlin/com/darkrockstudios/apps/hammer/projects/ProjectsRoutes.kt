@@ -34,7 +34,12 @@ private fun Route.beginProjectsSync() {
 	val projectsRepository: ProjectsRepository = get()
 
 	get("/begin_sync") {
-		val principal = call.principal<ServerUserIdPrincipal>()!!
+		val principal = call.principal<ServerUserIdPrincipal>()
+
+		if (principal == null) {
+			call.respond(HttpStatusCode.Unauthorized)
+			return@get
+		}
 
 		val result = projectsRepository.beginProjectsSync(principal.id)
 		if (isSuccess(result)) {

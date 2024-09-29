@@ -143,7 +143,7 @@ private class OldProjectsSyncData(
 	val deletedProjects: Set<String>, // This is just ignored during migration
 )
 
-private fun getSerializerForType(type: ApiProjectEntity.Type): KSerializer<ApiProjectEntity> {
+fun getSerializerForType(type: ApiProjectEntity.Type): KSerializer<ApiProjectEntity> {
 	return when (type) {
 		ApiProjectEntity.Type.NOTE -> ApiProjectEntity.NoteEntity.serializer() as KSerializer<ApiProjectEntity>
 		ApiProjectEntity.Type.SCENE -> ApiProjectEntity.SceneEntity.serializer() as KSerializer<ApiProjectEntity>

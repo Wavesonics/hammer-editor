@@ -33,8 +33,6 @@ class ProjectDao(
 				userId = userId,
 				name = projectName,
 				uuid = uuid.id,
-				lastSync = clock.now().toSqliteDateTimeString(),
-				lastId = 0,
 			)
 			true
 		} catch (e: Exception) {

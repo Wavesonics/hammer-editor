@@ -33,7 +33,7 @@ CREATE TABLE project (
 	uuid TEXT NOT NULL,
 	user_id INTEGER NOT NULL,
 	name TEXT NOT NULL,
-	last_id INTEGER NOT NULL,
+	last_id INTEGER DEFAULT 0 NOT NULL,
 	last_sync TEXT DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY(user_id) REFERENCES account(id),
 	UNIQUE(name, user_id)

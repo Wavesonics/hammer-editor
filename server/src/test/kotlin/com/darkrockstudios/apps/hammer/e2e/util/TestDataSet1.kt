@@ -1,5 +1,6 @@
 package com.darkrockstudios.apps.hammer.e2e.util
 
+import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.e2e.util.E2eTestData.addDeletedProject
 import com.darkrockstudios.apps.hammer.e2e.util.E2eTestData.createAccount
 import com.darkrockstudios.apps.hammer.e2e.util.E2eTestData.createProject
@@ -28,31 +29,39 @@ object TestDataSet1 {
 
 		addDeletedProject(1, preDeletedProject1, database)
 
-		(1..5).forEach { ii ->
+		user1Project1Entities.forEach { entity ->
 			insertEntity(
 				userId = 1,
 				projectId = 1,
-				entity = createTestScene(ii),
+				entity = entity,
 				testDatabase = database,
 			)
 		}
-		insertEntity(
-			userId = 1,
-			projectId = 1,
-			entity = createTestNote(6),
-			testDatabase = database,
-		)
-		insertDeletedEntity(
-			id = 7,
-			userId = 1,
-			projectId = 1,
-			testDatabase = database,
-		)
-		insertEntity(
-			userId = 1,
-			projectId = 1,
-			entity = createTestNote(8),
-			testDatabase = database,
-		)
+
+		user1Project1DeletedEntities.forEach { entityId ->
+			insertDeletedEntity(
+				id = entityId.toLong(),
+				userId = 1,
+				projectId = 1,
+				testDatabase = database,
+			)
+		}
+	}
+
+	val user1Project1Entities: List<ApiProjectEntity> = buildList {
+		(1..5).map { ii ->
+			add(createTestScene(ii))
+		}
+		add(createTestNote(6))
+		add(createTestNote(8))
+	}
+
+	val user1Project1DeletedEntities: List<Long> = buildList {
+		add(7)
+	}
+
+	fun createEmptyDataset(database: SqliteTestDatabase) {
+		createAccount(account1, database)
+		createProject(project1, database)
 	}
 }

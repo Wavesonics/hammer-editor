@@ -108,8 +108,8 @@ class ServerProjectApi(
 			path = "/api/project/$userId/$projectName/upload_entity/${entity.id}",
 			parse = { it.body() },
 			builder = {
+				contentType(ContentType.Application.Json)
 				headers {
-					contentType(ContentType.Application.Json)
 					append(HEADER_SYNC_ID, syncId)
 					append(HEADER_ENTITY_TYPE, entity.type.name)
 					if (originalHash != null) {

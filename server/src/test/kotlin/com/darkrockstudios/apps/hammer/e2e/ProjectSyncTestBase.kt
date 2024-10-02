@@ -12,10 +12,8 @@ import com.darkrockstudios.apps.hammer.base.http.ProjectSynchronizationBegan
 import com.darkrockstudios.apps.hammer.base.http.SaveEntityResponse
 import com.darkrockstudios.apps.hammer.base.http.Token
 import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
-import com.darkrockstudios.apps.hammer.base.http.synchronizer.EntityHasher
 import com.darkrockstudios.apps.hammer.e2e.util.EndToEndTest
 import com.darkrockstudios.apps.hammer.e2e.util.TestDataSet1
-import com.darkrockstudios.apps.hammer.utilities.hashEntity
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.FormDataContent
@@ -24,6 +22,7 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
@@ -51,6 +50,18 @@ abstract class ProjectSyncTestBase : EndToEndTest() {
 		authToken: Token,
 		clientState: ClientEntityState
 	): ProjectSynchronizationBegan {
+		val beginSyncResponse = projectSynchronizationBeganRequest(userId, authToken, clientState)
+
+		assertEquals(HttpStatusCode.OK, beginSyncResponse.status)
+		val synchronizationBegan = beginSyncResponse.body<ProjectSynchronizationBegan>()
+		return synchronizationBegan
+	}
+
+	protected suspend fun HttpClient.projectSynchronizationBeganRequest(
+		userId: Long,
+		authToken: Token,
+		clientState: ClientEntityState
+	): HttpResponse {
 		val beginSyncResponse =
 			post(api("project/$userId/${TestDataSet1.project1.name}/begin_sync")) {
 				headers {
@@ -66,9 +77,7 @@ abstract class ProjectSyncTestBase : EndToEndTest() {
 				setBody(compressed)
 			}
 
-		assertEquals(HttpStatusCode.OK, beginSyncResponse.status)
-		val synchronizationBegan = beginSyncResponse.body<ProjectSynchronizationBegan>()
-		return synchronizationBegan
+		return beginSyncResponse
 	}
 
 	protected suspend inline fun <reified T : ApiProjectEntity> HttpClient.uploadEntityRequest(
@@ -102,16 +111,63 @@ abstract class ProjectSyncTestBase : EndToEndTest() {
 		return savedEntity
 	}
 
-	protected suspend inline fun <reified T : ApiProjectEntity> HttpClient.downloadEntityRequest(
+	protected suspend inline fun <reified T : ApiProjectEntity> HttpClient.uploadConflictedEntityRequest(
 		userId: Long,
 		authToken: Token,
 		syncId: String,
 		entity: T,
-		entityHash: String? = EntityHasher.hashEntity(entity),
+		originalhash: String,
+		force: Boolean = false,
+	): T {
+		val uploadResponse =
+			post(api("project/$userId/${TestDataSet1.project1.name}/upload_entity/${entity.id}")) {
+				headers {
+					append(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
+					append("Authorization", "Bearer ${authToken.auth}")
+					append(HEADER_SYNC_ID, syncId)
+					append(HEADER_ORIGINAL_HASH, originalhash)
+					append(HEADER_ENTITY_TYPE, entity.type.toString())
+				}
+				contentType(ContentType.Application.Json)
+				url {
+					parameters.append("projectId", TestDataSet1.project1.uuid.toString())
+					parameters.append("force", force.toString())
+				}
+
+				setBody(entity)
+			}
+		assertEquals(HttpStatusCode.Conflict, uploadResponse.status)
+
+		val serverEntity = uploadResponse.body<T>()
+		return serverEntity
+	}
+
+	protected suspend inline fun <reified T : ApiProjectEntity> HttpClient.downloadEntity(
+		userId: Long,
+		authToken: Token,
+		syncId: String,
+		entityId: Int,
+		entityHash: String?,
 	): T {
 		// End Sync
 		val downloadResponse =
-			get(api("project/$userId/${TestDataSet1.project1.name}/download_entity/${entity.id}")) {
+			downloadEntityRequest(userId, authToken, syncId, entityId, entityHash)
+		assertEquals(HttpStatusCode.OK, downloadResponse.status)
+
+		val downloadedEntity: T = downloadResponse.body<T>()
+		return downloadedEntity
+	}
+
+	protected suspend inline fun HttpClient.downloadEntityRequest(
+		userId: Long,
+		authToken: Token,
+		syncId: String,
+		entityId: Int,
+		entityHash: String?,
+	): HttpResponse {
+		// End Sync
+		val downloadResponse =
+			get(api("project/$userId/${TestDataSet1.project1.name}/download_entity/${entityId}")) {
 				headers {
 					append(HAMMER_PROTOCOL_HEADER, HAMMER_PROTOCOL_VERSION.toString())
 					append("Authorization", "Bearer ${authToken.auth}")
@@ -123,10 +179,7 @@ abstract class ProjectSyncTestBase : EndToEndTest() {
 				contentType(ContentType.Application.FormUrlEncoded)
 				parameter("projectId", TestDataSet1.project1.uuid.toString())
 			}
-		assertEquals(HttpStatusCode.OK, downloadResponse.status)
-
-		val downloadedEntity: T = downloadResponse.body<T>()
-		return downloadedEntity
+		return downloadResponse
 	}
 
 	protected suspend fun HttpClient.endSyncRequest(

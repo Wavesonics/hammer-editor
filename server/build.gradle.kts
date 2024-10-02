@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val app_version: String by extra
 
@@ -19,6 +18,10 @@ application {
 
 	val isDevelopment: Boolean = project.ext.has("development")
 	applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+kotlin {
+	jvmToolchain(libs.versions.jvm.get().toInt())
 }
 
 sqldelight {
@@ -45,10 +48,6 @@ kover {
 repositories {
 	google()
 	mavenCentral()
-}
-
-tasks.withType<KotlinCompile> {
-	kotlinOptions.jvmTarget = libs.versions.jvm.get()
 }
 
 dependencies {

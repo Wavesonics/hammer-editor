@@ -62,6 +62,7 @@ class StoryEntityDao(
 		id: Long,
 		type: String,
 		content: String,
+		cipher: String,
 		hash: String,
 	) = withContext(ioDispatcher) {
 		queries.insertNew(
@@ -71,6 +72,7 @@ class StoryEntityDao(
 			type = type,
 			content = content,
 			hash = hash,
+			cipher = cipher
 		)
 	}
 
@@ -80,6 +82,7 @@ class StoryEntityDao(
 		id: Long,
 		type: String,
 		content: String,
+		cipher: String,
 		hash: String,
 	): SResult<Unit> = withContext(ioDispatcher) {
 		val curType =
@@ -93,6 +96,7 @@ class StoryEntityDao(
 				id = id,
 				content = content,
 				hash = hash,
+				cipher = cipher,
 			)
 			SResult.success(Unit)
 		}
@@ -105,6 +109,7 @@ class StoryEntityDao(
 		id: Long,
 		type: String,
 		content: String,
+		cipher: String,
 		hash: String,
 	): SResult<Unit> = withContext(ioDispatcher) {
 		return@withContext if (queries.checkExists(userId = userId, projectId, id = id)
@@ -121,6 +126,7 @@ class StoryEntityDao(
 					id = id,
 					content = content,
 					hash = hash,
+					cipher = cipher,
 				)
 				SResult.success(Unit)
 			}
@@ -132,6 +138,7 @@ class StoryEntityDao(
 				type = type,
 				content = content,
 				hash = hash,
+				cipher = cipher,
 			)
 			SResult.success(Unit)
 		}

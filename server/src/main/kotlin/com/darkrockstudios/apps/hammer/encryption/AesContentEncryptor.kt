@@ -30,4 +30,10 @@ class AesContentEncryptor(
 		val plainTextBytes = cipher.decrypt(encryptedBytes)
 		return plainTextBytes.toString(Charsets.UTF_8)
 	}
+
+	override fun cipherName() = CIPHER_NAME
+
+	companion object {
+		val CIPHER_NAME: String = "aes-gcm"
+	}
 }

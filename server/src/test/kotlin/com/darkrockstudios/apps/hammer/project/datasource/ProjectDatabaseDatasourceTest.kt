@@ -406,6 +406,7 @@ class ProjectDatabaseDatasourceTest : BaseTest() {
 			id = id,
 			type = type.toStringId(),
 			content = runBlocking { encryptor.encrypt("test-content", "") },
+			cipher = contentEncryptor.cipherName(),
 			hash = "test-hash",
 		)
 	}

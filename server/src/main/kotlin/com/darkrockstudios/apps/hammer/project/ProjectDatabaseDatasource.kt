@@ -172,6 +172,7 @@ class ProjectDatabaseDatasource(
 			id = entity.id.toLong(),
 			type = entityType.toStringId(),
 			content = encrypted,
+			cipher = encryptor.cipherName(),
 			hash = hash,
 		)
 		return result

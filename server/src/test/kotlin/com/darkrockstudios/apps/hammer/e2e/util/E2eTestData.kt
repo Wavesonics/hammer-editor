@@ -109,6 +109,7 @@ object E2eTestData {
 			id = entity.id.toLong(),
 			type = entity.type.toStringId(),
 			content = encryptedJson,
+			cipher = contentEncryptor.cipherName(),
 			hash = EntityHasher.hashEntity(entity),
 		)
 	}

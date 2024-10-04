@@ -7,10 +7,12 @@ import com.darkrockstudios.apps.hammer.base.http.Token
 import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
 import com.darkrockstudios.apps.hammer.base.http.synchronizer.EntityHasher
 import com.darkrockstudios.apps.hammer.datamigrator.migrations.getSerializerForType
+import com.darkrockstudios.apps.hammer.encryption.ContentEncryptor
 import com.darkrockstudios.apps.hammer.utilities.SecureTokenGenerator
 import com.darkrockstudios.apps.hammer.utilities.hashEntity
 import com.darkrockstudios.apps.hammer.utilities.toISO8601
 import korlibs.io.util.UUID
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
@@ -42,7 +44,10 @@ object E2eTestData {
 		)
 	}
 
-	fun createProject(project: TestProject, database: SqliteTestDatabase) {
+	fun createProject(
+		project: TestProject,
+		database: SqliteTestDatabase,
+	) {
 		database.serverDatabase.projectQueries.createProject(
 			userId = project.userId,
 			name = project.name,
@@ -91,13 +96,19 @@ object E2eTestData {
 		projectId: Long,
 		entity: ApiProjectEntity,
 		testDatabase: SqliteTestDatabase,
+		contentEncryptor: ContentEncryptor,
 	) {
+		val entityJson = json.encodeToString(getSerializerForType(entity.type), entity)
+		val encryptedJson = runBlocking {
+			contentEncryptor.encrypt(entityJson, "")
+		}
+
 		testDatabase.serverDatabase.storyEntityQueries.insertNew(
 			userId = userId,
 			projectId = projectId,
 			id = entity.id.toLong(),
 			type = entity.type.toStringId(),
-			content = json.encodeToString(getSerializerForType(entity.type), entity),
+			content = encryptedJson,
 			hash = EntityHasher.hashEntity(entity),
 		)
 	}
@@ -106,7 +117,7 @@ object E2eTestData {
 		id: Long,
 		userId: Long,
 		projectId: Long,
-		testDatabase: SqliteTestDatabase
+		testDatabase: SqliteTestDatabase,
 	) {
 		testDatabase.serverDatabase.deletedEntityQueries.markEntityDeleted(
 			userId = userId,

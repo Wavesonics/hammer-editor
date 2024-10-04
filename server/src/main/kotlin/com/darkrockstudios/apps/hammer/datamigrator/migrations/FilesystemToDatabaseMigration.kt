@@ -9,6 +9,8 @@ import com.darkrockstudios.apps.hammer.database.ProjectsDao
 import com.darkrockstudios.apps.hammer.database.SqliteDatabase
 import com.darkrockstudios.apps.hammer.database.StoryEntityDao
 import com.darkrockstudios.apps.hammer.dependencyinjection.mainModule
+import com.darkrockstudios.apps.hammer.encryption.AesContentEncryptor
+import com.darkrockstudios.apps.hammer.encryption.SimpleAesKeyProvider
 import com.darkrockstudios.apps.hammer.project.ProjectDatabaseDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectFilesystemDatasource
 import com.darkrockstudios.apps.hammer.projects.ProjectsDatabaseDatasource
@@ -55,6 +57,9 @@ class FilesystemToDatabaseMigration : DataMigration {
 		val projectsFsDatasource = ProjectsFileSystemDatasource(fileSystem, json)
 		val projectFsDatasource = ProjectFilesystemDatasource(fileSystem, json)
 
+		val simpleAesKeyProvider = SimpleAesKeyProvider(fileSystem)
+		val contentEncryptor = AesContentEncryptor(simpleAesKeyProvider)
+
 		val accountDao = AccountDao(db)
 		val projectsDao = ProjectsDao(db)
 		val projectDao = ProjectDao(db, Clock.System)
@@ -66,9 +71,11 @@ class FilesystemToDatabaseMigration : DataMigration {
 		val projectDbDatasource =
 			ProjectDatabaseDatasource(
 				projectDao,
+				accountDao,
 				deletedProjectDao,
 				storyEntityDao,
 				deletedEntityDao,
+				contentEncryptor,
 				json
 			)
 

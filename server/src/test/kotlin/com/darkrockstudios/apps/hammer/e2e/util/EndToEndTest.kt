@@ -3,6 +3,8 @@ package com.darkrockstudios.apps.hammer.e2e.util
 import com.darkrockstudios.apps.hammer.ServerConfig
 import com.darkrockstudios.apps.hammer.appMain
 import com.darkrockstudios.apps.hammer.database.Database
+import com.darkrockstudios.apps.hammer.encryption.AesContentEncryptor
+import com.darkrockstudios.apps.hammer.encryption.SimpleAesKeyProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
@@ -29,13 +31,16 @@ abstract class EndToEndTest {
 	private lateinit var server: ApplicationEngine
 	private lateinit var client: HttpClient
 	private lateinit var testDatabase: SqliteTestDatabase
+	private lateinit var contentEncryptor: AesContentEncryptor
 
 	protected fun client() = client
 	protected fun database() = testDatabase
+	protected fun encryptor() = contentEncryptor
 
 	@BeforeEach
 	open fun setup() {
 		fileSystem = FakeFileSystem()
+		contentEncryptor = AesContentEncryptor(SimpleAesKeyProvider(fileSystem))
 		testDatabase = SqliteTestDatabase()
 		testDatabase.initialize()
 

@@ -15,6 +15,10 @@ import com.darkrockstudios.apps.hammer.database.ProjectsDao
 import com.darkrockstudios.apps.hammer.database.SqliteDatabase
 import com.darkrockstudios.apps.hammer.database.StoryEntityDao
 import com.darkrockstudios.apps.hammer.database.WhiteListDao
+import com.darkrockstudios.apps.hammer.encryption.AesContentEncryptor
+import com.darkrockstudios.apps.hammer.encryption.AesKeyProvider
+import com.darkrockstudios.apps.hammer.encryption.ContentEncryptor
+import com.darkrockstudios.apps.hammer.encryption.SimpleAesKeyProvider
 import com.darkrockstudios.apps.hammer.project.ProjectDatabaseDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectRepository
@@ -73,6 +77,9 @@ fun mainModule(
 	singleOf(::ProjectsRepository)
 	singleOf(::ProjectRepository)
 	singleOf(::WhiteListRepository)
+
+	singleOf(::SimpleAesKeyProvider) bind AesKeyProvider::class
+	singleOf(::AesContentEncryptor) bind ContentEncryptor::class
 
 	factoryOf(::ProjectsDatabaseDatasource) bind ProjectsDatasource::class
 	factoryOf(::ProjectDatabaseDatasource) bind ProjectDatasource::class

@@ -78,6 +78,9 @@ dependencies {
 	implementation(libs.tomlkt)
 	implementation(libs.resources)
 
+	implementation(libs.cryptography.core)
+	implementation(libs.cryptography.provider.jdk)
+
 	testImplementation(libs.bundles.ktor.client)
 	testImplementation(libs.ktor.serialization.kotlinx.json)
 

@@ -3,11 +3,13 @@ package com.darkrockstudios.apps.hammer.project
 import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.synchronizer.EntityHasher
+import com.darkrockstudios.apps.hammer.database.AccountDao
 import com.darkrockstudios.apps.hammer.database.DeletedEntityDao
 import com.darkrockstudios.apps.hammer.database.DeletedProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectDao
 import com.darkrockstudios.apps.hammer.database.StoryEntityDao
 import com.darkrockstudios.apps.hammer.database.parseLastSync
+import com.darkrockstudios.apps.hammer.encryption.ContentEncryptor
 import com.darkrockstudios.apps.hammer.utilities.SResult
 import com.darkrockstudios.apps.hammer.utilities.hashEntity
 import kotlinx.serialization.KSerializer
@@ -16,9 +18,11 @@ import kotlinx.serialization.json.Json
 
 class ProjectDatabaseDatasource(
 	private val projectDao: ProjectDao,
+	private val accountDao: AccountDao,
 	private val deletedProjectDao: DeletedProjectDao,
 	private val storyEntityDao: StoryEntityDao,
 	private val deletedEntityDao: DeletedEntityDao,
+	private val encryptor: ContentEncryptor,
 	private val json: Json,
 ) : ProjectDatasource {
 
@@ -158,12 +162,16 @@ class ProjectDatabaseDatasource(
 		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
 		val hash = EntityHasher.hashEntity(entity)
 		val jsonString: String = json.encodeToString(serializer, entity)
+
+		val account = accountDao.getAccount(userId) ?: error("User not found $userId")
+		val encrypted = encryptor.encrypt(jsonString, account.salt)
+
 		val result = storyEntityDao.upsert(
 			userId = userId,
 			projectId = projectId,
 			id = entity.id.toLong(),
 			type = entityType.toStringId(),
-			content = jsonString,
+			content = encrypted,
 			hash = hash,
 		)
 		return result
@@ -199,7 +207,9 @@ class ProjectDatabaseDatasource(
 			)
 		} else {
 			try {
-				val entity = json.decodeFromString(serializer, dbEntity.content)
+				val account = accountDao.getAccount(userId) ?: error("User not found $userId")
+				val decrypted = encryptor.decrypt(dbEntity.content, account.salt)
+				val entity = json.decodeFromString(serializer, decrypted)
 				SResult.success(entity)
 			} catch (e: SerializationException) {
 				SResult.failure(e)

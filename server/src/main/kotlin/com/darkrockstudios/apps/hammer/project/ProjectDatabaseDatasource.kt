@@ -217,6 +217,20 @@ class ProjectDatabaseDatasource(
 		}
 	}
 
+	override suspend fun loadEntityHash(
+		userId: Long,
+		projectDef: ProjectDefinition,
+		entityId: Int
+	): SResult<String> {
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
+		val hash = storyEntityDao.getEntity(userId, projectId, entityId.toLong())?.hash
+		return if (hash != null) {
+			SResult.success(hash)
+		} else {
+			SResult.failure(EntityNotFound(entityId))
+		}
+	}
+
 	override suspend fun deleteEntity(
 		userId: Long,
 		entityType: ApiProjectEntity.Type,

@@ -42,6 +42,12 @@ interface ProjectDatasource {
 		serializer: KSerializer<T>,
 	): SResult<T>
 
+	suspend fun loadEntityHash(
+		userId: Long,
+		projectDef: ProjectDefinition,
+		entityId: Int,
+	): SResult<String>
+
 	suspend fun deleteEntity(
 		userId: Long,
 		entityType: ApiProjectEntity.Type,

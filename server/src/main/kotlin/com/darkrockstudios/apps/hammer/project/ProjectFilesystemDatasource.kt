@@ -217,6 +217,14 @@ class ProjectFilesystemDatasource(
 		}
 	}
 
+	override suspend fun loadEntityHash(
+		userId: Long,
+		projectDef: ProjectDefinition,
+		entityId: Int
+	): SResult<String> {
+		TODO("Not yet implemented")
+	}
+
 	override suspend fun deleteEntity(
 		userId: Long,
 		entityType: ApiProjectEntity.Type,

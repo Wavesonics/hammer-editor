@@ -66,6 +66,9 @@ abstract class ServerEntitySynchronizerTest<C : ApiProjectEntity, T : ServerEnti
 		coEvery {
 			datasource.storeEntity(any(), any(), entity, any(), entityClazz.serializer())
 		} returns SResult.success(Unit)
+		coEvery {
+			datasource.loadEntityHash(any(), any(), any())
+		} returns SResult.failure(EntityNotFound(entity.id))
 
 		val synchronizer = createSynchronizer()
 		val result = synchronizer.saveEntity(userId, mockk(), entity, "fake-hash", false)
@@ -86,6 +89,9 @@ abstract class ServerEntitySynchronizerTest<C : ApiProjectEntity, T : ServerEnti
 		coEvery {
 			datasource.storeEntity(any(), any(), entity, any(), entityClazz.serializer())
 		} returns SResult.success(Unit)
+		coEvery {
+			datasource.loadEntityHash(any(), any(), any())
+		} returns SResult.failure(EntityNotFound(entity.id))
 
 		val synchronizer = createSynchronizer()
 		val result = synchronizer.saveEntity(userId, mockk(), entity, null, false)
@@ -109,6 +115,9 @@ abstract class ServerEntitySynchronizerTest<C : ApiProjectEntity, T : ServerEnti
 		coEvery {
 			datasource.storeEntity(any(), any(), newEntity, any(), entityClazz.serializer())
 		} returns SResult.success(Unit)
+		coEvery {
+			datasource.loadEntityHash(any(), any(), any())
+		} returns SResult.success(originalHash)
 
 		val result = synchronizer.saveEntity(userId, mockk(), newEntity, originalHash, false)
 
@@ -139,6 +148,9 @@ abstract class ServerEntitySynchronizerTest<C : ApiProjectEntity, T : ServerEnti
 		coEvery {
 			datasource.storeEntity(any(), any(), newEntity, any(), entityClazz.serializer())
 		} returns SResult.success(Unit)
+		coEvery {
+			datasource.loadEntityHash(any(), any(), any())
+		} returns SResult.success("miss-match-hash")
 
 		val result = synchronizer.saveEntity(userId, mockk(), newEntity, originalHash, false)
 

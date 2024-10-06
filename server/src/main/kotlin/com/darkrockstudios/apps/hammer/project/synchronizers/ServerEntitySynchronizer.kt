@@ -51,19 +51,22 @@ abstract class ServerEntitySynchronizer<T : ApiProjectEntity>(
 	): EntityConflictException? {
 		if (force) return null
 
-		val existingEntityResult = datasource.loadEntity(
-			userId,
-			projectDef,
-			entity.id,
-			entityType,
-			entityClazz.serializer()
-		)
-
-		return if (isSuccess(existingEntityResult)) {
-			val existingEntity = existingEntityResult.data
-			val existingHash = hashEntity(existingEntity)
+		val existingEntityHashResult = datasource.loadEntityHash(userId, projectDef, entity.id)
+		return if (isSuccess(existingEntityHashResult)) {
+			val existingHash = existingEntityHashResult.data
 			if (originalHash != null && existingHash != originalHash) {
-				EntityConflictException.fromEntity(existingEntity)
+				val existingEntityResult = datasource.loadEntity(
+					userId,
+					projectDef,
+					entity.id,
+					entityType,
+					entityClazz.serializer()
+				)
+				if (isSuccess(existingEntityResult)) {
+					EntityConflictException.fromEntity(existingEntityResult.data)
+				} else {
+					null
+				}
 			} else {
 				null
 			}

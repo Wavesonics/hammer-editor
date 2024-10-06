@@ -217,8 +217,18 @@ abstract class ServerEntitySynchronizerTest<C : ApiProjectEntity, T : ServerEnti
 		val entities = entityDefs().filter { it.type == entityType }
 
 		coEvery {
-			datasource.getEntityDefs(userId, any(), any())
+			datasource.getEntityDefsByType(userId, any(), any())
 		} returns entities
+
+		coEvery {
+			datasource.loadEntityHash(
+				userId,
+				any(),
+				any(),
+			)
+		} answers {
+			return@answers SResult.success("entity-hash")
+		}
 
 		val synchronizer = createSynchronizer()
 		val result = synchronizer.getUpdateSequence(userId, mockk(), null)

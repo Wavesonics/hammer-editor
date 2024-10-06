@@ -61,5 +61,11 @@ interface ProjectDatasource {
 		filter: (EntityDefinition) -> Boolean = { true }
 	): List<EntityDefinition>
 
+	suspend fun getEntityDefsByType(
+		userId: Long,
+		projectDef: ProjectDefinition,
+		type: ApiProjectEntity.Type
+	): List<EntityDefinition>
+
 	suspend fun renameProject(userId: Long, projectId: ProjectId, newProjectName: String): Boolean
 }

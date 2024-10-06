@@ -148,6 +148,14 @@ class ProjectFilesystemDatasource(
 		return entities
 	}
 
+	override suspend fun getEntityDefsByType(
+		userId: Long,
+		projectDef: ProjectDefinition,
+		type: ApiProjectEntity.Type
+	): List<EntityDefinition> {
+		TODO("Not yet implemented")
+	}
+
 	override suspend fun renameProject(
 		userId: Long,
 		projectId: ProjectId,

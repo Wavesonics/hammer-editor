@@ -224,7 +224,7 @@ class ProjectDatabaseDatasource(
 		entityId: Int
 	): SResult<String> {
 		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
-		val hash = storyEntityDao.getEntity(userId, projectId, entityId.toLong())?.hash
+		val hash = storyEntityDao.getEntityHash(userId, projectId, entityId.toLong())
 		return if (hash != null) {
 			SResult.success(hash)
 		} else {
@@ -262,6 +262,19 @@ class ProjectDatabaseDatasource(
 			userId = userId,
 			projectId = projectId,
 		).filter { filter(it) }
+	}
+
+	override suspend fun getEntityDefsByType(
+		userId: Long,
+		projectDef: ProjectDefinition,
+		type: ApiProjectEntity.Type,
+	): List<EntityDefinition> {
+		val projectId = projectDao.getProjectId(userId, projectDef.uuid)
+		return storyEntityDao.getEntityDefs(
+			userId = userId,
+			projectId = projectId,
+			type = type,
+		)
 	}
 
 	override suspend fun renameProject(

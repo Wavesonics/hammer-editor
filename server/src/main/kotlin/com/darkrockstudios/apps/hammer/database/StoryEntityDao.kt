@@ -56,6 +56,24 @@ class StoryEntityDao(
 			return@withContext defs
 		}
 
+	suspend fun getEntityDefs(
+		userId: Long,
+		projectId: Long,
+		type: ApiProjectEntity.Type
+	): List<EntityDefinition> =
+		withContext(ioDispatcher) {
+			val defs =
+				queries.getEntityDefsByType(userId, projectId, type.toStringId()).executeAsList()
+					.map {
+						EntityDefinition(
+							id = it.id.toInt(),
+							type = ApiProjectEntity.Type.fromString(it.type)
+								?: error("Invalid entity type. userId=$userId projectId=$projectId entityId=${it.id} entityType=${it.type}")
+						)
+					}
+			return@withContext defs
+		}
+
 	suspend fun insertNew(
 		userId: Long,
 		projectId: Long,
@@ -155,5 +173,11 @@ class StoryEntityDao(
 	suspend fun getEntity(userId: Long, projectId: Long, id: Long): Story_entity? =
 		withContext(ioDispatcher) {
 			queries.getEntity(userId = userId, projectId = projectId, id = id).executeAsOneOrNull()
+		}
+
+	suspend fun getEntityHash(userId: Long, projectId: Long, id: Long): String? =
+		withContext(ioDispatcher) {
+			queries.getEntityHash(userId = userId, projectId = projectId, id = id)
+				.executeAsOneOrNull()
 		}
 }

@@ -55,6 +55,10 @@ CREATE TABLE story_entity (
 	FOREIGN KEY(project_id) REFERENCES project(id) ON DELETE CASCADE,
 	UNIQUE(user_id, project_id, id)
 );
+
+CREATE INDEX entity_def_by_type
+ON story_entity(user_id, project_id, type);
+
 CREATE TABLE deleted_project (
 		user_id INTEGER NOT NULL,
     	uuid TEXT NOT NULL,

@@ -11,8 +11,17 @@ CREATE TABLE story_entity (
 	UNIQUE(user_id, project_id, id)
 );
 
+CREATE INDEX entity_def_by_type
+ON story_entity(user_id, project_id, type);
+
 getEntity:
 SELECT *
+FROM story_entity
+WHERE user_id = :userId AND project_id = :projectId AND id = :id
+LIMIT 1;
+
+getEntityHash:
+SELECT hash
 FROM story_entity
 WHERE user_id = :userId AND project_id = :projectId AND id = :id
 LIMIT 1;
@@ -27,6 +36,12 @@ getEntityDefs:
 SELECT id, type
 FROM story_entity
 WHERE user_id = :userId AND project_id = :projectId
+ORDER BY id;
+
+getEntityDefsByType:
+SELECT id, type
+FROM story_entity
+WHERE user_id = :userId AND project_id = :projectId AND type = :type
 ORDER BY id;
 
 findMaxEntityId:

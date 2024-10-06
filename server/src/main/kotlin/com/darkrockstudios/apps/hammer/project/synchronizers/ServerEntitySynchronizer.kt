@@ -118,17 +118,23 @@ abstract class ServerEntitySynchronizer<T : ApiProjectEntity>(
 		projectDef: ProjectDefinition,
 		clientState: ClientEntityState?
 	): List<Int> {
-		val entities = datasource.getEntityDefs(userId, projectDef) { it.type == entityType }
+		val entitiesIds = datasource.getEntityDefsByType(userId, projectDef, entityType)
 			.filter { def ->
 				val clientEntityState = clientState?.entities?.find { it.id == def.id }
 				if (clientEntityState != null) {
-					val serverHash = hashEntity(userId, projectDef, def.id)
-					clientEntityState.hash != serverHash
+					val hashResult = datasource.loadEntityHash(userId, projectDef, def.id)
+					if (isSuccess(hashResult)) {
+						val serverHash = hashResult.data
+						clientEntityState.hash != serverHash
+					} else {
+						true
+					}
 				} else {
 					true
 				}
 			}
+			.map { it.id }
 
-		return entities.map { it.id }
+		return entitiesIds
 	}
 }

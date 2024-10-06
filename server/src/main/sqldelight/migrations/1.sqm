@@ -5,13 +5,14 @@ CREATE TABLE tmp_account (
 	email TEXT UNIQUE NOT NULL,
 	salt TEXT NOT NULL,
 	password_hash TEXT NOT NULL,
+	cipher_secret TEXT NOT NULL,
 	created TEXT DEFAULT (datetime('now')) NOT NULL,
 	is_admin INTEGER DEFAULT FALSE NOT NULL,
 	last_sync TEXT DEFAULT (datetime('now')) NOT NULL
 );
 
-INSERT INTO tmp_account (id, email, salt, password_hash, created, is_admin)
-SELECT id, email, salt, password_hash, created, isAdmin FROM account;
+INSERT INTO tmp_account (id, email, salt, password_hash, cipher_secret, created, is_admin)
+SELECT id, email, salt, password_hash, '', created, isAdmin FROM account;
 
 DROP TABLE account;
 ALTER TABLE tmp_account RENAME TO account;

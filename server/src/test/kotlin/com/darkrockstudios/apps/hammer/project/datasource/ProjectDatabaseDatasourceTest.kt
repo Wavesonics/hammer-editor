@@ -1,23 +1,26 @@
 package com.darkrockstudios.apps.hammer.project.datasource
 
+import com.darkrockstudios.apps.hammer.account.AccountsRepository
 import com.darkrockstudios.apps.hammer.base.ProjectId
 import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.ApiSceneType
 import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
+import com.darkrockstudios.apps.hammer.base.http.createTokenBase64
 import com.darkrockstudios.apps.hammer.database.AccountDao
 import com.darkrockstudios.apps.hammer.database.DeletedEntityDao
 import com.darkrockstudios.apps.hammer.database.DeletedProjectDao
 import com.darkrockstudios.apps.hammer.database.ProjectDao
 import com.darkrockstudios.apps.hammer.database.StoryEntityDao
 import com.darkrockstudios.apps.hammer.e2e.util.SqliteTestDatabase
-import com.darkrockstudios.apps.hammer.encryption.AesContentEncryptor
+import com.darkrockstudios.apps.hammer.encryption.AesGcmContentEncryptor
 import com.darkrockstudios.apps.hammer.encryption.ContentEncryptor
-import com.darkrockstudios.apps.hammer.encryption.SimpleAesKeyProvider
+import com.darkrockstudios.apps.hammer.encryption.SimpleFileBasedAesGcmKeyProvider
 import com.darkrockstudios.apps.hammer.project.EntityDefinition
 import com.darkrockstudios.apps.hammer.project.EntityNotFound
 import com.darkrockstudios.apps.hammer.project.ProjectDatabaseDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectDefinition
 import com.darkrockstudios.apps.hammer.project.ProjectSyncData
+import com.darkrockstudios.apps.hammer.utilities.SecureTokenGenerator
 import com.darkrockstudios.apps.hammer.utilities.isFailure
 import com.darkrockstudios.apps.hammer.utilities.isSuccess
 import com.darkrockstudios.apps.hammer.utilities.sqliteDateTimeStringToInstant
@@ -34,6 +37,8 @@ import okio.fakefilesystem.FakeFileSystem
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.security.SecureRandom
+import kotlin.io.encoding.Base64
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
@@ -47,6 +52,8 @@ class ProjectDatabaseDatasourceTest : BaseTest() {
 	private lateinit var json: Json
 	private lateinit var clock: TestClock
 	private lateinit var contentEncryptor: ContentEncryptor
+	private lateinit var cipherSecretGenerator: SecureTokenGenerator
+	private lateinit var base64: Base64
 
 	private val userId = 1L
 	private val projectDef = ProjectDefinition("Test Project", ProjectId("Test UUID"))
@@ -57,7 +64,16 @@ class ProjectDatabaseDatasourceTest : BaseTest() {
 		json = createJsonSerializer()
 		clock = TestClock(Clock.System)
 		fileSystem = FakeFileSystem()
-		contentEncryptor = AesContentEncryptor(SimpleAesKeyProvider(fileSystem))
+		base64 = createTokenBase64()
+		val secureRandom = SecureRandom()
+		contentEncryptor = AesGcmContentEncryptor(
+			SimpleFileBasedAesGcmKeyProvider(
+				fileSystem,
+				base64,
+				secureRandom
+			), secureRandom
+		)
+		cipherSecretGenerator = SecureTokenGenerator(AccountsRepository.CIPHER_SALT_LENGTH, base64)
 
 		testDatabase = SqliteTestDatabase()
 		testDatabase.initialize()
@@ -357,6 +373,7 @@ class ProjectDatabaseDatasourceTest : BaseTest() {
 			email = "test@test.com",
 			salt = "salt",
 			password_hash = "hash",
+			cipher_secret = cipherSecretGenerator.generateToken(),
 			is_admin = false,
 		)
 	}
@@ -400,12 +417,15 @@ class ProjectDatabaseDatasourceTest : BaseTest() {
 		type: ApiProjectEntity.Type,
 		encryptor: ContentEncryptor
 	) {
+		val cipherSecret =
+			testDatabase.serverDatabase.accountQueries.getAccount(1).executeAsOne().cipher_secret
+
 		testDatabase.serverDatabase.storyEntityQueries.insertNew(
 			userId = 1,
 			projectId = 1,
 			id = id,
 			type = type.toStringId(),
-			content = runBlocking { encryptor.encrypt("test-content", "") },
+			content = runBlocking { encryptor.encrypt("test-content", cipherSecret) },
 			cipher = contentEncryptor.cipherName(),
 			hash = "test-hash",
 		)

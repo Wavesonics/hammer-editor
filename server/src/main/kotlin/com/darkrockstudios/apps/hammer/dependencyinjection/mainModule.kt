@@ -5,6 +5,7 @@ import com.darkrockstudios.apps.hammer.account.AccountsRepository
 import com.darkrockstudios.apps.hammer.admin.AdminComponent
 import com.darkrockstudios.apps.hammer.admin.WhiteListRepository
 import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
+import com.darkrockstudios.apps.hammer.base.http.createTokenBase64
 import com.darkrockstudios.apps.hammer.database.AccountDao
 import com.darkrockstudios.apps.hammer.database.AuthTokenDao
 import com.darkrockstudios.apps.hammer.database.Database
@@ -15,10 +16,10 @@ import com.darkrockstudios.apps.hammer.database.ProjectsDao
 import com.darkrockstudios.apps.hammer.database.SqliteDatabase
 import com.darkrockstudios.apps.hammer.database.StoryEntityDao
 import com.darkrockstudios.apps.hammer.database.WhiteListDao
-import com.darkrockstudios.apps.hammer.encryption.AesContentEncryptor
-import com.darkrockstudios.apps.hammer.encryption.AesKeyProvider
+import com.darkrockstudios.apps.hammer.encryption.AesGcmContentEncryptor
+import com.darkrockstudios.apps.hammer.encryption.AesGcmKeyProvider
 import com.darkrockstudios.apps.hammer.encryption.ContentEncryptor
-import com.darkrockstudios.apps.hammer.encryption.SimpleAesKeyProvider
+import com.darkrockstudios.apps.hammer.encryption.SimpleFileBasedAesGcmKeyProvider
 import com.darkrockstudios.apps.hammer.project.ProjectDatabaseDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectDatasource
 import com.darkrockstudios.apps.hammer.project.ProjectRepository
@@ -44,7 +45,9 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.security.SecureRandom
 import kotlin.coroutines.CoroutineContext
+import kotlin.io.encoding.Base64
 
 const val DISPATCHER_MAIN = "main-dispatcher"
 const val DISPATCHER_DEFAULT = "default-dispatcher"
@@ -61,7 +64,8 @@ fun mainModule(
 
 	singleOf(::createJsonSerializer) bind Json::class
 	single { Clock.System } bind Clock::class
-
+	single { createTokenBase64() } bind Base64::class
+	single { SecureRandom.getInstanceStrong() } bind SecureRandom::class
 	single { FileSystem.SYSTEM } bind FileSystem::class
 	singleOf(::SqliteDatabase) bind Database::class
 	singleOf(::AccountDao)
@@ -78,8 +82,8 @@ fun mainModule(
 	singleOf(::ProjectRepository)
 	singleOf(::WhiteListRepository)
 
-	singleOf(::SimpleAesKeyProvider) bind AesKeyProvider::class
-	singleOf(::AesContentEncryptor) bind ContentEncryptor::class
+	singleOf(::SimpleFileBasedAesGcmKeyProvider) bind AesGcmKeyProvider::class
+	singleOf(::AesGcmContentEncryptor) bind ContentEncryptor::class
 
 	factoryOf(::ProjectsDatabaseDatasource) bind ProjectsDatasource::class
 	factoryOf(::ProjectDatabaseDatasource) bind ProjectDatasource::class
@@ -94,7 +98,7 @@ fun mainModule(
 	singleOf(::ServerSceneDraftSynchronizer)
 
 	single<SyncSessionManager<Long, ProjectsSynchronizationSession>>(named(PROJECTS_SYNC_MANAGER)) {
-		SyncSessionManager(get())
+		SyncSessionManager(get(), get())
 	}
 
 	single<SyncSessionManager<ProjectSyncKey, ProjectSynchronizationSession>>(
@@ -102,7 +106,7 @@ fun mainModule(
 			PROJECT_SYNC_MANAGER
 		)
 	) {
-		SyncSessionManager(get())
+		SyncSessionManager(get(), get())
 	}
 }
 

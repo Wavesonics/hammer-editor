@@ -5,6 +5,7 @@ import com.darkrockstudios.apps.hammer.base.http.ApiProjectEntity
 import com.darkrockstudios.apps.hammer.base.http.ApiSceneType
 import com.darkrockstudios.apps.hammer.base.http.Token
 import com.darkrockstudios.apps.hammer.base.http.createJsonSerializer
+import com.darkrockstudios.apps.hammer.base.http.createTokenBase64
 import com.darkrockstudios.apps.hammer.base.http.synchronizer.EntityHasher
 import com.darkrockstudios.apps.hammer.datamigrator.migrations.getSerializerForType
 import com.darkrockstudios.apps.hammer.encryption.ContentEncryptor
@@ -34,12 +35,15 @@ class TestProject(
 
 object E2eTestData {
 	val json = createJsonSerializer()
+	val b64 = createTokenBase64()
+	val cipherSecretGenerator = SecureTokenGenerator(AccountsRepository.CIPHER_SALT_LENGTH, b64)
 
 	fun createAccount(account: TestAccount, database: SqliteTestDatabase) {
 		database.serverDatabase.accountQueries.createAccount(
 			email = account.email,
 			salt = account.salt,
 			password_hash = account.passwordHash,
+			cipher_secret = cipherSecretGenerator.generateToken(),
 			is_admin = account.isAdmin,
 		)
 	}
@@ -67,7 +71,7 @@ object E2eTestData {
 		)
 	}
 
-	val tokenGenerator = SecureTokenGenerator(Token.LENGTH)
+	val tokenGenerator = SecureTokenGenerator(Token.LENGTH, b64)
 	fun createAuthToken(
 		userId: Long,
 		installId: String,
@@ -98,9 +102,12 @@ object E2eTestData {
 		testDatabase: SqliteTestDatabase,
 		contentEncryptor: ContentEncryptor,
 	) {
+		val cipherSecret = testDatabase.serverDatabase.accountQueries
+			.getAccount(userId).executeAsOne().cipher_secret
+
 		val entityJson = json.encodeToString(getSerializerForType(entity.type), entity)
 		val encryptedJson = runBlocking {
-			contentEncryptor.encrypt(entityJson, "")
+			contentEncryptor.encrypt(entityJson, cipherSecret)
 		}
 
 		testDatabase.serverDatabase.storyEntityQueries.insertNew(

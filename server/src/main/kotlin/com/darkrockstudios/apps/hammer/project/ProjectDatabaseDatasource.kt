@@ -164,7 +164,7 @@ class ProjectDatabaseDatasource(
 		val jsonString: String = json.encodeToString(serializer, entity)
 
 		val account = accountDao.getAccount(userId) ?: error("User not found $userId")
-		val encrypted = encryptor.encrypt(jsonString, account.salt)
+		val encrypted = encryptor.encrypt(jsonString, account.cipher_secret)
 
 		val result = storyEntityDao.upsert(
 			userId = userId,
@@ -209,7 +209,7 @@ class ProjectDatabaseDatasource(
 		} else {
 			try {
 				val account = accountDao.getAccount(userId) ?: error("User not found $userId")
-				val decrypted = encryptor.decrypt(dbEntity.content, account.salt)
+				val decrypted = encryptor.decrypt(dbEntity.content, account.cipher_secret)
 				val entity = json.decodeFromString(serializer, decrypted)
 				SResult.success(entity)
 			} catch (e: SerializationException) {

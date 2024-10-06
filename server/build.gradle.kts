@@ -22,6 +22,9 @@ application {
 
 kotlin {
 	jvmToolchain(libs.versions.jvm.get().toInt())
+	compilerOptions {
+		freeCompilerArgs.add("-Xopt-in=kotlin.io.encoding.ExperimentalEncodingApi")
+	}
 }
 
 sqldelight {
@@ -78,8 +81,8 @@ dependencies {
 	implementation(libs.tomlkt)
 	implementation(libs.resources)
 
-	implementation(libs.cryptography.core)
-	implementation(libs.cryptography.provider.jdk)
+//	implementation(libs.cryptography.core)
+//	implementation(libs.cryptography.provider.jdk)
 
 	testImplementation(libs.bundles.ktor.client)
 	testImplementation(libs.ktor.serialization.kotlinx.json)

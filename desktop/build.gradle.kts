@@ -95,8 +95,8 @@ compose.desktop {
 		jvmArgs("-Dcompose.application.configure.swing.globals=false")
 
 		buildTypes.release.proguard {
-			isEnabled.set(false)
 			configurationFiles.from("proguard-rules.pro")
+			version.set("7.4.0") // https://youtrack.jetbrains.com/issue/CMP-4216
 		}
 	}
 }

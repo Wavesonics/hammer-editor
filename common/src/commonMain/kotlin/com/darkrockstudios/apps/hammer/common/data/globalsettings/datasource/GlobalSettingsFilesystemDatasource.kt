@@ -55,6 +55,6 @@ class GlobalSettingsFilesystemDatasource(
 
 	companion object {
 		private const val FILE_NAME = "global_settings.toml"
-		private val CONFIG_PATH = getConfigDirectory().toPath() / FILE_NAME
+		val CONFIG_PATH = getConfigDirectory().toPath() / FILE_NAME
 	}
 }

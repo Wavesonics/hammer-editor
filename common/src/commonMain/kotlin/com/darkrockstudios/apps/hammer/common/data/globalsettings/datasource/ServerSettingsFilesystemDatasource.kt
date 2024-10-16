@@ -60,6 +60,6 @@ class ServerSettingsFilesystemDatasource(
 	}
 
 	companion object {
-		private const val SERVER_FILE_NAME = "server.json"
+		const val SERVER_FILE_NAME = "server.json"
 	}
 }

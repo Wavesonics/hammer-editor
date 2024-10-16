@@ -54,26 +54,24 @@ class GlobalSettingsRepository(
 		val settings = globalSettingsUpdates.first()
 		lock.withLock {
 			val updated = action(settings)
+			globalSettingsDatasource.storeSettings(updated)
 			dispatchSettingsUpdate(updated)
 
 			if (settings.projectsDirectory != updated.projectsDirectory) {
-				val serverSettings = serverSettingsDatasource.loadServerSettings(projectsDir())
-				_serverSettingsUpdates.tryEmit(serverSettings)
+				val newServerSettings = serverSettingsDatasource.loadServerSettings(projectsDir())
+				dispatchServerSettingsUpdate(newServerSettings)
 			}
 		}
 	}
 
 	private fun dispatchSettingsUpdate(settings: GlobalSettings) {
-		globalSettingsDatasource.storeSettings(settings)
 		globalSettings = settings
 		_globalSettingsUpdates.tryEmit(settings)
 	}
 
 	fun updateServerSettings(settings: ServerSettings) {
 		serverSettingsDatasource.storeServerSettings(settings, projectsDir())
-
-		serverSettings = settings
-		_serverSettingsUpdates.tryEmit(settings)
+		dispatchServerSettingsUpdate(settings)
 	}
 
 	fun serverIsSetup(): Boolean = serverSettingsDatasource.serverIsSetup(projectsDir())
@@ -82,15 +80,18 @@ class GlobalSettingsRepository(
 
 	fun deleteServerSettings() {
 		serverSettingsDatasource.removeServerSettings(projectsDir())
+		dispatchServerSettingsUpdate(null)
+	}
 
-		serverSettings = null
-		_serverSettingsUpdates.tryEmit(null)
+	private fun dispatchServerSettingsUpdate(settings: ServerSettings?) {
+		serverSettings = settings
+		_serverSettingsUpdates.tryEmit(settings)
 	}
 
 	companion object {
 		const val DEFAULT_PROJECTS_DIR = "HammerProjects"
 
-		private fun defaultProjectDir() = getDefaultRootDocumentDirectory().toPath() / DEFAULT_PROJECTS_DIR
+		fun defaultProjectDir() = getDefaultRootDocumentDirectory().toPath() / DEFAULT_PROJECTS_DIR
 
 		fun createDefault(): GlobalSettings {
 			return GlobalSettings(

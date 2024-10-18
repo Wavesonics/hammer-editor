@@ -25,16 +25,17 @@ class TimeLineDatasource(
 			return@withContext loadTimeline(path, fileSystem, toml)
 		}
 
-	private suspend fun getTimelineFile(projectDef: ProjectDef): HPath = withContext(ioDispatcher) {
-		val directory = getTimelineDir(projectDef).toOkioPath()
+	private suspend fun getTimelineFile(projectDef: ProjectDef): HPath =
+		withContext(ioDispatcher) {
+			val directory = getTimelineDir(projectDef).toOkioPath()
 
-		if (!fileSystem.exists(directory)) {
-			fileSystem.createDirectory(directory)
+			if (!fileSystem.exists(directory)) {
+				fileSystem.createDirectories(directory)
+			}
+			return@withContext getTimelineFilePath(projectDef)
 		}
-		return@withContext getTimelineFile(projectDef)
-	}
 
-	suspend fun storeTimeline(timeLine: TimeLineContainer, projectDef: ProjectDef) =
+	suspend fun storeTimeline(timeLine: TimeLineContainer, projectDef: ProjectDef): Unit =
 		withContext(ioDispatcher) {
 			val path = getTimelineFile(projectDef).toOkioPath()
 			fileSystem.write(path) {
@@ -44,14 +45,14 @@ class TimeLineDatasource(
 		}
 
 	companion object {
-		const val TIMELINE_FILENAME = "timeline.toml"
-		const val TIMELINE_DIRECTORY = "timeline"
+		private const val TIMELINE_FILENAME = "timeline.toml"
+		private const val TIMELINE_DIRECTORY = "timeline"
 
 		fun getTimelineDir(projectDef: ProjectDef): HPath {
 			return (projectDef.path.toOkioPath() / TIMELINE_DIRECTORY).toHPath()
 		}
 
-		fun getTimelineFile(projectDef: ProjectDef): HPath {
+		fun getTimelineFilePath(projectDef: ProjectDef): HPath {
 			return (getTimelineDir(projectDef).toOkioPath() / TIMELINE_FILENAME).toHPath()
 		}
 

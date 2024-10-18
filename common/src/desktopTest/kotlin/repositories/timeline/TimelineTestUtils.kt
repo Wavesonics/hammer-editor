@@ -28,7 +28,7 @@ fun writeEventsToDisk(
 	val timeline = TimeLineContainer(events)
 	val serialized = toml.encodeToString(TimeLineContainer.serializer(), timeline)
 
-	val file = TimeLineDatasource.getTimelineFile(projectDef).toOkioPath()
+	val file = TimeLineDatasource.getTimelineFilePath(projectDef).toOkioPath()
 	ffs.createDirectories(file.parent!!)
 
 	ffs.write(file) {

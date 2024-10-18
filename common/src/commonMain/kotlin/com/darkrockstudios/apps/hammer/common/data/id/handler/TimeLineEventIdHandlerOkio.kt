@@ -10,7 +10,7 @@ class TimeLineEventIdHandlerOkio(
 	private val toml: Toml
 ) : IdHandler {
 	override fun findHighestId(projectDef: ProjectDef): Int {
-		val filePath = TimeLineDatasource.getTimelineFile(projectDef)
+		val filePath = TimeLineDatasource.getTimelineFilePath(projectDef)
 		val timeline = TimeLineDatasource.loadTimeline(filePath, fileSystem, toml)
 		val maxId = timeline.events.maxOfOrNull { it.id }
 		return maxId ?: -1

@@ -27,7 +27,7 @@ class Migration0_1(
 	override fun migrate(projectDef: ProjectDef) {
 		Napier.i("Begin Migration0_1 for '${projectDef.name}'...")
 
-		val path = TimeLineDatasource.getTimelineFile(projectDef)
+		val path = TimeLineDatasource.getTimelineFilePath(projectDef)
 		try {
 			val timeline = loadJsonTimeline(
 				hpath = path,

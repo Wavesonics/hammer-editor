@@ -174,7 +174,7 @@ class TimeLineRepository(
 
 	override fun close() {
 		runBlocking {
-			storeAndEmitTimeline(timelineFlow.first())
+			datasource.storeTimeline(timelineFlow.first(), projectDef)
 		}
 
 		scope.cancel()
@@ -237,7 +237,7 @@ class TimeLineRepository(
 		}
 	}
 
-	protected suspend fun markForSynchronization(originalEvent: TimeLineEvent, originalOrder: Int) {
+	private suspend fun markForSynchronization(originalEvent: TimeLineEvent, originalOrder: Int) {
 		if (projectSynchronizer.isServerSynchronized() && !projectSynchronizer.isEntityDirty(
 				originalEvent.id
 			)

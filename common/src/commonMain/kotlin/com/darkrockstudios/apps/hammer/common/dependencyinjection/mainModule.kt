@@ -32,6 +32,7 @@ import com.darkrockstudios.apps.hammer.common.data.sceneeditorrepository.SceneEd
 import com.darkrockstudios.apps.hammer.common.data.sceneeditorrepository.SceneEditorRepositoryOkio
 import com.darkrockstudios.apps.hammer.common.data.sceneeditorrepository.scenemetadata.SceneMetadataDatasource
 import com.darkrockstudios.apps.hammer.common.data.sceneeditorrepository.scenemetadata.SceneMetadataOkioDatasource
+import com.darkrockstudios.apps.hammer.common.data.timelinerepository.TimeLineDatasource
 import com.darkrockstudios.apps.hammer.common.data.timelinerepository.TimeLineRepository
 import com.darkrockstudios.apps.hammer.common.fileio.externalFileIoModule
 import com.darkrockstudios.apps.hammer.common.getPlatformFilesystem
@@ -112,6 +113,7 @@ val mainModule = module {
 		scopedOf(::IdRepositoryOkio) bind IdRepository::class
 		scopedOf(::NotesRepositoryOkio) bind NotesRepository::class
 		scopedOf(::EncyclopediaRepositoryOkio) bind EncyclopediaRepository::class
+		scopedOf(::TimeLineDatasource)
 		scopedOf(::TimeLineRepository)
 
 		scopedOf(::ClientProjectSynchronizer)

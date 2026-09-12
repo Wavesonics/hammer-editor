@@ -12,6 +12,32 @@ argument when running it. Passing nothing will run in release mode.
 
 `dev` mode will use a separate config directory so that you don't accidentally mess with production data.
 
+### Desktop App with Hot Reload
+
+`gradlew :desktop:hotRunJvm -PhotReload --auto` runs the desktop app under
+[Compose Hot Reload](https://github.com/JetBrains/compose-hot-reload); saving a file re-composes the running UI.
+Drop `--auto` to trigger reloads explicitly with `gradlew :desktop:reload -PhotReload`.
+
+`-PhotReload` is mandatory, and it changes how the app is assembled:
+
+- The app runs on Nucleus' AWT backend instead of Tao (`-Dhammer.desktop.backend=awt`, read by `selectBackend()`
+  in `Main.kt`). Hot Reload instruments `ComposeWindow.setContent`, which the Tao backend never calls, so under Tao
+  it sees no windows at all.
+- `nucleus.decorated-window-tao` is swapped for `nucleus.decorated-window-jbr`. Tao has to leave the classpath
+  entirely, not just go unused: it registers a `MainDispatcherFactory` service that pins `Dispatchers.Main` to
+  Tao's thread unconditionally, which makes AndroidX Lifecycle throw on the AWT event thread.
+
+Window decorations therefore come from a different implementation than in a packaged build. Everything above the
+window level is the same code.
+
+`.mcp.json` exposes the Compose Hot Reload MCP server (`:desktop:hotMcpServerJvm`) to AI agents: reload, read the
+semantic tree, take screenshots, and drive the UI. Start the app first; the server connects to whatever is running
+and does not need `-PhotReload` itself.
+
+On Wayland, `take_screenshot` goes through `java.awt.Robot`, which JBR routes to the xdg-desktop-portal screen
+share prompt. The first capture blocks until you approve it; tick "Remember This Selection" or every screenshot
+prompts again. `get_semantic_tree` needs no permission and is usually the more useful tool anyway.
+
 ### Android App
 
 Select the `Android` run target in the IDE and run it.

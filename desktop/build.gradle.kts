@@ -1,5 +1,6 @@
 import com.darkrockstudios.build.registerLinuxDistributionTasks
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.reload.gradle.AbstractComposeHotRun
 import java.util.zip.ZipFile
 
 val data_version: String by extra
@@ -9,12 +10,18 @@ plugins {
 	alias(libs.plugins.kotlin.serialization)
 	alias(libs.plugins.compose.compiler)
 	alias(libs.plugins.jetbrains.compose)
+	alias(libs.plugins.compose.hot.reload)
 	alias(libs.plugins.jetbrains.kover)
 	alias(libs.plugins.aboutlibraries.plugin)
 }
 
 group = "com.darkrockstudios.apps.hammer.desktop"
 version = libs.versions.app.get()
+
+// -PhotReload swaps the desktop app onto the AWT windowing backend so Compose Hot Reload can
+// instrument it. Tao windows are invisible to CHR, and decorated-window-tao's ServiceLoader
+// entry pins Dispatchers.Main to Tao's thread, so that artifact has to leave the classpath too.
+val isHotReload: Boolean = project.hasProperty("hotReload")
 
 // -PmacOsAppStoreRelease=true -PbuildNumber=N enables App Store packaging.
 val isAppStoreRelease: Boolean =
@@ -61,7 +68,11 @@ kotlin {
 				implementation(libs.clikt)
 				implementation(libs.nucleus.darkmode.detector)
 				implementation(libs.nucleus.application)
-				implementation(libs.nucleus.decorated.window.tao)
+				if (isHotReload) {
+					implementation(libs.nucleus.decorated.window.jbr)
+				} else {
+					implementation(libs.nucleus.decorated.window.tao)
+				}
 				implementation(libs.nucleus.decorated.window.material3)
 				implementation(libs.nucleus.launcher.windows)
 				implementation(libs.nucleus.launcher.linux)
@@ -81,6 +92,15 @@ kotlin {
 // whichever JVM happens to be running Gradle.
 val packagingLauncher = javaToolchains.launcherFor {
 	languageVersion.set(JavaLanguageVersion.of(libs.versions.jvm.get().toInt()))
+}
+
+tasks.withType<AbstractComposeHotRun>().configureEach {
+	systemProperty("hammer.desktop.backend", "awt")
+	// Never let a hot run touch the production config directory.
+	args("--dev")
+	doFirst {
+		check(isHotReload) { "Hot reload runs need -PhotReload so the AWT windowing backend is on the classpath." }
+	}
 }
 
 compose.desktop {

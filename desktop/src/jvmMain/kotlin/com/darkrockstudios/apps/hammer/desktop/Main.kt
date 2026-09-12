@@ -60,6 +60,13 @@ import java.util.logging.Level
 import kotlin.system.exitProcess
 import kotlin.time.Clock
 
+/** Compose Hot Reload only instruments Compose Desktop's AWT windows; hot runs set this to "awt". */
+private fun selectBackend(): NucleusBackend =
+	when (System.getProperty("hammer.desktop.backend")) {
+		"awt" -> NucleusBackend.Awt
+		else -> NucleusBackend.Tao
+	}
+
 private fun handleArguments(args: Array<String>): DesktopLaunchArgs {
 	val launchArgs = parseDesktopLaunchArgs(args)
 	setInDevelopmentMode(launchArgs.devMode)
@@ -181,7 +188,7 @@ fun main(args: Array<String>) {
 	Napier.i("Startup: entering Compose application")
 	nucleusApplication(
 		args = args,
-		backend = NucleusBackend.Tao,
+		backend = selectBackend(),
 		enableSingleInstance = false,
 	) {
 		LaunchedEffect(Unit) {
